@@ -6,7 +6,7 @@
             <controls></controls>
             <!-- <a href="#" v-on:click="min">隐藏</a> -->
             <!-- <a href="#" id="max-btn">最大</a> -->
-            <a href="#" onclick="window.top.close(); return false">关闭</a>
+            <!-- <a href="#" onclick="window.top.close(); return false">关闭</a> -->
         </div>
     </div>
 </template>
@@ -25,17 +25,15 @@ export default {
     components: {
       Controls
     },
-  
 }
 </script>
 
 <style>
 
 #layoutTop {
-    height: 30px;
-    line-height: 30px;
-    border-bottom: 1px solid #eee;
-    background: blue;
+    height: 50px;
+    line-height: 50px;
+    background: #398dee;
 }
 #layoutTop a{
     color:#fff;

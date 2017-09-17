@@ -1,0 +1,13 @@
+* {
+    font-family: 'Microsoft YaHei';
+    text-decoration:none;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.fa {
+    vertical-align: middle;
+}
+.clear {
+    clear: both;
+}

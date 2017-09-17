@@ -1,7 +1,5 @@
 <template>
-  <li class="l-window__control" @click="func()">
-    最小
-  </li>
+  <li class="l-window__control" @click="func()"><i class="fa fa-window-minimize" aria-hidden="true"></i></li>
 </template>
 
 <script>

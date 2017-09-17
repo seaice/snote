@@ -1,8 +1,8 @@
 <template>
   <ul class="l-window__controls">
-    <close :func="close"></close>
-    <maximize :func="maximize"></maximize>
     <minimize :func="minimize"></minimize>
+    <maximize :func="maximize"></maximize>
+    <close :func="close"></close>
   </ul>
 </template>
 
@@ -34,34 +34,27 @@ export default {
 </script>
 
 <style lang="scss">
+
 .l-window {
-  &__controls {
-    position: fixed;
-    top: 0px;
-    right: 0px;
-    float: right;
-    list-style: none;
-    padding: 17px;
-    padding-left: 25px;
-    margin: 0;
-    user-select: none;
-    background: -webkit-linear-gradient(left, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 20%, rgba(255,255,255,1) 100%);
-    z-index: 999;
-  }
-
-  &__control {
-    color: #b0bec5;
-    cursor: pointer;
-    float: right;
-    margin-right: 13px !important;
-    padding: 0;
-    margin: 0;
-    font-family: Batch;
-    font-size: 18px;
-
-    &:first-child {
-      margin-right: 0px !important;
+    &__controls {
+        float: right;
+        list-style: none;
+        user-select: none;    
     }
-  }
+
+    &__control {
+        color: #eee;
+        cursor: pointer;
+        float:left;
+        padding: 0;
+        margin: 0;
+        font-size: 12px;
+        display: block;
+        margin: 0 15px 0 0;
+    }
+    &__control:hover {
+        color: #fff;
+    }
 }
+
 </style>
