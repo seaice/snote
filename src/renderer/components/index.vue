@@ -27,14 +27,5 @@ export default {
 </script>
 
 <style type="text/css">
-* {
-  margin:0;
-}
 
-.fl {
-  float: left;
-}
-.fr {
-  float: right;
-}
 </style>

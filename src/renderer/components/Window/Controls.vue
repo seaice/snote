@@ -43,16 +43,18 @@ export default {
     }
 
     &__control {
-        color: #eee;
         cursor: pointer;
         float:left;
         padding: 0;
         margin: 0;
-        font-size: 12px;
+        font-size: 14px;
         display: block;
         margin: 0 15px 0 0;
     }
-    &__control:hover {
+    &__control i {
+        color:#ddd;
+    }
+    &__control i:hover {
         color: #fff;
     }
 }

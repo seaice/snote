@@ -6,11 +6,17 @@ import router from './router'
 import store from './store'
 
 import 'font-awesome/css/font-awesome.css'
+require('./assets/main.css')
+
+
+import 'ztree/js/jquery.ztree.all.min.js'
+// import './assets/css/ztree/awesomeStyle/awesome.css';
+
+// import 'ztree/css/zTreeStyle/zTreeStyle.css'
+// import 'ztree/css/awesomeStyle/awesome.css'
 
 // import ztree from 'ztree'
 
-// import './assets/main.css'
-require('./assets/main.css')
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
