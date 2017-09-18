@@ -1,5 +1,5 @@
 <template>
-    <div id="layoutLeft"  :style="{ height: fullHeight+'px' }">
+    <div id="layoutLeft" class="fl"  :style="{ height: fullHeight+'px' }">
         <div class="btn-group">
             <a href=""><i class="fa fa-plus" aria-hidden="true"></i><span>新文档</span><i class="fa fa-caret-down" aria-hidden="true"></i></a>
             <a href=""><i class="fa fa-refresh" aria-hidden="true"></i><span>同步</span></a>
