@@ -1,10 +1,10 @@
 <template>
-  <div id="index">
+<div id="index">
     <layoutTop></layoutTop>
-    <div class="clear"></div>
     <layoutLeft></layoutLeft>
     <notelist></notelist>
-   </div>
+    <div class="clear"></div>
+</div>
 </template>
 
 <script type="text/javascript">
@@ -30,5 +30,7 @@ export default {
 </script>
 
 <style type="text/css">
-
+#index {
+    border: 1px solid #398dee;
+}
 </style>

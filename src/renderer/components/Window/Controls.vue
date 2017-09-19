@@ -1,5 +1,5 @@
 <template>
-  <ul class="l-window__controls">
+  <ul class="l-window__controls" style="-webkit-app-region: no-drag">
     <minimize :func="minimize"></minimize>
     <maximize :func="maximize"></maximize>
     <close :func="close"></close>

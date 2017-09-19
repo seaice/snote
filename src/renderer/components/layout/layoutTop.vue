@@ -1,5 +1,5 @@
 <template>
-    <div id="layoutTop">
+    <div id="layoutTop" style="-webkit-app-region: drag">
         <div class="nickname fl">{{ nickname }}</div>
 
         <div class="fr">

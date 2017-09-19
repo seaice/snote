@@ -94,7 +94,7 @@ export default {
     data () {
         return {
             nickname: 'haibing1458',
-            fullHeight: document.documentElement.clientHeight - 50,
+            fullHeight: document.documentElement.clientHeight - 52,
 
             setting : {
                 view: {
@@ -108,7 +108,7 @@ export default {
     },
     methods: {
         handleResize (event) {
-            this.fullHeight = document.documentElement.clientHeight - 50;
+            this.fullHeight = document.documentElement.clientHeight - 52;
         }
     },
     beforeDestroy: function () {
@@ -204,7 +204,6 @@ export default {
 
 #layoutLeft #folder .new li:hover {
     background: #e4edf9;
-    background: red;
 }
 
 #layoutLeft #folder .new i {

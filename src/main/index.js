@@ -20,7 +20,9 @@ function createWindow () {
     height: 563,
     useContentSize: true,
     width: 1000,
-    // frame: false,
+    minWidth: 700,
+    minHeight : 500,
+    frame: false,
     // autoHideMenuBar: true,
     // titleBarStyle: 'hidden'
   })
