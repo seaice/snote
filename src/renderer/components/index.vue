@@ -3,6 +3,7 @@
     <layoutTop></layoutTop>
     <layoutLeft></layoutLeft>
     <notelist></notelist>
+    <note></note>
     <div class="clear"></div>
 </div>
 </template>
@@ -11,6 +12,7 @@
 import layoutTop from './layout/layoutTop'
 import layoutLeft from './layout/layoutLeft'
 import notelist from './layout/notelist'
+import note from './layout/note'
 // import SystemInformation from './LandingPage/SystemInformation'
 
 
@@ -24,6 +26,7 @@ export default {
         layoutTop,
         layoutLeft,
         notelist,
+        note,
     }
   // components: { menu, SystemInformation }
 }
