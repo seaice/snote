@@ -16,6 +16,13 @@ import 'ztree/js/jquery.ztree.all.min.js'
 // import 'ztree/css/awesomeStyle/awesome.css'
 
 // import ztree from 'ztree'
+// const sqlite3 = require('sqlite3');
+// sqlite3.verbose();
+// const db = new sqlite3.Database('mydb.db');
+// db.serialize(function() {
+//     db.run("CREATE TABLE if not exists lorem (info TEXT)");
+// });
+// db.close();
 
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
