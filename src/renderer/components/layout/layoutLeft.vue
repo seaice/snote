@@ -1,10 +1,10 @@
 <template>
-    <div id="layoutLeft" class="fl"  :style="{ height: fullHeight+'px' }">
+    <div id="layoutLeft" class="fl"  :style="{ height: height - 52 +'px' }">
         <div class="btn-group">
             <a href=""><i class="fa fa-plus" aria-hidden="true"></i><span>新文档</span><i class="fa fa-caret-down" aria-hidden="true"></i></a>
             <a href=""><i class="fa fa-refresh" aria-hidden="true"></i><span>同步</span></a>
         </div>
-        <div id="folder" :style="{ height: fullHeight - 215 + 'px' }">
+        <div id="folder" :style="{ height: height - 267 + 'px' }">
             <div class="new">
                 <ul>
                     <li><a href=""><i class="fa fa-file-text-o" aria-hidden="true"></i>最新文档</a></li>
@@ -15,7 +15,8 @@
             </div>
         </div>
         <div class="ad-left">
-            此处是广告
+            此处是广告 {{ height }}
+             {{ width }}
         </div>
     </div>
 </template>
@@ -104,20 +105,19 @@ export default {
                     addDiyDom: addDiyDom
                 }
             },
-            folder : this.$db.getNote(),
+            // folder : this.$db.getNote(),
         }
     },
-    methods: {
-        handleResize (event) {
-            this.fullHeight = document.documentElement.clientHeight - 52;
+    computed: {
+        height () {
+            return this.$store.state.Window.height;
+        },
+        width () {
+            return this.$store.state.Window.width;
         }
-    },
-    beforeDestroy: function () {
-        window.removeEventListener('resize', this. handleWindowResize)
     },
     mounted() {
         this.ztreeObj = $.fn.zTree.init($("#treeDemo"), this.setting, zNodes);
-        window.addEventListener('resize', this.handleResize);
     },
 
 }

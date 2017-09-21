@@ -78,23 +78,6 @@ var noteDb = {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //判断是否联网
 console.log('at any moment you can check with navigator.onLine', navigator.onLine)
 
@@ -117,15 +100,20 @@ new Vue({
             fullHeight: document.documentElement.clientHeight
         }
     },
-    ready: function () {
+    mounted: function () {
         window.addEventListener('resize', this.handleResize);
-        // alert(123123);
-        // console.log('at any moment you can check with navigator.onLine', navigator.onLine)
+    },
+    beforeDestroy: function () {
+        window.removeEventListener('resize', this. handleWindowResize)
     },
     methods: {
     // whenever the document is resized, re-set the 'fullHeight' variable
         handleResize (event) {
-          this.fullHeight = document.documentElement.clientHeight
+            store.commit('resize', {
+                width: document.documentElement.clientWidth,
+                height: document.documentElement.clientHeight
+            })
+            // this.$store.state.Window.height = document.documentElement.clientHeight
         }
     }
 }).$mount('#app')
