@@ -104,6 +104,7 @@ export default {
                     addDiyDom: addDiyDom
                 }
             },
+            folder : this.$db.getNote(),
         }
     },
     methods: {
