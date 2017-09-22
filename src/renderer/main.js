@@ -16,7 +16,7 @@ Vue.use(common);
 
 import db from './assets/js/db.js'
 Vue.use(db);
-// Object.defineProperty(Vue.prototype, '$db', { value: new noteDb() });
+// Object.defineProperty(Vue.prototype, '$db', { value: new db() });
 
 
 //判断是否联网
@@ -28,7 +28,6 @@ console.log('at any moment you can check with navigator.onLine', navigator.onLin
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
 Vue.config.productionTip = false
-
 
 /* eslint-disable no-new */
 new Vue({
@@ -42,11 +41,12 @@ new Vue({
         }
     },
     mounted: function () {
-        // this.db().addFolder('    ')
+        // this.$db.addFolder('    ')
         window.addEventListener('resize', this.handleResize);
     },
     beforeDestroy: function () {
         window.removeEventListener('resize', this. handleWindowResize)
+        this.$db.close()
     },
     methods: {
     // whenever the document is resized, re-set the 'fullHeight' variable
