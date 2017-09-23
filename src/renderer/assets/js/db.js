@@ -49,8 +49,16 @@ export default {
                         console.log('2. Lets print the rows from the database-');
 
                         db.link.serialize(function(){
-                            // var sql = 
+                            $sql = 'update mall_class set lft=lft+2 where lft > '. $parent['lft']
+                            db.link.run($sql)
+                            $sql = 'update mall_class set rgt=rgt+2 where rgt > '. $parent['lft']
+                            db.link.run($sql)
 
+                            $data['lft'] = $parent['lft'] + 1;
+                            $data['rgt'] = $parent['lft'] + 2;
+                            $data['depth'] = $parent['depth'] + 1;
+
+                            $sql = ''
 
                         })
 

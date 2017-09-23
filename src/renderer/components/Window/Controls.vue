@@ -1,35 +1,52 @@
 <template>
   <ul class="l-window__controls" style="-webkit-app-region: no-drag">
+    <config :func="config"></config>
     <minimize :func="minimize"></minimize>
     <maximize :func="maximize"></maximize>
     <close :func="close"></close>
-  </ul>
+</ul>
 </template>
 
 <script>
 import Close from './Controls/Close'
 import Maximize from './Controls/Maximize'
 import Minimize from './Controls/Minimize'
+import Config from './Controls/Config'
 const ipcRenderer = require('electron').ipcRenderer
 
 export default {
-  components: {
-    Close,
-    Maximize,
-    Minimize
-  },
-  methods: {
-    close (e) {
-      ipcRenderer.send('note:window:close', true)
+    components: {
+        Close,
+        Maximize,
+        Minimize,
+        Config,
     },
-    maximize (e) {
-      ipcRenderer.send('note:window:maximize', true)
+    methods: {
+        close (e) {
+            ipcRenderer.send('note:window:close', true)
+        },
+        maximize (e) {
+            const BrowserWindow = require('electron').remote.BrowserWindow
+            var top = BrowserWindow.getFocusedWindow()
+            if(top.isMaximized()) {
+                top.unmaximize()
+                this.$store.commit('setMax', false)
+            } else {
+                top.maximize()
+                this.$store.commit('setMax', true)
+            }
+            // ipcRenderer.send('note:window:maximize', function(project){
+            //   console.log(project)
+            // })
+        },
+        minimize (e) {
+            ipcRenderer.send('note:window:minimize', true)
+        },
+        config (e) {
+            
+        }
     },
-    minimize (e) {
-      ipcRenderer.send('note:window:minimize', true)
-    }
-  },
-  name: 'controls'
+    name: 'controls'
 }
 </script>
 

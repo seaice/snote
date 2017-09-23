@@ -1,5 +1,5 @@
 <template>
-  <li class="l-window__control" @click="func()"><i class="fa fa-window-close-o" aria-hidden="true"></i></li>
+  <li class="l-window__control" @click="func()"><i class="fa fa-close" aria-hidden="true"></i></li>
 </template>
 
 <script>

@@ -1,6 +1,18 @@
 <template>
     <div id="layoutTop" style="-webkit-app-region: drag">
-        <div class="nickname fl">{{ nickname }}</div>
+        <div class="userinfo fl" style="-webkit-app-region: no-drag">
+            <a class="figure fl"><img src="~@/assets/img/default-figure.png"></a>
+            <!-- <a class="figure" v-else><img src="~@/assets/img/default-figure.png"></a> -->
+            <a class="fl">{{ name }}</a>
+            <div class="dropdown fl">
+                <b-dropdown>
+                    <span slot="text"><i class="fa fa-plus" aria-hidden="true"></i>Split Dropdown Button</span>
+                    <a class="dropdown-item" href="#">个人信息</a>
+                    <a class="dropdown-item" href="#">我的账号 action</a>
+                    <a class="dropdown-item" href="#">注销当前账号</a>
+                </b-dropdown>
+            </div>
+        </div>
 
         <div class="fr">
             <controls></controls>
@@ -14,12 +26,10 @@
 import Controls from '../Window/Controls'
 
 export default {
-
     data () {
         return {
-            nickname: 'haibing1458',
-            path: '/',
-            vue: require('vue/package.json').version
+            figure: this.$store.state.User.figure,
+            name: this.$store.state.User.name,
         }
     },
     components: {
@@ -37,5 +47,16 @@ export default {
 }
 #layoutTop a{
     color:#fff;
+    cursor: pointer;
+}
+
+#layoutTop .figure {
+    width: 50px;
+    height: 50px;
+}
+#layoutTop .figure img {
+    margin: 5px;
+    width: 40px;
+    height: 40px;
 }
 </style>

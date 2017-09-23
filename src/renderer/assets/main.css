@@ -5,6 +5,11 @@
     margin: 0;
     padding: 0;
     color:#000;
+    outline: none;
+}
+
+ul {
+    margin: 0;
 }
 
 .fl {
@@ -19,4 +24,41 @@
 }
 .clear {
     clear: both;
+}
+
+.modal {
+
+}
+
+.modal .title-bar {
+    height: 30px;
+    line-height: 30px;
+    background: #398dee;
+    color: #fff;
+}
+.modal .title-bar .title {
+    color: #fff;
+    font-size: 12px;
+    text-indent: 10px;
+}
+
+.modal .title-bar .fr {
+    margin: 0 10px 0 0;
+}
+
+.modal .title-bar .fa-close {
+    color:#fff;
+    font-size: 12px;
+    margin:-2px 0 0 0;
+}
+
+
+.dropdown {}
+.dropdown .dropdown-toggle {
+    background: none;
+    border: none;
+}
+.dropdown .dropdown-toggle:hover {
+    background: none;
+    border: none;
 }

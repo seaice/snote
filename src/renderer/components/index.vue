@@ -13,8 +13,6 @@ import layoutTop from './layout/layoutTop'
 import layoutLeft from './layout/layoutLeft'
 import notelist from './layout/notelist'
 import note from './layout/note'
-// import SystemInformation from './LandingPage/SystemInformation'
-
 
 export default {
     data () {
