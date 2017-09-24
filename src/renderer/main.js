@@ -15,6 +15,12 @@ Vue.use(common);
 
 import db from './assets/js/db.js'
 Vue.use(db);
+
+// console.log(66666666666)
+// console.log(this.$db)
+// console.log(66666666666)
+
+
 // Object.defineProperty(Vue.prototype, '$db', { value: new db() });
 
 // import VueMenu from '@hscmap/vue-menu'
@@ -36,6 +42,9 @@ if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
 Vue.config.productionTip = false
 
+const bus = new Vue()
+Vue.prototype.$bus = bus
+
 /* eslint-disable no-new */
 new Vue({
     components: { App },
@@ -44,11 +53,11 @@ new Vue({
     template: '<App/>',
     data() {
         return {
-            fullHeight: document.documentElement.clientHeight
         }
     },
     mounted: function () {
-        // this.$db.addFolder('    ')
+        // this.$db.addFolder('    ', 4)
+
         window.addEventListener('resize', this.handleResize);
     },
     beforeDestroy: function () {

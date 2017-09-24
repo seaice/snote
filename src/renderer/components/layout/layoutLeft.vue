@@ -77,6 +77,8 @@ var zNodes = [
     }
 ];
 
+
+console.log(zNodes)
 function addDiyDom(treeId, treeNode) {
     var spaceWidth = 20;
     var switchObj = $("#" + treeNode.tId + "_switch"),
@@ -117,6 +119,13 @@ export default {
             // console.log(this.$route)
             // this.$router.replace({name: "config", query: {redirect: encodeURIComponent(this.$route.path)}});
             // this.$router.push({path: '/config'})
+        },
+        initFolders (data) {
+            // console.log(555)
+            // this.folder = data
+            this.ztreeObj = $.fn.zTree.init($("#treeDemo"), this.setting, data);
+            // console.log(this.folder)
+            // console.log(555)
         }
     },
     computed: {
@@ -125,10 +134,18 @@ export default {
         },
         width () {
             return this.$store.state.Window.width;
-        }
+        },
+        // folder() {
+        //     return this.$store.state.Global.folder;
+        // }
     },
     mounted() {
-        this.ztreeObj = $.fn.zTree.init($("#treeDemo"), this.setting, zNodes);
+        this.$bus.$on('folderinit', this.initFolders)
+
+        console.log(111)
+        console.log(this.folder)
+        console.log(111)
+        
     },
 }
 </script>

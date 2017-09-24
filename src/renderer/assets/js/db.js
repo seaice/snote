@@ -14,9 +14,51 @@ export default {
                 }
                 console.log('sqlite:connect success')
             })
-            
 
-            this.addFolder = function(name, pid=1) {
+            this.tree = new Array()
+
+            this.rebuildFolder =  function (data) {
+                // 删除 所有 children,以防止多次调用
+                data.forEach(function (item) {
+                    delete item.children;
+                });
+
+                // 将数据存储为 以 id 为 KEY 的 map 索引数据列
+                var map = {};
+                data.forEach(function (item) {
+                    map[item.id] = item;
+                });
+
+                var val = [];
+                data.forEach(function (item) {
+                    // 以当前遍历项，的pid,去map对象中找到索引的id
+                    var parent = map[item.pid];
+
+                    // 好绕啊，如果找到索引，那么说明此项不在顶级当中,那么需要把此项添加到，他对应的父级中
+                    if (parent) {
+                        (parent.children || ( parent.children = [] )).push(item);
+                    } else {
+                        //如果没有在map中找到对应的索引ID,那么直接把 当前的item添加到 val结果集中，作为顶级
+                        val.push(item);
+                    }
+                });
+
+                // console.log(val)
+
+                Vue.prototype.$bus.$emit('folderinit', val)
+
+                // console.log(Vue.prototype)
+                // console.log(Vue.prototype.$store.commit('init', val))
+
+
+                return val;
+            }
+
+            // this.rebuildFolderCalc = function() {
+
+            // }
+
+            this.addFolder = function(name, uid, pid=1) {
                 if(Vue.prototype.isNull(name)) {
                     name = '无标题笔记'
                 }
@@ -26,63 +68,126 @@ export default {
                     pid = 1
                 }
 
+                // return pid
+                uid = 1
+                var depth = 0
+                var created = Date.parse(new Date())/1000
+                var updated = created
+
                 var asyncOps = [
+                    // 取parent
                     function (callback) {
                         console.log('1. Lets print the rows from the database-');
-                        db.link.all("SELECT * FROM folder where id=" + pid, function (err, row) {
+                        db.link.all("SELECT * FROM folder where id=" + pid, function (err, rows) {
                             if (err) {
                                 return callback(err);
                             }
-
-                            if(row.length < 0) {
+                            if(rows.length < 0) {
                                 pid = 1
+                                depth = 1
+                            } else {
+                                pid = rows[0].id
+                                depth = rows[0].depth + 1
                             }
 
-                            console.log(row);
-                            console.log('All done 1');
-                            callback(null, row);
+                            callback(null, {pid:pid, depth:depth});
                         });
-                        // I made the above more verbose for clarity, but keep in mind you could also have done:
-                        // db.link.each("SELECT result FROM raw_results", done);
                     },
-                    function (callback) {
+                    // 插入节点
+                    function (parent, callback) {
                         console.log('2. Lets print the rows from the database-');
+                        var sql = "insert into folder (name,uid,pid,depth,created,updated) values ("
+                                + "'" + name + "',"
+                                + "'" + uid + "',"
+                                + "'" + pid + "'," 
+                                + "'" + depth + "'," 
+                                + "'" + created + "',"
+                                + "'" + updated + "'" 
+                                + ")"
+                        console.log(sql)
 
-                        db.link.serialize(function(){
-                            $sql = 'update mall_class set lft=lft+2 where lft > '. $parent['lft']
-                            db.link.run($sql)
-                            $sql = 'update mall_class set rgt=rgt+2 where rgt > '. $parent['lft']
-                            db.link.run($sql)
+                        // db.link.run(sql, function(err, id){
+                        //     if(err) {
+                        //         return callback(err)
+                        //     }
 
-                            $data['lft'] = $parent['lft'] + 1;
-                            $data['rgt'] = $parent['lft'] + 2;
-                            $data['depth'] = $parent['depth'] + 1;
+                        //     if(this.changes != 1) {
+                        //         return callback('sql')
+                        //     }
 
-                            $sql = ''
+                        //     callback(null, this.lastID)
+                        // })
+                        callback(null, 3)
+                    },
+                    // rebuild
+                    function (folder_id, callback) {
+                        console.log('step 3')
+                        var sql = "select id,name,pid from folder where uid=" + uid
+                        console.log(sql)
+                        db.link.all(sql, function(err, rows){
+                            if (err) {
+                                return callback(err);
+                            }
+                            // console.log(rows)
+                            if(rows.length < 0) { // 没找到根节点
+                                callback(null, false)
+                            } else {
+                                callback(null, rows)
+                            }
 
                         })
 
-                        db.link.each("insert result FROM raw_results WHERE someColumn = '<test></test>'", function (err, row) {
-                            if (err) {
-                                return callback(err);
-                            }
-                            console.log(row);
-                            console.log('All done 2');
-                            callback(null, row);
-                        });
+                        // var test = 123
+                        // callback(null, test)
+                    },
+                    function(folders, callback) {
+                        if(folders == false) { // 创建根节点
+                            console.log(uid + ' has no root folder, create it~')
+                            var sql = "insert into folder (name,uid,pid,depth,created,updated) values ("
+                                + "'root',"
+                                + "'" + uid + "',"
+                                + "'0'," 
+                                + "'0'," 
+                                + "'" + created + "',"
+                                + "'" + updated + "'" 
+                                + ")"
+                            // db.link.run(sql, function(err, id){
+                            //     if(err) {
+                            //         return callback(err)
+                            //     }
+
+                            //     if(this.changes != 1) {
+                            //         return callback('sql')
+                            //     }
+
+                            //     callback(null, this.lastID)
+                            // })
+
+                            callback(null, '1')
+                        } else {
+                            callback(null, folders)
+                        }
+                    },
+                    function(folders, callback) {
+                        console.log(folders)
+                        // 格式化
+                        db.rebuildFolder(folders)
                     }
                 ];
 
-                async.series(asyncOps, function (err, results) {
+                // return 123
+                async.waterfall(asyncOps, function (err, results) {
+                    console.log('0000000000')
+
                     if (err) {
-                        return console.log(err);
+                        console.log('error total')
+                        console.log(err);
+
+                        Vue.prototype.$bus.$emit('alert', '123123')
+
+                        return false
                     }
-                    // results = [ row1, row2 ];
                 });
-
-
-
-
 
 /*
 

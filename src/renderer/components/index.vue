@@ -4,6 +4,7 @@
     <layoutLeft></layoutLeft>
     <notelist></notelist>
     <note></note>
+    <modalAlert></modalAlert>
     <div class="clear"></div>
 </div>
 </template>
@@ -13,6 +14,7 @@ import layoutTop from './layout/layoutTop'
 import layoutLeft from './layout/layoutLeft'
 import notelist from './layout/notelist'
 import note from './layout/note'
+import modalAlert from './modal/alert'
 
 export default {
     data () {
@@ -25,6 +27,7 @@ export default {
         layoutLeft,
         notelist,
         note,
+        modalAlert,
     }
   // components: { menu, SystemInformation }
 }
