@@ -26,39 +26,126 @@ ul {
     clear: both;
 }
 
-.modal {
+.clear{*zoom:1}
+.clear:before,.clear:after{display:table;line-height:0;content:""}
+.clear:after{clear:both}
+
+
+.s-modal {
 
 }
 
-.modal .title-bar {
+.s-modal .show {
+    display: table!important;
+    height: 100%;
+    width: 100%;
+}
+
+.s-modal .modal-dialog {
+    display: table-cell;
+    vertical-align: middle;
+}
+.s-modal .modal-content {
+    max-width: 500px;
+    margin: 0 auto;
+    border: none;
+    border-radius: 0;
+}
+
+.s-modal .modal-header {
     height: 30px;
     line-height: 30px;
+    padding: 0;
     background: #398dee;
-    color: #fff;
-}
-.modal .title-bar .title {
-    color: #fff;
     font-size: 12px;
-    text-indent: 10px;
-}
-
-.modal .title-bar .fr {
-    margin: 0 10px 0 0;
-}
-
-.modal .title-bar .fa-close {
-    color:#fff;
-    font-size: 12px;
-    margin:-2px 0 0 0;
-}
-
-
-.dropdown {}
-.dropdown .dropdown-toggle {
-    background: none;
+    padding: 0 0 0 10px;
     border: none;
 }
+
+.s-modal .modal-header * {
+    color:#fff;
+}
+
+.s-modal .modal-header div {
+    width: 100%
+}
+
+.s-modal .modal-header .btn-modal-close {
+    display: block;
+    height: 30px;
+    width: 30px;
+    text-align: center;
+}
+
+.s-modal .modal-header .btn-modal-close i {
+    margin: -3px 0 0 0;
+}
+
+
+.s-modal .modal-header .btn-modal-close:hover i {
+    color:#97c3ff;
+}
+
+.s-dropdown *, .s-dropdown *:active, .s-dropdown *:focus {
+    background: none;
+    border: none;
+    outline: none;
+    outline: none;
+    box-shadow: none;
+}
+.s-dropdown .dropdown-menu {
+    background: #fff;
+    border: 1px solid #b3d6ff;
+    padding: 0;
+    border-radius: 0;
+}
+
+.s-dropdown .dropdown-menu .dropdown-item {
+    color: #000!important;
+    height: 30px;
+    line-height: 30px;
+    padding: 0;
+    text-indent: 20px;
+    font-size: 12px;
+}
+
+.s-dropdown .dropdown-menu .dropdown-item:hover {
+    background: #e9f3ff;
+}
+
+.s-dropdown .dropdown-divider {
+    margin: 0;
+    border-top: 1px solid #b3d6ff;
+}
+
+
+.s-dropdown .dropdown-toggle::after {
+    display: none;
+}
+/*
+.s-dropdown, 
+.s-dropdown:active, 
+.s-dropdown.show,
+.s-dropdown .btn-secondary,
+.btn-secondary:focus, .btn-secondary.focus {
+    background: none;
+    border: none;
+    outline: none;
+    outline: none;
+    box-shadow: none;
+
+}*/
+/*.dropdown {}*/
+
+
+.s-dropdown .dropdown-toggle, .s-dropdown.show .dropdown-toggle {
+    background: none;
+    border: none;
+    outline: none;
+}
+/*
 .dropdown .dropdown-toggle:hover {
     background: none;
     border: none;
 }
+*/

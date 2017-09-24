@@ -1,17 +1,26 @@
 <template>
     <div id="layoutTop" style="-webkit-app-region: drag">
         <div class="userinfo fl" style="-webkit-app-region: no-drag">
-            <a class="figure fl"><img src="~@/assets/img/default-figure.png"></a>
-            <!-- <a class="figure" v-else><img src="~@/assets/img/default-figure.png"></a> -->
+            <div class="fl s-modal">
+                <a class="s-figure clear" v-b-modal.userinfo><img src="~@/assets/img/default-figure.png"></a>
+                <modelUserinfo></modelUserinfo>
+            </div>
             <a class="fl">{{ name }}</a>
-            <div class="dropdown fl">
-                <b-dropdown>
+            <!-- <div class="dropdown fl"> -->
+                <b-dropdown class="s-dropdown fl">
+                    <span slot="text">haibing1458<i class="fa fa-angle-down" aria-hidden="true"></i></span>
+                    <a class="dropdown-item" href="#">个人信息</a>
+                    <a class="dropdown-item" href="#">我的账号 action</a>
+                    <b-dropdown-divider></b-dropdown-divider>
+                    <a class="dropdown-item" href="#">注销当前账号</a>
+                </b-dropdown>
+                <b-dropdown class="fl">
                     <span slot="text"><i class="fa fa-plus" aria-hidden="true"></i>Split Dropdown Button</span>
                     <a class="dropdown-item" href="#">个人信息</a>
                     <a class="dropdown-item" href="#">我的账号 action</a>
                     <a class="dropdown-item" href="#">注销当前账号</a>
                 </b-dropdown>
-            </div>
+            <!-- </div> -->
         </div>
 
         <div class="fr">
@@ -24,6 +33,7 @@
 </template>
 <script>
 import Controls from '../Window/Controls'
+import modelUserinfo from '../modal/userinfo'
 
 export default {
     data () {
@@ -33,8 +43,12 @@ export default {
         }
     },
     components: {
-      Controls
+        Controls,
+        modelUserinfo,
     },
+    methods: {
+
+    }
 }
 </script>
 
@@ -50,13 +64,14 @@ export default {
     cursor: pointer;
 }
 
-#layoutTop .figure {
+#layoutTop .s-figure {
     width: 50px;
     height: 50px;
 }
-#layoutTop .figure img {
+#layoutTop .s-figure img {
     margin: 5px;
     width: 40px;
     height: 40px;
+    display: block;
 }
 </style>

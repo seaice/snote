@@ -1,51 +1,32 @@
 <template>
-    <div id="userinfo" class="modal">
-        <modal name="userinfo" :draggable=true :clickToClose=false>
-            <div class="title-bar">
-                <div class="title fl">个人信息</div>
-
-                <div class="fr">
-                    <a href="#" v-on:click="$modal.hide('userinfo')" ><i class="fa fa-close" aria-hidden="true"></i></a>
-                </div>
-            </div>
-
-            hello, world!
-            123123
-        </modal>
-    </div>
+    <b-modal id="userinfo" ref="userinfo" 
+        :no-fade="true" 
+        :no-close-on-backdrop="true"
+        :hide-footer="true"
+    >
+        <div slot="modal-header">
+            <span>个人信息</span>
+            <a href="#" v-on:click="$refs.userinfo.hide(false)" class="fr btn-modal-close"  style="-webkit-app-region: no-drag"><i class="fa fa-close" aria-hidden="true"></i></a>
+        </div>
+        <p clas="my-4">
+            Hello from modal!
+        </p>
+    </b-modal>
 </template>
 <script type="text/javascript">
-export default {
-    data () {
-        return {
+// export default {
+//     data () {
+//         return {
             
-        }
-    },
-    components: { 
-    },
-    methods: {
-    },
-}
+//         }
+//     },
+//     components: { 
+//     },
+//     methods: {
+//     },
+// }
 </script>
-<style type="text/css">
-#config #title-bar {
-    line-height: 30px;
-    height: 30px;
-    background: #398dee;
-}
-#config #title-bar .title {
-    color:#fff;
-    font-size: 12px;
-    text-indent: 10px;
-}
-#config #title-bar .fr {
-    margin: 0 10px 0 0;
-}
+<style>
 
-#config #title-bar .fa-close {
-    color:#fff;
-    font-size: 12px;
-    margin:-2px 0 0 0;
-}
 
 </style>

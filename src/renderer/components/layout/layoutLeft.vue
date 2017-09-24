@@ -1,8 +1,8 @@
 <template>
     <div id="layoutLeft" class="fl"  :style="{ height: height - 52 +'px' }">
-        <div class="btn-group">
-            <a href=""><i class="fa fa-plus" aria-hidden="true"></i><span>新文档</span><i class="fa fa-caret-down" aria-hidden="true"></i></a>
-            <a href=""><i class="fa fa-refresh" aria-hidden="true"></i><span>同步</span></a>
+        <div class="btn-group-note">
+            <a href="#"><i class="fa fa-plus" aria-hidden="true"></i><span>新文档</span><i class="fa fa-caret-down" aria-hidden="true"></i></a>
+            <a href="#"><i class="fa fa-refresh" aria-hidden="true"></i><span>同步</span></a>
         </div>
         <div id="folder" :style="{ height: height - 267 + 'px' }">
             <div class="new">
@@ -20,62 +20,61 @@
         </div>
     </div>
 </template>
-
 <script>
 var zNodes = [
-{
-    name:"我的文件夹", open:true, children:[
-        {
-            name:"test1_1",
-            open:true,
-            children:[
-                {
-                    name:'test123123'
-                }
+    {
+        name:"我的文件夹", open:true, children:[
+            {
+                name:"test1_1",
+                open:true,
+                children:[
+                    {
+                        name:'test123123'
+                    }
 
-            ]
-        }, 
-        {
-            name:"test1_2"
-        },
-        {
-            name:"test1_2"
-        },
-        {
-            name:"test1_2"
-        },
-        {
-            name:"test1_2"
-        },
-        {
-            name:"test1_2"
-        },
-        {
-            name:"test1_2"
-        },
-        {
-            name:"test1_2"
-        },
-        {
-            name:"test1_2"
-        },
-        {
-            name:"test1_2"
-        },
-        {
-            name:"test1_2"
-        },
-        {
-            name:"test1_2"
-        },
-        {
-            name:"test1_2"
-        },
-        {
-            name:"test1_2"
-        },
-    ]
-}
+                ]
+            }, 
+            {
+                name:"test1_2"
+            },
+            {
+                name:"test1_2"
+            },
+            {
+                name:"test1_2"
+            },
+            {
+                name:"test1_2"
+            },
+            {
+                name:"test1_2"
+            },
+            {
+                name:"test1_2"
+            },
+            {
+                name:"test1_2"
+            },
+            {
+                name:"test1_2"
+            },
+            {
+                name:"test1_2"
+            },
+            {
+                name:"test1_2"
+            },
+            {
+                name:"test1_2"
+            },
+            {
+                name:"test1_2"
+            },
+            {
+                name:"test1_2"
+            },
+        ]
+    }
 ];
 
 function addDiyDom(treeId, treeNode) {
@@ -92,6 +91,8 @@ function addDiyDom(treeId, treeNode) {
 }
 
 export default {
+    components: {
+    },
     data () {
         return {
             nickname: 'haibing1458',
@@ -108,6 +109,16 @@ export default {
             // folder : this.$db.getNote(),
         }
     },
+    methods: {
+        new_window : function(event) {
+            this.$modal.show('hello-world');
+
+            // this.$route.router
+            // console.log(this.$route)
+            // this.$router.replace({name: "config", query: {redirect: encodeURIComponent(this.$route.path)}});
+            // this.$router.push({path: '/config'})
+        }
+    },
     computed: {
         height () {
             return this.$store.state.Window.height;
@@ -119,7 +130,6 @@ export default {
     mounted() {
         this.ztreeObj = $.fn.zTree.init($("#treeDemo"), this.setting, zNodes);
     },
-
 }
 </script>
 
@@ -129,6 +139,7 @@ export default {
     width: 200px;
     overflow: hidden;
     border-right: 1px solid #ddd;
+    clear: both;
 }
 
 #layoutLeft #folder{
@@ -161,10 +172,10 @@ export default {
     background-color: #9ec7f7;
 }
 
-#layoutLeft .btn-group {
+#layoutLeft .btn-group-note {
     height: 55px;
 }
-#layoutLeft .btn-group a {
+#layoutLeft .btn-group-note a {
     text-align: center;
     display: block;
     float: left;
@@ -174,19 +185,19 @@ export default {
     color: #000;
     font-size: 12px;
 }
-#layoutLeft .btn-group a span {
+#layoutLeft .btn-group-note a span {
     margin: 0 5px 0 10px;
 }
-#layoutLeft .btn-group a i {
+#layoutLeft .btn-group-note a i {
     font-size: 22px;
     margin: -2px 0 0 0;
 }
-#layoutLeft .btn-group a i.fa-caret-down {
+#layoutLeft .btn-group-note a i.fa-caret-down {
     color: #999;
     font-size: 12px;
 }
 
-#layoutLeft .btn-group a i{
+#layoutLeft .btn-group-note a i{
     color:#398dee;
 }
 

@@ -26,18 +26,7 @@ export default {
             ipcRenderer.send('note:window:close', true)
         },
         maximize (e) {
-            const BrowserWindow = require('electron').remote.BrowserWindow
-            var top = BrowserWindow.getFocusedWindow()
-            if(top.isMaximized()) {
-                top.unmaximize()
-                this.$store.commit('setMax', false)
-            } else {
-                top.maximize()
-                this.$store.commit('setMax', true)
-            }
-            // ipcRenderer.send('note:window:maximize', function(project){
-            //   console.log(project)
-            // })
+            ipcRenderer.send('note:window:maximize')
         },
         minimize (e) {
             ipcRenderer.send('note:window:minimize', true)
