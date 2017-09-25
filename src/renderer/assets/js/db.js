@@ -10,17 +10,24 @@ export default {
             this.sqlite3 = require('sqlite3').verbose()
             this.link = new this.sqlite3.Database(this.dbPath, this.sqlite3.OPEN_READWRITE, err => {
                 if(err) {
+                    db.alert()
                     return console.error(err.message)
                 }
-                console.log('sqlite:connect success')
             })
 
-            this.tree = new Array()
+            this.alert = function() {
+                Vue.prototype.$bus.$emit('alert', {msg:'数据异常，请重启笔记！<br>如果重启不能解决问题，请重新安装！',close:false, state:'danger'})
+            }
 
             this.rebuildFolder =  function (data) {
                 // 删除 所有 children,以防止多次调用
                 data.forEach(function (item) {
-                    delete item.children;
+                    if(item.depth == 0) {
+                        item.open = true
+                    } else {
+                        item.open = false
+                    }
+                    // delete item.children;
                 });
 
                 // 将数据存储为 以 id 为 KEY 的 map 索引数据列
@@ -33,7 +40,6 @@ export default {
                 data.forEach(function (item) {
                     // 以当前遍历项，的pid,去map对象中找到索引的id
                     var parent = map[item.pid];
-
                     // 好绕啊，如果找到索引，那么说明此项不在顶级当中,那么需要把此项添加到，他对应的父级中
                     if (parent) {
                         (parent.children || ( parent.children = [] )).push(item);
@@ -43,20 +49,29 @@ export default {
                     }
                 });
 
-                // console.log(val)
-
-                Vue.prototype.$bus.$emit('folderinit', val)
-
-                // console.log(Vue.prototype)
-                // console.log(Vue.prototype.$store.commit('init', val))
-
-
                 return val;
             }
 
-            // this.rebuildFolderCalc = function() {
+            this.getFolder = function(uid) {
+                var sql = "select id,name,pid,sort,depth from folder where uid=" + uid + " order by sort asc"
+                console.log(sql)
+                db.link.all(sql, function(err, rows){
+                    if (err) {
+                        db.alert()
+                        return console.error(err.message)
+                    }
+                    console.log(rows)
+                    if(rows.length < 0) { // 没找到根节点
+                        db.alert()
+                        return console.error(err.message)                        
+                    }
 
-            // }
+                    this.tree = db.rebuildFolder(rows)
+
+                    console.log(this.tree)
+                    Vue.prototype.$bus.$emit('folder:init', this.tree)
+                })
+            }
 
             this.addFolder = function(name, uid, pid=1) {
                 if(Vue.prototype.isNull(name)) {

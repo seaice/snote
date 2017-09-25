@@ -122,30 +122,9 @@ ul {
 .s-dropdown .dropdown-toggle::after {
     display: none;
 }
-/*
-.s-dropdown, 
-.s-dropdown:active, 
-.s-dropdown.show,
-.s-dropdown .btn-secondary,
-.btn-secondary:focus, .btn-secondary.focus {
-    background: none;
-    border: none;
-    outline: none;
-    outline: none;
-    box-shadow: none;
-
-}*/
-/*.dropdown {}*/
-
 
 .s-dropdown .dropdown-toggle, .s-dropdown.show .dropdown-toggle {
     background: none;
     border: none;
     outline: none;
 }
-/*
-.dropdown .dropdown-toggle:hover {
-    background: none;
-    border: none;
-}
-*/

@@ -58,6 +58,10 @@ new Vue({
     mounted: function () {
         // this.$db.addFolder('    ', 4)
 
+
+        this.$db.getFolder(1)
+
+
         window.addEventListener('resize', this.handleResize);
     },
     beforeDestroy: function () {

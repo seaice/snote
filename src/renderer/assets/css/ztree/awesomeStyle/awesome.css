@@ -83,7 +83,10 @@ website:    http://code.google.com/p/jquerytree/
 .ztree li a.curSelectedNode span.button.root_open::before, 
 .ztree li a.curSelectedNode span.button.root_close::before,
 .ztree li a.curSelectedNode span.button.center_open::before, 
-.ztree li a.curSelectedNode span.button.center_close::before {
+.ztree li a.curSelectedNode span.button.center_close::before,
+.ztree li a.curSelectedNode span.button.bottom_open::before,
+.ztree li a.curSelectedNode span.button.bottom_close::before
+{
     color: #fff;
 }
 
@@ -110,7 +113,7 @@ website:    http://code.google.com/p/jquerytree/
     font-size: 12px;
     height: 40px;
     line-height: 40px;
-    padding: 0 0 0 14px;
+    padding: 0 0 0 9px;
 }
 
 .ztree li a.level0 * {
@@ -121,6 +124,13 @@ website:    http://code.google.com/p/jquerytree/
 }
 .ztree li a.level0 span:before {
     font-size: 16px;
+}
+
+.ztree li a.level0 span.button.switch {
+    width: 20px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
 }
 
 .ztree li span {
@@ -138,7 +148,7 @@ website:    http://code.google.com/p/jquerytree/
 }
 
 .ztree li span.button::before {
-    color: #ffffff;
+    color: #909090;
     font-family: FontAwesome;
     font-size:16px;
 }
@@ -262,8 +272,10 @@ website:    http://code.google.com/p/jquerytree/
 }
 
 .ztree li span.button.switch {
-    width: 15px;
-    height: 17px;
+    width: 20px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
 }
 
 .ztree li span.button.root_open::before {

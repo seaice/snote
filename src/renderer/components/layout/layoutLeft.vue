@@ -87,7 +87,7 @@ function addDiyDom(treeId, treeNode) {
     icoObj.before(switchObj);
 
     if (treeNode.level > 0) {
-        var spaceStr = "<span style='display: block; float:left; height:20px; width:" + (spaceWidth * treeNode.level + 10)+ "px'></span>";
+        var spaceStr = "<span style='display: block; float:left; height:20px; width:" + (spaceWidth * treeNode.level + 4)+ "px'></span>";
         switchObj.before(spaceStr);
     }
 }
@@ -140,7 +140,7 @@ export default {
         // }
     },
     mounted() {
-        this.$bus.$on('folderinit', this.initFolders)
+        this.$bus.$on('folder:init', this.initFolders)
 
         console.log(111)
         console.log(this.folder)

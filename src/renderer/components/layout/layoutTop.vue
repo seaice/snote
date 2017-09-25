@@ -69,9 +69,9 @@ export default {
     height: 50px;
 }
 #layoutTop .s-figure img {
-    margin: 5px;
-    width: 40px;
-    height: 40px;
+    margin: 10px;
+    width: 30px;
+    height: 30px;
     display: block;
 }
 </style>
