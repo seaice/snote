@@ -56,10 +56,16 @@ new Vue({
         }
     },
     mounted: function () {
+        // 获得用户
+
+        // 初始化文件夹
+        this.$db.getFolder(1)
         // this.$db.addFolder('    ', 4)
 
+        // 初始化第二列
 
-        this.$db.getFolder(1)
+
+        // 初始化第三列
 
 
         window.addEventListener('resize', this.handleResize);

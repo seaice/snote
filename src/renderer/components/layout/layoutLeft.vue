@@ -92,6 +92,19 @@ function addDiyDom(treeId, treeNode) {
     }
 }
 
+function beforeDrag(treeId, treeNodes) {
+    for (var i=0,l=treeNodes.length; i<l; i++) {
+        if (treeNodes[i].drag === false) {
+            return false;
+        }
+    }
+    return true;
+}
+function beforeDrop(treeId, treeNodes, targetNode, moveType) {
+    addDiyDom(treeId, treeNodes)
+    return targetNode ? targetNode.drop !== false : true;
+}
+
 export default {
     components: {
     },
@@ -101,11 +114,27 @@ export default {
             fullHeight: document.documentElement.clientHeight - 52,
 
             setting : {
-                view: {
+                view : {
                     // showLine: false,
                     // showIcon: false
                     // dblClickExpand: false
                     addDiyDom: addDiyDom
+                },
+                edit : {
+                    enable : true,
+                    showRemoveBtn : false,
+                    showRenameBtn : false,
+                    drag : {
+                        isCopy : false,
+                        isMove :true,
+                        prev :true,
+                        inner :true,
+                        next :true,
+                    }
+                },
+                callback: {
+                    beforeDrag : beforeDrag,
+                    beforeDrop : beforeDrop
                 }
             },
             // folder : this.$db.getNote(),

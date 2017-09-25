@@ -19,7 +19,7 @@ export default {
                 Vue.prototype.$bus.$emit('alert', {msg:'数据异常，请重启笔记！<br>如果重启不能解决问题，请重新安装！',close:false, state:'danger'})
             }
 
-            this.rebuildFolder =  function (data) {
+            this.buildFolder =  function (data) {
                 // 删除 所有 children,以防止多次调用
                 data.forEach(function (item) {
                     if(item.depth == 0) {
@@ -66,7 +66,7 @@ export default {
                         return console.error(err.message)                        
                     }
 
-                    this.tree = db.rebuildFolder(rows)
+                    this.tree = db.buildFolder(rows)
 
                     console.log(this.tree)
                     Vue.prototype.$bus.$emit('folder:init', this.tree)
