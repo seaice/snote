@@ -1,5 +1,5 @@
 <template>
-    <div id="layoutLeft" class="fl"  :style="{ height: height - 52 +'px' }">
+    <div id="layoutLeft" class="fl" :style="{ height: height - 52 +'px' }">
         <div class="btn-group-note">
             <a href="#"><i class="fa fa-plus" aria-hidden="true"></i><span>新文档</span><i class="fa fa-caret-down" aria-hidden="true"></i></a>
             <a href="#"><i class="fa fa-refresh" aria-hidden="true"></i><span>同步</span></a>
@@ -78,8 +78,7 @@ var zNodes = [
 ];
 
 
-console.log(zNodes)
-function addDiyDom(treeId, treeNode) {
+function ztree_addDiyDom(treeId, treeNode) {
     var spaceWidth = 20;
     var switchObj = $("#" + treeNode.tId + "_switch"),
     icoObj = $("#" + treeNode.tId + "_ico");
@@ -87,22 +86,57 @@ function addDiyDom(treeId, treeNode) {
     icoObj.before(switchObj);
 
     if (treeNode.level > 0) {
-        var spaceStr = "<span style='display: block; float:left; height:20px; width:" + (spaceWidth * treeNode.level + 4)+ "px'></span>";
+        switchObj.siblings('.tree-switch-before').remove();
+        var spaceStr = "<span class='tree-switch-before' style='display: block; float:left; height:20px; width:" + (spaceWidth * treeNode.level + 4)+ "px'></span>";
         switchObj.before(spaceStr);
     }
 }
 
-function beforeDrag(treeId, treeNodes) {
-    for (var i=0,l=treeNodes.length; i<l; i++) {
-        if (treeNodes[i].drag === false) {
-            return false;
+// function ztree_beforeDrag(treeId, treeNodes) {
+//     for (var i=0,l=treeNodes.length; i<l; i++) {
+//         if (treeNodes[i].drag === false) {
+//             return false;
+//         }
+//     }
+//     return true;
+// }
+
+function ztree_beforeDrop(treeId, treeNodes, targetNode, moveType) {
+    if((targetNode == null || targetNode.pid == 0) && moveType != 'inner') 
+        return false
+
+    return targetNode ? targetNode.drop !== false : true;
+}
+function ztree_onDrop(event, treeId, treeNodes, targetNode, moveType) {
+    ztree_addDiyDom(treeId, treeNodes[0])
+
+    // 拖拽后，同等级重新排序。
+    console.log(targetNode)
+    // 获得父节点
+    // 
+
+}
+
+function ztree_onClick(event, treeId, treeNode) {
+    var ret = getAllChildrenNodes(treeNode, [treeNode.id])
+    console.log(ret)
+
+    //todo 获得所有节点的笔记
+
+}
+
+function getAllChildrenNodes(treeNode,result = []) {
+      if (treeNode.isParent) {
+        var childrenNodes = treeNode.children;
+        if (childrenNodes) {
+            for (var i = 0; i < childrenNodes.length; i++) {
+                console.log(childrenNodes[i])
+                result.push(childrenNodes[i].id)
+                result = getAllChildrenNodes(childrenNodes[i], result);
+            }
         }
     }
-    return true;
-}
-function beforeDrop(treeId, treeNodes, targetNode, moveType) {
-    addDiyDom(treeId, treeNodes)
-    return targetNode ? targetNode.drop !== false : true;
+    return result;
 }
 
 export default {
@@ -118,7 +152,7 @@ export default {
                     // showLine: false,
                     // showIcon: false
                     // dblClickExpand: false
-                    addDiyDom: addDiyDom
+                    addDiyDom: ztree_addDiyDom
                 },
                 edit : {
                     enable : true,
@@ -133,8 +167,10 @@ export default {
                     }
                 },
                 callback: {
-                    beforeDrag : beforeDrag,
-                    beforeDrop : beforeDrop
+                    // beforeDrag : ztree_beforeDrag,
+                    beforeDrop : ztree_beforeDrop,
+                    onDrop: ztree_onDrop,
+                    onClick: ztree_onClick,
                 }
             },
             // folder : this.$db.getNote(),
@@ -170,11 +206,6 @@ export default {
     },
     mounted() {
         this.$bus.$on('folder:init', this.initFolders)
-
-        console.log(111)
-        console.log(this.folder)
-        console.log(111)
-        
     },
 }
 </script>
@@ -273,5 +304,6 @@ export default {
     height: 159px;
 }
 
-@import '../../assets/css/ztree/awesomeStyle/awesome.css';
+/*@import '../../assets/css/ztree/awesomeStyle/awesome.css';*/
+@import '../../assets/css/ztree/awesome/awesome.css';
 </style>
