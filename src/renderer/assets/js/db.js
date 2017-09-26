@@ -15,10 +15,12 @@ export default {
                 }
             })
 
+            /* 数据库异常alert */
             this.alert = function() {
                 Vue.prototype.$bus.$emit('alert', {msg:'数据异常，请重启笔记！<br>如果重启不能解决问题，请重新安装！',close:false, state:'danger'})
             }
 
+            /* 根据数据库结果，构建数据给ztree */
             this.buildFolder =  function (data) {
                 // 删除 所有 children,以防止多次调用
                 data.forEach(function (item) {
@@ -26,6 +28,7 @@ export default {
                         item.open = true
                     } else {
                         item.open = false
+                        item.open = true //测试用
                     }
                     // delete item.children;
                 });
@@ -52,15 +55,29 @@ export default {
                 return val;
             }
 
+            /* 拖拽节点移动 */
+            this.moveFolder = function(data) {
+                db.link.serialize(function() {
+                    var sql = "update folder set pid="+data.to_node.id+" where id="+data.node.id
+                    db.link.run(sql)
+
+                    if(data.children.length > 1) {
+                        for (var i = 0; i < data.children.length; i++) {
+                            var sql = "update folder set sort="+data.children[i].sort+" where id="+data.children[i].id
+                            db.link.run(sql)
+                        }
+                    }
+                });
+            }
+
+            /* 获得树，并初始化左侧树 */
             this.getFolder = function(uid) {
-                var sql = "select id,name,pid,sort,depth from folder where uid=" + uid + " order by sort asc"
-                console.log(sql)
+                var sql = "select id,name,pid,sort,depth from folder where uid=" + uid + " order by sort desc, id asc"
                 db.link.all(sql, function(err, rows){
                     if (err) {
                         db.alert()
                         return console.error(err.message)
                     }
-                    console.log(rows)
                     if(rows.length < 0) { // 没找到根节点
                         db.alert()
                         return console.error(err.message)                        
@@ -68,7 +85,6 @@ export default {
 
                     this.tree = db.buildFolder(rows)
 
-                    console.log(this.tree)
                     Vue.prototype.$bus.$emit('folder:init', this.tree)
                 })
             }
@@ -203,56 +219,10 @@ export default {
                         return false
                     }
                 });
-
-/*
-
-
-
-                console.log(name)
-                if(Vue.prototype.isNull(name)) {
-                    name = '无标题笔记'
-                }
-
-                pid = parseInt(pid)
-                if(pid < 0) {
-                    pid = 0
-                }
-
-                console.log(9999)
-
-                db.link.serialize(function() {
-                    // console.log(db.link)
-                    // db.link.all("SELECT * FROM floder where id = " + pid, function(err, row) {
-                    //     console.log(row)
-                    //     console.log(8888888888888)
-
-                    // })
-                    db.getFolderById(pid, function(err, all) {
-                        // folder = all
-                        // console.log(all)
-                        console.log('length=' + all.length)
-                        if(all.length < 0) {
-                            pid = 0
-                            // return false
-                        }
-                    })
-                })
-
-                console.log(777777777777)
-                console.log(pid)
-                console.log(777777777777)
-
-                // 判断pid是否存在
-                console.log(9999)
-                // if(this.getFolderById(pid) === false) {
-                //     pid = 0
-                // }
-            */
             }
 
 
-
-
+            /* 关闭数据库连接 */
             this.close =function() {
                 this.link.close()
                 console.log('sqlite close')

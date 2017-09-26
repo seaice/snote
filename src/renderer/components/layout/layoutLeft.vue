@@ -15,8 +15,10 @@
             </div>
         </div>
         <div class="ad-left">
-            此处是广告 {{ height }}
-             {{ width }}
+            <a href="#" v-on:click="getFolder">加载目录</a> <br>
+            此处是广告 <br>
+            {{ height }}<br>
+            {{ width }}
         </div>
     </div>
 </template>
@@ -78,19 +80,6 @@ var zNodes = [
 ];
 
 
-function ztree_addDiyDom(treeId, treeNode) {
-    var spaceWidth = 20;
-    var switchObj = $("#" + treeNode.tId + "_switch"),
-    icoObj = $("#" + treeNode.tId + "_ico");
-    switchObj.remove();
-    icoObj.before(switchObj);
-
-    if (treeNode.level > 0) {
-        switchObj.siblings('.tree-switch-before').remove();
-        var spaceStr = "<span class='tree-switch-before' style='display: block; float:left; height:20px; width:" + (spaceWidth * treeNode.level + 4)+ "px'></span>";
-        switchObj.before(spaceStr);
-    }
-}
 
 // function ztree_beforeDrag(treeId, treeNodes) {
 //     for (var i=0,l=treeNodes.length; i<l; i++) {
@@ -101,43 +90,8 @@ function ztree_addDiyDom(treeId, treeNode) {
 //     return true;
 // }
 
-function ztree_beforeDrop(treeId, treeNodes, targetNode, moveType) {
-    if((targetNode == null || targetNode.pid == 0) && moveType != 'inner') 
-        return false
 
-    return targetNode ? targetNode.drop !== false : true;
-}
-function ztree_onDrop(event, treeId, treeNodes, targetNode, moveType) {
-    ztree_addDiyDom(treeId, treeNodes[0])
 
-    // 拖拽后，同等级重新排序。
-    console.log(targetNode)
-    // 获得父节点
-    // 
-
-}
-
-function ztree_onClick(event, treeId, treeNode) {
-    var ret = getAllChildrenNodes(treeNode, [treeNode.id])
-    console.log(ret)
-
-    //todo 获得所有节点的笔记
-
-}
-
-function getAllChildrenNodes(treeNode,result = []) {
-      if (treeNode.isParent) {
-        var childrenNodes = treeNode.children;
-        if (childrenNodes) {
-            for (var i = 0; i < childrenNodes.length; i++) {
-                console.log(childrenNodes[i])
-                result.push(childrenNodes[i].id)
-                result = getAllChildrenNodes(childrenNodes[i], result);
-            }
-        }
-    }
-    return result;
-}
 
 export default {
     components: {
@@ -152,7 +106,7 @@ export default {
                     // showLine: false,
                     // showIcon: false
                     // dblClickExpand: false
-                    addDiyDom: ztree_addDiyDom
+                    addDiyDom: this.ztree_addDiyDom
                 },
                 edit : {
                     enable : true,
@@ -168,15 +122,101 @@ export default {
                 },
                 callback: {
                     // beforeDrag : ztree_beforeDrag,
-                    beforeDrop : ztree_beforeDrop,
-                    onDrop: ztree_onDrop,
-                    onClick: ztree_onClick,
+                    beforeDrop  : this.ztree_beforeDrop,
+                    onDrop      : this.ztree_onDrop,
+                    onClick     : this.ztree_onClick,
+                    onRightClick: this.OnRightClick
                 }
             },
             // folder : this.$db.getNote(),
         }
     },
     methods: {
+        getAllChildrenNodes : function (treeNode,result = []) {
+              if (treeNode.isParent) {
+                var childrenNodes = treeNode.children;
+                if (childrenNodes) {
+                    for (var i = 0; i < childrenNodes.length; i++) {
+                        // console.log(childrenNodes[i])
+                        result.push(childrenNodes[i].id)
+                        result = this.getAllChildrenNodes(childrenNodes[i], result);
+                    }
+                }
+            }
+            return result;
+        },
+        ztree_resort : function (treeNodes) {
+            var len = treeNodes.length
+            for(var i = 0; i < len; i++) {
+                treeNodes[i].sort = len - i
+            }
+
+            return treeNodes
+        },
+        ztree_addDiyDom : function (treeId, treeNode) {
+            var spaceWidth = 20;
+            var switchObj = $("#" + treeNode.tId + "_switch"),
+            icoObj = $("#" + treeNode.tId + "_ico");
+            switchObj.remove();
+            icoObj.before(switchObj);
+
+            if (treeNode.level > 0) {
+                switchObj.siblings('.tree-switch-before').remove();
+                var spaceStr = "<span class='tree-switch-before' style='display: block; float:left; height:20px; width:" + (spaceWidth * treeNode.level + 4)+ "px'></span>";
+                switchObj.before(spaceStr);
+            }
+        },
+        ztree_beforeDrop : function (treeId, treeNodes, targetNode, moveType) {
+            if((targetNode == null || targetNode.pid == 0) && moveType != 'inner') 
+                return false
+
+            // console.log('before')
+            // console.log(targetNode)
+            // console.log('before')
+
+            return targetNode ? targetNode.drop !== false : true;
+        },
+        ztree_onClick : function (event, treeId, treeNode) {
+            var ret = this.getAllChildrenNodes(treeNode, [treeNode.id])
+            console.log(ret)
+
+            //todo 获得所有节点的笔记
+
+        },
+        ztree_rebuildDiyDom : function(treeId, treeNode) {
+            this.ztree_addDiyDom(treeId, treeNode)
+            if(treeNode.isParent) {
+                for (var i = 0; i < treeNode.children.length; i++) {
+                    this.ztree_rebuildDiyDom(treeId, treeNode.children[i])
+                }
+            }
+        },
+        ztree_onDrop : function (event, treeId, treeNodes, targetNode, moveType) {
+            if(targetNode == null) {
+                return false
+            }
+
+            this.ztree_rebuildDiyDom(treeId, treeNodes[0])
+
+            var data = {}
+
+            if(moveType == 'inner') {
+                data = {
+                    'to_node':targetNode,
+                    'node':treeNodes[0],
+                    'children': this.ztree_resort(targetNode.children),
+                }
+            } else {
+                var parent = targetNode.getParentNode()
+                data = {
+                    'to_node':parent,
+                    'node':treeNodes[0],
+                    'children': this.ztree_resort(parent.children),
+                }
+            }
+
+            this.$db.moveFolder(data)
+        },
         new_window : function(event) {
             this.$modal.show('hello-world');
 
@@ -189,6 +229,14 @@ export default {
             // console.log(555)
             // this.folder = data
             this.ztreeObj = $.fn.zTree.init($("#treeDemo"), this.setting, data);
+            // console.log(this.folder)
+            // console.log(555)
+        },
+        getFolder () {
+            this.$db.getFolder(1)
+            // console.log(555)
+            // this.folder = data
+            // this.ztreeObj = $.fn.zTree.init($("#treeDemo"), this.setting, data);
             // console.log(this.folder)
             // console.log(555)
         }
