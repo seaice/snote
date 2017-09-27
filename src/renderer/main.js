@@ -4,6 +4,7 @@ import axios from 'axios'
 import App from './App'
 import router from './router'
 import store from './store'
+Vue.prototype.$store = store
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 import 'font-awesome/css/font-awesome.css'
@@ -15,16 +16,8 @@ Vue.use(common);
 
 import db from './assets/js/db.js'
 Vue.use(db);
-
-// console.log(66666666666)
-// console.log(this.$db)
-// console.log(66666666666)
-
-
 // Object.defineProperty(Vue.prototype, '$db', { value: new db() });
 
-// import VueMenu from '@hscmap/vue-menu'
-// Vue.use(VueMenu)
 
 import BootstrapVue from 'bootstrap-vue'
 Vue.use(BootstrapVue);
@@ -44,7 +37,7 @@ Vue.config.productionTip = false
 
 const bus = new Vue()
 Vue.prototype.$bus = bus
-
+Vue.prototype.$async = require('async');
 /* eslint-disable no-new */
 new Vue({
     components: { App },
@@ -57,9 +50,14 @@ new Vue({
     },
     mounted: function () {
         // 获得用户
+        var uid = 1
+        store.commit('user_login', {
+            id : uid,
+            name : 'haibing',
+        })
 
         // 初始化文件夹
-        this.$db.getFolder(1)
+        this.$db.getFolder(uid)
         // this.$db.addFolder('    ', 4)
 
         // 初始化第二列

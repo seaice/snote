@@ -2,8 +2,7 @@ export default {
     install : function (Vue, options) {
         Vue.prototype.$db = new function() {
             var db = this
-            var async = require('async');
-
+            var store = Vue.prototype.$store
             console.log('init db')
             this.name = 'snote.db'
             this.dbPath = require('path').resolve(__dirname, '../../../data/' + this.name)
@@ -73,8 +72,8 @@ export default {
             /* 重命名 */
             this.renameFolder = function(node) {
                 var sql = "update folder set name='" + node.name + "' where id=" + node.id;
-                console.log(sql)
-                // db.link.run(sql)
+                // console.log(sql)
+                db.link.run(sql)
             }
 
             /* 获得树，并初始化左侧树 */
@@ -96,138 +95,57 @@ export default {
                 })
             }
 
-            this.addFolder = function(name, uid, pid=1) {
-                if(Vue.prototype.isNull(name)) {
-                    name = '无标题笔记'
+            this.addFolder = function(node, newNode, callbackFather) {
+                if(!node.id) {
+                    return false
                 }
 
-                pid = parseInt(pid)
-                if(pid < 0) {
-                    pid = 1
-                }
-
-                // return pid
-                uid = 1
-                var depth = 0
                 var created = Date.parse(new Date())/1000
                 var updated = created
 
                 var asyncOps = [
-                    // 取parent
                     function (callback) {
-                        console.log('1. Lets print the rows from the database-');
-                        db.link.all("SELECT * FROM folder where id=" + pid, function (err, rows) {
-                            if (err) {
-                                return callback(err);
+                        var sql = "select * from folder where id="+node.id
+                        // console.log(sql)
+                        db.link.all(sql, function(e, rows){
+                            if(rows.length < 1) {
+                                callback(1)
                             }
-                            if(rows.length < 0) {
-                                pid = 1
-                                depth = 1
-                            } else {
-                                pid = rows[0].id
-                                depth = rows[0].depth + 1
-                            }
-
-                            callback(null, {pid:pid, depth:depth});
-                        });
-                    },
-                    // 插入节点
-                    function (parent, callback) {
-                        console.log('2. Lets print the rows from the database-');
-                        var sql = "insert into folder (name,uid,pid,depth,created,updated) values ("
-                                + "'" + name + "',"
-                                + "'" + uid + "',"
-                                + "'" + pid + "'," 
-                                + "'" + depth + "'," 
-                                + "'" + created + "',"
-                                + "'" + updated + "'" 
-                                + ")"
-                        console.log(sql)
-
-                        // db.link.run(sql, function(err, id){
-                        //     if(err) {
-                        //         return callback(err)
-                        //     }
-
-                        //     if(this.changes != 1) {
-                        //         return callback('sql')
-                        //     }
-
-                        //     callback(null, this.lastID)
-                        // })
-                        callback(null, 3)
-                    },
-                    // rebuild
-                    function (folder_id, callback) {
-                        console.log('step 3')
-                        var sql = "select id,name,pid from folder where uid=" + uid
-                        console.log(sql)
-                        db.link.all(sql, function(err, rows){
-                            if (err) {
-                                return callback(err);
-                            }
-                            // console.log(rows)
-                            if(rows.length < 0) { // 没找到根节点
-                                callback(null, false)
-                            } else {
-                                callback(null, rows)
-                            }
-
+                            callback(null, node.id)
                         })
-
-                        // var test = 123
-                        // callback(null, test)
                     },
-                    function(folders, callback) {
-                        if(folders == false) { // 创建根节点
-                            console.log(uid + ' has no root folder, create it~')
-                            var sql = "insert into folder (name,uid,pid,depth,created,updated) values ("
-                                + "'root',"
-                                + "'" + uid + "',"
-                                + "'0'," 
-                                + "'0'," 
+                    function(callback) {
+                        var sql = "insert into folder (name,uid,pid,created,updated) values ("
+                                + "'" + newNode.name + "',"
+                                + "'" + store.state.User.id + "',"
+                                + "'" + node.id + "'," 
                                 + "'" + created + "',"
                                 + "'" + updated + "'" 
                                 + ")"
-                            // db.link.run(sql, function(err, id){
-                            //     if(err) {
-                            //         return callback(err)
-                            //     }
+                        // console.log(sql)
+                        db.link.run(sql, function(err){
+                            if(err) {
+                                return callback(err)
+                            }
 
-                            //     if(this.changes != 1) {
-                            //         return callback('sql')
-                            //     }
+                            if(this.changes != 1) {
+                                return callback(1)
+                            }
 
-                            //     callback(null, this.lastID)
-                            // })
-
-                            callback(null, '1')
-                        } else {
-                            callback(null, folders)
-                        }
-                    },
-                    function(folders, callback) {
-                        console.log(folders)
-                        // 格式化
-                        db.rebuildFolder(folders)
+                            callback(null, this.lastID)
+                        })
                     }
-                ];
+                ]
 
-                // return 123
-                async.waterfall(asyncOps, function (err, results) {
-                    console.log('0000000000')
-
+                Vue.prototype.$async.series(asyncOps, function (err, results) {
                     if (err) {
-                        console.log('error total')
                         console.log(err);
 
-                        Vue.prototype.$bus.$emit('alert', '123123')
-
-                        return false
+                        callbackFather(1)
                     }
-                });
+                    callbackFather(null, results[1])
+                })
             }
-
 
             /* 关闭数据库连接 */
             this.close =function() {

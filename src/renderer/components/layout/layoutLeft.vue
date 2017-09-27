@@ -24,7 +24,7 @@
             <ul>
                 <li id="tree_menu_add">新建
                     <ul>
-                        <li><i class="fa fa-folder-o" aria-hidden="true"></i><span>文件夹</span></li>
+                        <li v-on:click="createFolder"><i class="fa fa-folder-o" aria-hidden="true"></i><span>文件夹</span></li>
                         <li><i class="fa fa-file-o" aria-hidden="true"></i><span>笔记</span></li>
                         <li><i class="fa fa-file-o" aria-hidden="true"></i>MarkDown笔记</li>
                     </ul>
@@ -72,12 +72,48 @@ export default {
                     onRightClick    : this.OnRightClick,
                     beforeRename    : this.ztree_beforeRename,
                     onRename        : this.ztree_onRename,
+                    onRename        : this.ztree_onRename,
                 }
             },
             // folder : this.$db.getNote(),
         }
     },
     methods: {
+        createFolder : function() {
+            var _this = this
+            var _ztree = this.ztree
+
+            this.ztree_menu_flag = false
+            this.hideRMenu()
+            var newData = { name:"新建文件夹" };
+            var selectNode = this.ztree.getSelectedNodes()[0]
+            if (selectNode) {
+                var asyncOps = [
+                    function(callback) {
+                        _this.$db.addFolder(selectNode, newData, callback)
+                    },
+                    function(id, callback) {
+                        newData.checked = selectNode.checked;
+                        newData.id = id
+                        newData.pid = selectNode.id
+                        var newNode = _ztree.addNodes(selectNode, newData);
+                        _ztree.editName(newNode[0])
+
+                        callback(null)
+                    }
+                ]
+                // var async = require('async');
+                this.$async.waterfall(asyncOps, function (err, results) {
+                    if (err) {
+                        _this.$db.alert()
+                        return false
+                    }
+                });
+            } else {
+                // 没选中节点。不能添加
+            }
+
+        },
         ztree_beforeRename : function(treeId, treeNode, newName, isCancel) {
             if(treeNode.pid == 0)
                 return false
@@ -88,9 +124,10 @@ export default {
             console.log(nodes)
         },
         renameFolder : function() {
+            this.ztree_menu_flag = false
+            this.hideRMenu()
             var nodes = this.ztree.getSelectedNodes()
             this.ztree.editName(nodes[0])
-            this.hideRMenu()
         },
         ztree_onRename : function(event, treeId, treeNode, isCancel) {
             if(isCancel == true) {
@@ -102,8 +139,10 @@ export default {
             }
 
             var name = this.filterStr(treeNode.name)
-
-            console.log(name)
+            if(name == '') {
+                treeNode.name = '新建文件夹'
+                this.ztree.updateNode(treeNode)
+            }
 
             this.$db.renameFolder(treeNode)
         },
@@ -111,26 +150,54 @@ export default {
             var nodes = this.ztree.getSelectedNodes()
             var _this = this
             $("#tree_menu").show();
-            // if (nodes[0].pid == 0) {
-            //     $("#tree_menu_rename").hide();
-            //     $("#tree_menu_del").hide();
-            // } else {
-            //     $("#tree_menu_add").show();
-            //     $("#tree_menu_rename").show();
-            //     $("#tree_menu_del").show();
-            // }
+
+            _this.ztree_menu_flag = true
+
+            if (nodes[0].pid == 0) {
+                $("#tree_menu_rename").hide();
+                $("#tree_menu_del").hide();
+            } else {
+                $("#tree_menu_add").show();
+                $("#tree_menu_rename").show();
+                $("#tree_menu_del").show();
+            }
+
+            var id = nodes[0].tId + '_a'
 
             $("#tree_menu").css({"top":y+"px", "left":x+"px", "visibility":"visible"});
 
-            $("#tree_menu").on('mouseleave', function() {
-                // _this.hideRMenu()
+            $("#tree_menu, #" + id).on('mouseover', function() {
+                console.log('11')
+                _this.ztree_menu_flag = true
+            });
+
+            $("#tree_menu, #" + id).on('mouseleave', function() {
+                _this.ztree_menu_flag = false
+                _this.hideRMenu(id)
             });
         },
-        hideRMenu : function () {
-            $("#tree_menu").css({"visibility": "hidden"})
+        hideRMenu : function (id=null) {
+            var _this = this
+
+            setTimeout(function(){
+                // console.log(_this.ztree_menu_flag)
+                if(_this.ztree_menu_flag) {
+                    return false
+                }
+                $("#tree_menu").css({"visibility": "hidden"})
+                if(id != null) {
+                    // console.log('unbind mouseleave ' + id)
+                    $("#" + id).unbind('mouseleave')
+                    $("#" + id).unbind('mouseover')
+                }
+            }, 100)
         },
         /* 右键菜单 */
         OnRightClick : function (event, treeId, treeNode) {
+            console.log('menu right click')
+            console.log(treeId)
+            console.log(treeNode)
+            console.log('menu right click')
             if (!treeNode && event.target.tagName.toLowerCase() != "button" && $(event.target).parents("a").length == 0) {
                 this.ztree.cancelSelectedNode();
                 this.showRMenu("root", event.clientX, event.clientY);
@@ -176,10 +243,6 @@ export default {
         ztree_beforeDrop : function (treeId, treeNodes, targetNode, moveType) {
             if((targetNode == null || targetNode.pid == 0) && moveType != 'inner') 
                 return false
-
-            // console.log('before')
-            // console.log(targetNode)
-            // console.log('before')
 
             return targetNode ? targetNode.drop !== false : true;
         },
