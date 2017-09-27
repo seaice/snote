@@ -70,6 +70,13 @@ export default {
                 });
             }
 
+            /* 重命名 */
+            this.renameFolder = function(node) {
+                var sql = "update folder set name='" + node.name + "' where id=" + node.id;
+                console.log(sql)
+                // db.link.run(sql)
+            }
+
             /* 获得树，并初始化左侧树 */
             this.getFolder = function(uid) {
                 var sql = "select id,name,pid,sort,depth from folder where uid=" + uid + " order by sort desc, id asc"

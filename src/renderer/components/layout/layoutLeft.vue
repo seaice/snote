@@ -20,87 +20,31 @@
             {{ height }}<br>
             {{ width }}
         </div>
+        <div id="tree_menu">
+            <ul>
+                <li id="tree_menu_add">新建
+                    <ul>
+                        <li><i class="fa fa-folder-o" aria-hidden="true"></i><span>文件夹</span></li>
+                        <li><i class="fa fa-file-o" aria-hidden="true"></i><span>笔记</span></li>
+                        <li><i class="fa fa-file-o" aria-hidden="true"></i>MarkDown笔记</li>
+                    </ul>
+                </li>
+                <li id="tree_menu_rename" v-on:click="renameFolder">重命名</li>
+                <li id="tree_menu_del" v-on:click="deleteFolder">删除</li>
+            </ul>
+        </div>
     </div>
 </template>
 <script>
-var zNodes = [
-    {
-        name:"我的文件夹", open:true, children:[
-            {
-                name:"test1_1",
-                open:true,
-                children:[
-                    {
-                        name:'test123123'
-                    }
-
-                ]
-            }, 
-            {
-                name:"test1_2"
-            },
-            {
-                name:"test1_2"
-            },
-            {
-                name:"test1_2"
-            },
-            {
-                name:"test1_2"
-            },
-            {
-                name:"test1_2"
-            },
-            {
-                name:"test1_2"
-            },
-            {
-                name:"test1_2"
-            },
-            {
-                name:"test1_2"
-            },
-            {
-                name:"test1_2"
-            },
-            {
-                name:"test1_2"
-            },
-            {
-                name:"test1_2"
-            },
-            {
-                name:"test1_2"
-            },
-            {
-                name:"test1_2"
-            },
-        ]
-    }
-];
-
-
-
-// function ztree_beforeDrag(treeId, treeNodes) {
-//     for (var i=0,l=treeNodes.length; i<l; i++) {
-//         if (treeNodes[i].drag === false) {
-//             return false;
-//         }
-//     }
-//     return true;
-// }
-
-
-
-
 export default {
     components: {
     },
     data () {
         return {
-            nickname: 'haibing1458',
             fullHeight: document.documentElement.clientHeight - 52,
-
+            ztree : {},
+            ztree_node_oldname : "",
+            ztree_menu_flag : false, //是否隐藏菜单
             setting : {
                 view : {
                     // showLine: false,
@@ -122,16 +66,79 @@ export default {
                 },
                 callback: {
                     // beforeDrag : ztree_beforeDrag,
-                    beforeDrop  : this.ztree_beforeDrop,
-                    onDrop      : this.ztree_onDrop,
-                    onClick     : this.ztree_onClick,
-                    onRightClick: this.OnRightClick
+                    beforeDrop      : this.ztree_beforeDrop,
+                    onDrop          : this.ztree_onDrop,
+                    onClick         : this.ztree_onClick,
+                    onRightClick    : this.OnRightClick,
+                    beforeRename    : this.ztree_beforeRename,
+                    onRename        : this.ztree_onRename,
                 }
             },
             // folder : this.$db.getNote(),
         }
     },
     methods: {
+        ztree_beforeRename : function(treeId, treeNode, newName, isCancel) {
+            if(treeNode.pid == 0)
+                return false
+            this.ztree_node_oldname = treeNode.name
+        },
+        deleteFolder : function() {
+            var nodes = this.ztree.getSelectedNodes()
+            console.log(nodes)
+        },
+        renameFolder : function() {
+            var nodes = this.ztree.getSelectedNodes()
+            this.ztree.editName(nodes[0])
+            this.hideRMenu()
+        },
+        ztree_onRename : function(event, treeId, treeNode, isCancel) {
+            if(isCancel == true) {
+                return true;
+            }
+
+            if(this.ztree_node_oldname == treeNode.name) {
+                return true;
+            }
+
+            var name = this.filterStr(treeNode.name)
+
+            console.log(name)
+
+            this.$db.renameFolder(treeNode)
+        },
+        showRMenu : function (type, x, y) {
+            var nodes = this.ztree.getSelectedNodes()
+            var _this = this
+            $("#tree_menu").show();
+            // if (nodes[0].pid == 0) {
+            //     $("#tree_menu_rename").hide();
+            //     $("#tree_menu_del").hide();
+            // } else {
+            //     $("#tree_menu_add").show();
+            //     $("#tree_menu_rename").show();
+            //     $("#tree_menu_del").show();
+            // }
+
+            $("#tree_menu").css({"top":y+"px", "left":x+"px", "visibility":"visible"});
+
+            $("#tree_menu").on('mouseleave', function() {
+                // _this.hideRMenu()
+            });
+        },
+        hideRMenu : function () {
+            $("#tree_menu").css({"visibility": "hidden"})
+        },
+        /* 右键菜单 */
+        OnRightClick : function (event, treeId, treeNode) {
+            if (!treeNode && event.target.tagName.toLowerCase() != "button" && $(event.target).parents("a").length == 0) {
+                this.ztree.cancelSelectedNode();
+                this.showRMenu("root", event.clientX, event.clientY);
+            } else if (treeNode && !treeNode.noR) {
+                this.ztree.selectNode(treeNode);
+                this.showRMenu("node", event.clientX, event.clientY);
+            }
+        },
         getAllChildrenNodes : function (treeNode,result = []) {
               if (treeNode.isParent) {
                 var childrenNodes = treeNode.children;
@@ -226,11 +233,7 @@ export default {
             // this.$router.push({path: '/config'})
         },
         initFolders (data) {
-            // console.log(555)
-            // this.folder = data
-            this.ztreeObj = $.fn.zTree.init($("#treeDemo"), this.setting, data);
-            // console.log(this.folder)
-            // console.log(555)
+            this.ztree = $.fn.zTree.init($("#treeDemo"), this.setting, data);
         },
         getFolder () {
             this.$db.getFolder(1)
@@ -331,13 +334,11 @@ export default {
     line-height: 40px;
     font-size: 12px;
     padding-left: 30px;
-    /*background:red;*/
 }
 #layoutLeft #folder .new li i{
     margin: -3px 14px 0 0;
     font-size: 16px;
 }
-
 
 #layoutLeft #folder .new li:hover {
     background: #e4edf9;
@@ -350,6 +351,54 @@ export default {
 #layoutLeft .ad-left {
     border-top: 1px solid #ddd;
     height: 159px;
+}
+
+
+#layoutLeft #tree_menu {
+    border: 1px solid #b3d6ff;
+    position:absolute; 
+    visibility:hidden; 
+    top:0; 
+    background-color: #fff;
+    text-align: left;
+}
+#layoutLeft #tree_menu ul li{
+    height: 30px;
+    line-height: 30px;
+    padding: 0 0 0 30px;
+    font-size: 11px;
+    cursor: pointer;
+    /*list-style: none outside none;*/
+    position: relative;
+    width: 130px;
+
+}
+#layoutLeft #tree_menu ul li:hover{
+    background-color: #e9f3ff;
+}
+#layoutLeft #tree_menu ul li ul{
+    width: 150px;
+    display: none;
+    position: absolute;
+    border:1px solid  #b3d6ff;
+    background: #fff;
+}
+
+#layoutLeft #tree_menu ul li:hover ul{
+    display: block;
+    position: absolute;
+    top: -1px;
+    left: 130px;
+}
+
+#layoutLeft #tree_menu ul li ul li {
+    width: 150px;
+    padding: 0 0 0 20px;
+}
+
+
+#layoutLeft #tree_menu ul li ul i{
+    margin: 0 5px 0 0;
 }
 
 /*@import '../../assets/css/ztree/awesomeStyle/awesome.css';*/

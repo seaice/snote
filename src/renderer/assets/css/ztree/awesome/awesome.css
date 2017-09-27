@@ -59,16 +59,21 @@ website:    http://code.google.com/p/jquerytree/
     background: #e4edf9;
 }
 
+/* 重命名 
+<input type="text" class="rename" id="treeDemo_7_input" treenode_input="" value="vuex">
+*/
 .ztree li a input.rename {
-    height: 14px;
+    height: 30px;
+    line-height: 30px;
     width: 80px;
-    padding: 0;
-    margin: 0;
+    /*padding: 0;*/
+    /*margin: 0;*/
     color: #af0000;
     background-color: #ffffff;
     font-size: 12px;
-    border: 1px #585956 solid;
-    *border: 0px;
+    /*border: 1px #585956 solid;*/
+    border: none;
+    /**border: 0px;*/
 }
 
 .ztree li a.curSelectedNode {
@@ -90,13 +95,17 @@ website:    http://code.google.com/p/jquerytree/
     color: #fff;
 }
 
+
+/*
+重命名
+ */
 .ztree li a.curSelectedNode_Edit {
-    padding-top: 0px;
-    background-color: transparent;
-    color: #ffff00;
-    height: 17px;
-    border: 1px #666 solid;
-    opacity: 0.8;
+    /*padding-top: 0px;*/
+    /*background-color: transparent;*/
+    /*color: #ffff00;*/
+    height: 30px;
+    /*border: 1px #666 solid;*/
+    /*opacity: 0.8;*/
 }
 
 /*拖拽到目录的样式*/

@@ -13,5 +13,15 @@ export default {
 
             return false
         }
+
+        Vue.prototype.filterStr = function (str) {
+            var pattern = new RegExp("[`~!@#$^&*()=|{}':;',\\[\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？%+_]");  
+            var specialStr = "";  
+            for(var i=0;i<str.length;i++)  
+            {  
+                 specialStr += str.substr(i, 1).replace(pattern, '');   
+            }  
+            return specialStr;  
+        }  
     }
 }
