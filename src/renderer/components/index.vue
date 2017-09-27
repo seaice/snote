@@ -15,6 +15,7 @@ import layoutLeft from './layout/layoutLeft'
 import notelist from './layout/notelist'
 import note from './layout/note'
 import modalAlert from './modal/alert'
+import noteItem from './layout/noteItem'
 
 export default {
     data () {
@@ -28,6 +29,7 @@ export default {
         notelist,
         note,
         modalAlert,
+        noteItem,
     }
   // components: { menu, SystemInformation }
 }
