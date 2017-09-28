@@ -11,6 +11,8 @@ import 'font-awesome/css/font-awesome.css'
 
 import 'ztree/js/jquery.ztree.all.min.js'
 
+import _ from './assets/js/lodash.custom.min.js'
+
 import common from './assets/js/common.js'
 Vue.use(common);
 
@@ -69,7 +71,7 @@ new Vue({
         window.addEventListener('resize', this.handleResize);
     },
     beforeDestroy: function () {
-        window.removeEventListener('resize', this. handleWindowResize)
+        window.removeEventListener('resize', _.debounce(this.handleWindowResize, 100))
         this.$db.close()
     },
     methods: {
