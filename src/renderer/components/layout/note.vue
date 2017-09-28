@@ -1,42 +1,37 @@
 <template>
     <div id="note" class="fl" :style="{ height: height - 52 +'px', width: width - 442 +'px'}">
         <div class="note-top">
-            <input class="title" :style="{ width: width - 442 +'px' }" type="text" value="无标题笔记" autofocus="autofocus" />
-            <!-- <div class="storage">存储：<input type="radio">本地 <input type="radio">网络</div> -->
+            <input class="title" :style="{ width: width - 442 +'px' }" type="text" value="无标题笔记" />
             <div class="meta">
                 <input type="checkbox" id="note-cloud" name="note-cloud" value="1"><label for="note-cloud">云端</label>
-                 <!-- <b-form-checkbox value="cloud">云端</b-form-checkbox> -->
             </div>
         </div>
        
-        <div class="editor-panel" :style="{ height: height - 110 +'px', width: '100%' }">
-            <script id="editor_html" type="text/plain" :style="{ height: height - 176 +'px', width: '100%' }"></script>
-        </div>
+        <Ueditor class="editor-panel" :height="height-108" @ready="editorReady" :style="{ height: height - 108 +'px', width: '100%' }"></Ueditor>
     </div>    
 </template>
 <script>
-    import '@/assets/ueditor/ueditor.config';
-    import '@/assets/ueditor/ueditor.all';
-    import '@/assets/ueditor/lang/zh-cn/zh-cn';
-
+import Ueditor from '../Ueditor'
     export default{
         components: {
+            Ueditor,
         },
         data: function(){
             return {
-                defaultMsg: "",  
-                config: {
-                   toolbars: [
-                        [ 'source', '|', 'removeformat', '|', 'undo', 'redo', '|', 'paragraph', 'fontfamily', '|', 'bold', 'italic', 'underline', 'strikethrough','|', 'forecolor', 'backcolor'],
-                        ['inserttable', 'superscript', 'subscript', 'formatmatch', 'autotypeset', 'blockquote', 'pasteplain', '|', 'insertorderedlist', 'insertunorderedlist', 'selectall', 'cleardoc']
-                    ],
-                    enableAutoSave: false
-                },
-                editor:{}
+
             }
         },
         mounted() {
-            this.editor = UE.getEditor("editor_html", this.config);
+
+        },
+        methods : {
+            editorReady (instance) {
+                instance.setContent('');
+
+                instance.addListener('contentChange', () => {
+                  this.content = instance.getContent();
+                });
+            },
         },
         computed: {
             height: function(){
