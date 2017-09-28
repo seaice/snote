@@ -167,7 +167,6 @@ export default {
             $("#tree_menu").css({"top":y+"px", "left":x+"px", "visibility":"visible"});
 
             $("#tree_menu, #" + id).on('mouseover', function() {
-                console.log('11')
                 _this.ztree_menu_flag = true
             });
 
@@ -180,7 +179,6 @@ export default {
             var _this = this
 
             setTimeout(function(){
-                // console.log(_this.ztree_menu_flag)
                 if(_this.ztree_menu_flag) {
                     return false
                 }
@@ -424,6 +422,7 @@ export default {
     top:0; 
     background-color: #fff;
     text-align: left;
+    z-index: 10000;
 }
 #layoutLeft #tree_menu ul li{
     height: 30px;
