@@ -122,6 +122,12 @@ export default {
         deleteFolder : function() {
             var nodes = this.ztree.getSelectedNodes()
             console.log(nodes)
+            this.ztree_menu_flag = false
+            this.hideRMenu()
+
+            //todo  删除要判断内部有没有笔记，如果存在，要提示。
+            //方案：删除目录，目录以及其子目录，直接删除。目录内部笔记，直接进入垃圾站。不在进行分类。恢复笔记，直接恢复到我的文件夹。
+            this.ztree.removeNode(nodes[0])
         },
         renameFolder : function() {
             this.ztree_menu_flag = false
@@ -248,7 +254,7 @@ export default {
             var ret = this.getAllChildrenNodes(treeNode, [treeNode.id])
             console.log(ret)
 
-            //todo 获得所有节点的笔记
+            //todo 获得所有节点的笔记,展示在第二列
 
         },
         ztree_rebuildDiyDom : function(treeId, treeNode) {
@@ -463,6 +469,5 @@ export default {
     margin: 0 5px 0 0;
 }
 
-/*@import '../../assets/css/ztree/awesomeStyle/awesome.css';*/
 @import '../../assets/css/ztree/awesome/awesome.css';
 </style>
