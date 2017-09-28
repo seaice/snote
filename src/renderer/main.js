@@ -26,7 +26,6 @@ Vue.use(BootstrapVue);
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
-
 require('./assets/main.css')
 //判断是否联网
 console.log('at any moment you can check with navigator.onLine', navigator.onLine)
@@ -71,7 +70,7 @@ new Vue({
         window.addEventListener('resize', this.handleResize);
     },
     beforeDestroy: function () {
-        window.removeEventListener('resize', _.debounce(this.handleWindowResize, 100))
+        window.removeEventListener('resize', this.handleWindowResize, 100)
         this.$db.close()
     },
     methods: {

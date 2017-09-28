@@ -8,6 +8,12 @@
     outline: none;
 }
 
+*:focus, *:active {
+    outline: 0!important;
+    box-shadow: none!important;
+    -webkit-box-shadow: none!important;
+}
+
 ul {
     margin: 0;
 }
@@ -86,13 +92,12 @@ ul {
     color:#97c3ff;
 }
 
-.s-dropdown *, .s-dropdown *:active, .s-dropdown *:focus {
+/*.s-dropdown *, .s-dropdown *:active, .s-dropdown *:focus {
     background: none;
     border: none;
     outline: none;
-    outline: none;
     box-shadow: none;
-}
+}*/
 .s-dropdown .dropdown-menu {
     background: #fff;
     border: 1px solid #b3d6ff;

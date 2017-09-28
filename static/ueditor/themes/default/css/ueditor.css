@@ -164,7 +164,7 @@ div.edui-box {
     background-image: -o-linear-gradient(top, #ffffff, #f2f2f2);
     background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
     background-repeat: repeat-x;
-    border: 1px solid #d4d4d4;
+    /*border: 1px solid #d4d4d4;*/
     -webkit-border-radius: 4px 4px 0 0;
     -moz-border-radius: 4px 4px 0 0;
     border-radius: 4px 4px 0 0;
@@ -928,7 +928,7 @@ div.edui-box {
 }
 
 .edui-default  .edui-for-charts  .edui-icon {
-    background: url(../images/charts.png) no-repeat 2px 3px!important;
+    background: url( ../images/charts.png ) no-repeat 2px 3px!important;
 }
 
 .edui-default  .edui-for-inserttitlecol  .edui-icon {
