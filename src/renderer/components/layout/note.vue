@@ -91,6 +91,10 @@ import Ueditor from '../Ueditor'
     box-sizing: content-box;
 }
 
+.edui-toolbar {
+    min-width: 690px;
+}
+
 #note .edui-default .edui-editor {
     border: none;
     -webkit-border-radius:0;
