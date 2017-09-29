@@ -7,22 +7,26 @@
             <span  class="list-icon"><i class="fa fa-th-list" aria-hidden="true"></i></span>
         </div>
         <div class="noteListContent" :style="{ height: height - 107 + 'px' }">
-            <div id="list">
-                <noteItem>
-                    <template slot="item" scope="item">
-                        <li>
-                            <div v-bind:class="{'my-note-item-folder': item.item.type === 1, 'my-note-item': item.item.type == 2 }">
-                                <span class="item-title">{{ item.item.title }}</span>
-                                    <span v-if="item.item.type === 1"><i></i>{{ item.item.belong }}</span>
-                                    <div class="item-bottom"v-else="item.item.type ===2">
-                                    <span class="item-createtime">{{ item.item.createtime }}</span>
-                                    <span class="item-size">{{ item.item.size }}</span>
-                                </div>
+            <noteItem>
+                <template slot="item" scope="item">
+                    <li>
+                        <div v-bind:class="{'my-note-item-folder': item.item.type === 1, 'my-note-item': item.item.type == 2 }">
+                            <span class="item-title">
+                                <i :class="{ 'fa fa-folder': item.item.type === 1, 'fa fa-pencil-square-o': item.item.type == 2} " aria-hidden="true"></i>
+                                {{ item.item.type === 1  ? item.item.belong : item.item.title }}
+                            </span>
+                            <div class="item-folder-bottom" v-if="item.item.type === 1">
+                                 <span class="item-createtime">{{ item.item.createtime }}</span>
                             </div>
-                        </li>
-                    </template>
-                </noteItem>
-            </div>
+                           
+                            <div class="item-bottom"  v-else="item.item.type === 2">
+                                <span class="item-createtime">{{ item.item.createtime }}</span>
+                                <span class="item-size">{{ item.item.size + 'B' }}</span>
+                            </div>
+                        </div>
+                    </li>
+                </template>
+            </noteItem>
             <div class="totalCount">总共{{ total }}项</div>
         </div>
 
@@ -30,6 +34,7 @@
 </template>
 <script type="text/javascript">
 import noteItem from './noteItem'
+
 export default {
     components:{
         noteItem
@@ -63,7 +68,7 @@ export default {
     font-size: 12px;
 }
 
-#noteList .search-box .search{
+#noteList .search-box .search {
     height: 35px;
     line-height: 35px;
     border-radius: 20px;
@@ -74,8 +79,8 @@ export default {
 
 #noteList .search-box .levelup-icon {
     text-align: left;
-    
 }
+
 #noteList  .search-box .search-icon {
     position: absolute;
 }
@@ -84,32 +89,75 @@ export default {
     text-align: left;
 }
 
-#noteList  .search-box span i{
-    margin:-2px 10px 0 10px ;
+#noteList  .search-box span i {
+    margin:-2px 10px 0 10px;
 }
 
 #noteList  .search-box i {
     color: #ADB8C4;
     font-size:14px;
 }
-#noteList .my-note-item{
+
+#noteList .list li:hover {
+    background: #f5f5f5;
+}
+
+#noteList .my-note-item {
     width: 240px;
     height: 125px;
-    background: red;
     border-bottom: 1px solid  #ADB8C4;
     font-size: 12px;
-
+    color: #eee;
 }
 
-#noteList .my-note-item-folder{
-     width: 240px;
-    height: 125px;
-    background: blue;
+#noteList .my-note-item-folder {
+    width: 240px;
+    height: 80px;
     border-bottom: 1px solid  #ADB8C4;
     font-size: 12px;
 }
+
 #noteList .my-note-item, #noteList .my-note-item-folder {
     padding-left: 20px;
+}
+
+#noteList .noteListContent .list li {
+    position: relative;
+}
+
+#noteList .my-note-item-folder .item-folder-bottom .item-createtime {
+    bottom: 10px;
+    position: absolute;
+    color: #eee;
+}
+
+#noteList .noteListContent .item-title {
+    display: inline-block;
+    padding-top: 10px;
+}
+
+
+#noteList .noteListContent .item-title .fa-pencil-square-o {
+    color: #398dee;
+    margin-right:10px;
+}
+
+#noteList .item-title .fa-folder{
+    color: #f6ce62;
+    margin-right:10px;
+}
+
+#noteList .noteListContent .item-bottom {
+    position: absolute;
+    bottom: 5px;
+}
+
+#noteList .noteListContent .item-bottom span {
+    color: #ddd;
+}
+
+#noteList .noteListContent .item-bottom .item-size{
+    padding-left: 35px;
 }
 
 #noteList .noteListContent .totalCount {
@@ -121,12 +169,5 @@ export default {
     text-align: center;
     font-size: 12px;
 }
-.noteListContent .item-bottom {
-   margin-top: 60px;
-   color: #eee;
-}
-.noteListContent .item-title {
-    display: inline-block;
-    padding-top: 10px;
-}
+
 </style>

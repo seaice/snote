@@ -1,5 +1,5 @@
 <template>
-	<div v-if="items.length > 0">
+	<div v-if="items.length > 0" class="list">
 		<ul>
 			<slot name="item"
 				v-for="item in items"
@@ -17,14 +17,15 @@
 export default {
     data () {
         return {
-            items:[{
-            	title: 'test',
-            	type: 2,
-            	belong: null,
-            	createtime: '2017-09-28',
-            	size: '11b'
-            }]
+            items:[]
         }
+    }
+    ,
+    mounted (){
+        this.$bus.$on('getNoteList', function(rst){
+            console.log("rst: ", rst);
+
+        })
     }
 }
     
