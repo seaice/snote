@@ -36,7 +36,7 @@
         //工具栏上的所有的功能按钮和下拉框，可以在new编辑器的实例时选择自己需要的从新定义
         , toolbars: [
             ['source', '|', 'removeformat', '|', 'undo', 'redo', '|', 'paragraph', 'fontfamily', '|', 'bold', 'italic', 'underline', 'strikethrough','|', 'forecolor', 'backcolor', '|', 'justifyleft','justifyright','justifycenter','justifyjustify','|', 'insertorderedlist','insertunorderedlist','lineheight'],
-            ['inserttable', 'deletetable', 'insertparagraphbeforetable', 'insertrow', 'deleterow', 'insertcol', 'deletecol', 'mergecells', 'mergeright', 'mergedown', 'splittocells', 'splittorows', 'splittocols', '|', 'simpleupload','insertimage', 'preview']
+            ['inserttable', 'deletetable', 'insertparagraphbeforetable', 'insertrow', 'deleterow', 'insertcol', 'deletecol', 'mergecells', 'mergeright', 'mergedown', 'splittocells', 'splittorows', 'splittocols', '|', 'simpleupload','insertimage', 'imagenone', 'imagecenter', 'attachment', '|', 'insertcode', 'horizontal', 'preview']
         ]
         //当鼠标放在工具栏上时显示的tooltip提示,留空支持自动多语言配置，否则以配置值为准
         //,labelMap:{

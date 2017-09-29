@@ -6,7 +6,7 @@
                 <input type="checkbox" id="note-cloud" name="note-cloud" value="1"><label for="note-cloud">云端</label>
             </div>
         </div>
-       
+
         <Ueditor class="editor-panel" :height="height-108" @ready="editorReady" :style="{ height: height - 108 +'px', width: '100%' }"></Ueditor>
     </div>    
 </template>
@@ -25,6 +25,10 @@ import Ueditor from '../Ueditor'
 
         },
         methods : {
+            dialog () {
+                const {dialog} = require('electron').remote
+                dialog.showOpenDialog({properties: ['openFile', 'multiSelections']})
+            },
             editorReady (instance) {
                 instance.setContent('');
 
