@@ -25,6 +25,13 @@ function createWindow () {
     frame: false,
     // autoHideMenuBar: true,
     // titleBarStyle: 'hidden'
+
+
+    // 是否允许访问load local resource
+    // 例如：<img src="C:\Users\seaice\Pictures\880b532309f79052794be82e0af3d7ca7acbd5fe.jpg"/>
+    // "webPreferences":{
+    //   "webSecurity":false
+    // }
   })
 
   mainWindow.loadURL(winURL)
@@ -49,7 +56,6 @@ function createWindow () {
   ipcMain.on('note:window:minimize', function (e) {
     mainWindow.minimize()
   })
-
 }
 
 app.on('ready', createWindow)

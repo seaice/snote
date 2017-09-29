@@ -30,6 +30,46 @@ require('./assets/main.css')
 //判断是否联网
 console.log('at any moment you can check with navigator.onLine', navigator.onLine)
 
+
+const electron = require('electron').remote
+
+
+// const path = require('path')
+
+console.log(electron)
+
+electron.protocol.unregisterProtocol('snote')
+electron.protocol.registerFileProtocol('snote', (request, callback) => {
+    console.log(111111111111)
+    console.log(request)
+    console.log(callback)
+    console.log(111111111111)
+
+    const url = request.url.substr(6)
+    console.log(url)
+    // callback({path: path.normalize(`${__dirname}/${url}`)})
+    callback({path: url})
+}, (error) => {
+    console.log(error)
+    if (error) console.error('Failed to register protocol')
+})   
+
+// electron.app.on('ready', () => {
+    // electron.protocol.registerFileProtocol('snote', (request, callback) => {
+    //     console.log(111111111111)
+    //     console.log(request)
+    //     console.log(callback)
+    //     console.log(111111111111)
+
+    //     const url = request.url.substr(6)
+    //     console.log(url)
+    //     callback({path: path.normalize(`${__dirname}/${url}`)})
+    // }, (error) => {
+    //     console.log(error)
+    //     if (error) console.error('Failed to register protocol')
+    // })
+// })
+
 ///////////////////////////////////////////////////////////////////////////////////
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
