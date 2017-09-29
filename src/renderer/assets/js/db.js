@@ -1,3 +1,17 @@
+/**
+ * note 表结构
+ * id   
+ * fid  文件夹id
+ * uid  用户id
+ * type 类型：0，html；1，markdown
+ * title    标题
+ * summary  摘要
+ * content  笔记内容
+ * state    状态：0，正常；1，回收站；2，彻底删除；
+ * created  创建时间
+ * updated  修改时间
+ */
+
 export default {
     install : function (Vue, options) {
         Vue.prototype.$db = new function() {
