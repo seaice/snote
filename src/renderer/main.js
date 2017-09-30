@@ -31,10 +31,28 @@ require('./assets/main.css')
 console.log('at any moment you can check with navigator.onLine', navigator.onLine)
 
 
+var crypto = require('crypto'),
+key = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+iv = 'AAAAAAAAAAAAAAAA';
+
+function encrypt_token(data) {
+  var cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+  cipher.update(data, 'binary', 'base64');
+  return cipher.final('base64');
+}
+ 
+function decrypt_token(data) {
+  var decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+  decipher.update(data, 'base64', 'binary');
+  return decipher.final('binary');
+}
+ 
+console.log('NodeJS encrypt: ', encrypt_token('dmyz.org'));
+console.log('NodeJS decrypt: ', decrypt_token('FSfhJ/gk3iEJOPVLyFVc2Q=='));
+
+
+/*
 const electron = require('electron').remote
-
-
-// const path = require('path')
 
 console.log(electron)
 
@@ -54,21 +72,7 @@ electron.protocol.registerFileProtocol('snote', (request, callback) => {
     if (error) console.error('Failed to register protocol')
 })   
 
-// electron.app.on('ready', () => {
-    // electron.protocol.registerFileProtocol('snote', (request, callback) => {
-    //     console.log(111111111111)
-    //     console.log(request)
-    //     console.log(callback)
-    //     console.log(111111111111)
-
-    //     const url = request.url.substr(6)
-    //     console.log(url)
-    //     callback({path: path.normalize(`${__dirname}/${url}`)})
-    // }, (error) => {
-    //     console.log(error)
-    //     if (error) console.error('Failed to register protocol')
-    // })
-// })
+*/
 
 ///////////////////////////////////////////////////////////////////////////////////
 
