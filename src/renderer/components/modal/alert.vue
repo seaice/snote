@@ -1,16 +1,15 @@
 <template>
-    <div class="s-modal">
-        <b-modal id="alert" ref="alert" 
-            :no-fade="true" 
-            :no-close-on-backdrop="true"
-            :hide-footer="true"
-        >
-            <div slot="modal-header">
-                <span>系统错误</span>
-                <a v-if="close" href="#" v-on:click="$refs.alert.hide(false)" class="fr btn-modal-close"  style="-webkit-app-region: no-drag"><i class="fa fa-close" aria-hidden="true"></i></a>
+    <div class="modal" id="alert" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <a v-if="close" href="#" class="fr btn-modal-close" style="-webkit-app-region: no-drag" data-dismiss="modal" aria-label="Close"><i class="fa fa-close" aria-hidden="true"></i></a>
+                    <h4 class="modal-title" id="myModalLabel">系统错误</h4>
+                </div>
+                <div class="modal-body s-alert" v-bind:class="[state]" v-html="msg">
+                </div>
             </div>
-            <div class="s-alert" v-bind:class="[state]" v-html="msg"></div>
-        </b-modal>
+        </div>
     </div>
 </template>
 <script>
@@ -47,7 +46,8 @@ export default {
             if(data.state != null && data.state != '') {
                 this.state = 's-alert-' + data.state
             }
-            this.$refs.alert.show()
+
+            $('#alert').modal()
         }
     }
 }

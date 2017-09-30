@@ -36,8 +36,12 @@ export default {
     },
     methods: {
         directorySelectorCallback (filenames) {
+            var fs = require('fs');
             console.log(filenames)
             var content = ''
+
+            console.log(remote.app.getPath('userData'))
+
             for(var i = 0; i < filenames.length; i++) {
                 content += '<img src="snote:' + filenames[i] + '"/>'
             }

@@ -4,9 +4,9 @@ import axios from 'axios'
 import App from './App'
 import router from './router'
 import store from './store'
-Vue.prototype.$store = store
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
+Vue.prototype.$store = store
 import 'font-awesome/css/font-awesome.css'
 
 import 'ztree/js/jquery.ztree.all.min.js'
@@ -21,10 +21,9 @@ Vue.use(db);
 // Object.defineProperty(Vue.prototype, '$db', { value: new db() });
 
 
-import BootstrapVue from 'bootstrap-vue'
-Vue.use(BootstrapVue);
 import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
+import 'bootstrap/dist/js/bootstrap.js'
+
 
 require('./assets/main.css')
 //判断是否联网
@@ -50,9 +49,10 @@ electron.protocol.registerFileProtocol('snote', (request, callback) => {
 }, (error) => {
     console.log(error)
     if (error) console.error('Failed to register protocol')
-})   
-
+})
 */
+
+const remote = require('electron').remote
 
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -74,14 +74,21 @@ new Vue({
         }
     },
     mounted: function () {
-        // 获得用户
+        // 用户登陆
+        // Vue.prototype.$bus.$emit('alert', {msg:'数据异常，请重启笔记！<br>如果重启不能解决问题，请重新安装！',close:false, state:'danger'})
+        // login()
+
         var uid = 1
         store.commit('user_login', {
             id : uid,
             name : 'haibing',
+            // nick : 'haibing',
         })
 
-        // 初始化文件夹
+        // 初始化个人目录
+        // remote.app.getPath('userData')
+
+        // 初始化文件夹列表
         this.$db.getFolder(uid)
         // this.$db.addFolder('    ', 4)
 

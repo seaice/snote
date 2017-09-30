@@ -37,28 +37,28 @@ ul {
 .clear:after{clear:both}
 
 
-.s-modal {
-
+.modal {
+    /*display: none;*/
 }
 
-.s-modal .show {
+.modal.in {
     display: table!important;
     height: 100%;
     width: 100%;
 }
 
-.s-modal .modal-dialog {
+.modal .modal-dialog {
     display: table-cell;
     vertical-align: middle;
 }
-.s-modal .modal-content {
+.modal .modal-content {
     max-width: 500px;
     margin: 0 auto;
     border: none;
     border-radius: 0;
 }
 
-.s-modal .modal-header {
+.modal .modal-header {
     height: 30px;
     line-height: 30px;
     padding: 0;
@@ -67,37 +67,36 @@ ul {
     padding: 0 0 0 10px;
     border: none;
 }
+.modal .modal-header .modal-title{
+    line-height: 30px;
+    font-size: 12px;
+}
 
-.s-modal .modal-header * {
+.modal .modal-header * {
     color:#fff;
 }
 
-.s-modal .modal-header div {
+.modal .modal-header div {
     width: 100%
 }
 
-.s-modal .modal-header .btn-modal-close {
+.modal .modal-header .btn-modal-close {
     display: block;
     height: 30px;
     width: 30px;
     text-align: center;
 }
 
-.s-modal .modal-header .btn-modal-close i {
+.modal .modal-header .btn-modal-close i {
     margin: -3px 0 0 0;
 }
 
 
-.s-modal .modal-header .btn-modal-close:hover i {
+.modal .modal-header .btn-modal-close:hover i {
     color:#97c3ff;
 }
 
-/*.s-dropdown *, .s-dropdown *:active, .s-dropdown *:focus {
-    background: none;
-    border: none;
-    outline: none;
-    box-shadow: none;
-}*/
+
 .s-dropdown .dropdown-menu {
     background: #fff;
     border: 1px solid #b3d6ff;
