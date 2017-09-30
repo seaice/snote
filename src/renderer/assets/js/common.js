@@ -22,6 +22,22 @@ export default {
                  specialStr += str.substr(i, 1).replace(pattern, '');   
             }  
             return specialStr;  
-        }  
+        }
+
+        Vue.prototype.encrypt_token = function(key, iv, data) {
+            var crypto = require('crypto')
+
+            var cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+            cipher.update(data, 'binary', 'base64');
+            return cipher.final('base64');
+        }
+
+        Vue.prototype.decrypt_token = function(key, iv, data) {
+            var crypto = require('crypto')
+
+            var decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+            decipher.update(data, 'base64', 'binary');
+            return decipher.final('binary');
+        }
     }
 }
