@@ -3,6 +3,7 @@ const state = {
     name: '请登陆',
     login: false,
     figure: '~@/assets/img/figure.png',
+    pathData: null,
 }
 
 const mutations = {
@@ -12,6 +13,7 @@ const mutations = {
         state.id   = user.id
         state.name  = user.name
         state.login = true
+        state.pathData = user.pathData
     },
 }
 

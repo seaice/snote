@@ -40,7 +40,7 @@ export default {
             console.log(filenames)
             var content = ''
 
-            console.log(remote.app.getPath('userData'))
+            console.log(this.$store.state.User.pathData)
 
             for(var i = 0; i < filenames.length; i++) {
                 content += '<img src="snote:' + filenames[i] + '"/>'

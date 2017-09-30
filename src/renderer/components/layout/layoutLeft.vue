@@ -336,6 +336,10 @@ export default {
     border-right: 1px solid #ddd;
     clear: both;
 }
+#layoutLeft a{
+    color: #000;
+    text-decoration: none;
+}
 
 #layoutLeft #folder{
     overflow: hidden;

@@ -78,18 +78,13 @@ new Vue({
         // Vue.prototype.$bus.$emit('alert', {msg:'数据异常，请重启笔记！<br>如果重启不能解决问题，请重新安装！',close:false, state:'danger'})
         // login()
 
-        var uid = 1
-        store.commit('user_login', {
-            id : uid,
-            name : 'haibing',
-            // nick : 'haibing',
-        })
+
 
         // 初始化个人目录
         // remote.app.getPath('userData')
 
         // 初始化文件夹列表
-        this.$db.getFolder(uid)
+        this.$db.getFolder(1)
         // this.$db.addFolder('    ', 4)
 
         // 初始化第二列
