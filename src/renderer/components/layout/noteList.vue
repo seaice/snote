@@ -7,50 +7,131 @@
             <span  class="list-icon"><i class="fa fa-th-list" aria-hidden="true"></i></span>
         </div>
         <div class="noteListContent" :style="{ height: height - 107 + 'px' }">
-            <noteItem>
-                <template slot="item" scope="item">
-                    <li>
-                        <div v-bind:class="{'my-note-item-folder': item.item.type === 1, 'my-note-item': item.item.type == 2 }">
+            <div v-if="items.length > 0" class="list">
+                <ul>
+                    <li v-for="item in items">
+                        <div v-bind:class="{'my-note-item-folder': item.type == 1, 'my-note-item': item.type == 0 }">
                             <span class="item-title">
-                                <i :class="{ 'fa fa-folder': item.item.type === 1, 'fa fa-pencil-square-o': item.item.type == 2} " aria-hidden="true"></i>
-                                {{ item.item.type === 1  ? item.item.belong : item.item.title }}
+                                <i :class="{ 'fa fa-folder': item.type == 1, 'fa fa-pencil-square-o': item.type == 0} " aria-hidden="true"></i>
+                                {{ item.type == 1  ? item.name : item.title }}
                             </span>
-                            <div class="item-folder-bottom" v-if="item.item.type === 1">
-                                 <span class="item-createtime">{{ item.item.createtime }}</span>
+                            <div class="item-folder-bottom" v-if="item.type == 1">
+                                 <span class="item-createtime">{{ getUpdatedTime(item.updated) }}</span>
                             </div>
                            
-                            <div class="item-bottom"  v-else="item.item.type === 2">
-                                <span class="item-createtime">{{ item.item.createtime }}</span>
-                                <span class="item-size">{{ item.item.size + 'B' }}</span>
+                            <div class="item-bottom"  v-else="item.type == 0">
+                                <span class="item-createtime">{{ getUpdatedTime(item.updated) }}</span>
+                                <span class="item-size">{{ getContentSize(item.content) }}</span>
                             </div>
                         </div>
                     </li>
-                </template>
-            </noteItem>
-            <div class="totalCount">总共{{ total }}项</div>
+                </ul>
+            </div>
+            <div v-else="items.length < 0" class="no-note">
+                <span>没有内容</span>
+                <button class="btn btn-info" @click="createNote">新建笔记</button>
+            </div>
         </div>
+        <div class="totalCount">总共{{ this.items.length }}项</div>
 
     </div>
 </template>
 <script type="text/javascript">
-import noteItem from './noteItem'
 
 export default {
     components:{
-        noteItem
     },
     data () {
         return {
             nickname: 'haibing1458',
-            total:0,
+            total: 0,
+            items: [],
+            selectedNode: {},
         }
     },
     computed:{
         height () {
             return this.$store.state.Window.height;
         }
+    },
+    mounted:function(){
+         this.$bus.$on("note:list:init",this.initNoteList);//笔记列表初始化
+         this.$bus.$on("note:addNote", this.addNote);//添加新增笔记
+         this.$bus.$on('note:getSelectedNode', this.getSelectedNode);//获取选中的树节点id
+
+    },
+    methods: {
+         initNoteList:function(data){
+            this.items = data;
+        },
+        getContentSize: function(content){
+            if (content != null && content != ''){
+                var length = content.length;
+                var size = 0;
+
+                if (length >= 0 && length < 1024){
+                    return length +"B";
+                }else if (length >= 1024 && length < 1048576){
+                    size = length / 1024;
+                    return size.toFixed(2)+" K";
+                }else if (length >= 1048576){
+                    size = length / 1048576;
+                    return size.toFixed(2)+" M"
+                }
+            }else {
+                return "0B"
+            }
+        },
+        getUpdatedTime: function(time){
+            if (time != 0 && time != null){
+                var date = new Date(time * 1000);
+                var day = date.getDate();
+                if (day < 10){
+                    day = "0" + day;
+                }
+                return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + day;
+            }
+        },
+        addNote: function(item){
+            this.items.unshift(item);
+        },
+        createNote: function(){
+            var _this = this
+
+            var newData = { title: "无标题笔记" , type: 0, state:0};
+            var selectNode = this.selectedNode;
+           
+            if (selectNode) {
+                var asyncOps = [
+                    function(callback) {
+                        _this.$db.addNote(selectNode, newData, callback)
+                    },
+                    function(id, created, callback) {
+                        
+                        newData.checked = selectNode.checked;
+                        newData.id = id
+                        newData.pid = selectNode.id
+                        newData.created = newData.updated = created;
+                        callback(null)
+                        _this.$bus.$emit("note:addNote", newData);
+                    }
+                ]
+                this.$async.waterfall(asyncOps, function (err, results) {
+                    if (err) {
+                        _this.$db.alert()
+                        return false
+                    }
+                });
+            } else {
+                // 没选中节点。不能添加
+            }
+        },
+        getSelectedNode: function(treeNode){
+            this.selectedNode = treeNode;
+        }
     }
 }
+
 </script>
 
 <style type="text/css">
@@ -121,6 +202,8 @@ export default {
     padding-left: 20px;
 }
 
+
+
 #noteList .noteListContent .list li {
     position: relative;
 }
@@ -128,12 +211,13 @@ export default {
 #noteList .my-note-item-folder .item-folder-bottom .item-createtime {
     bottom: 10px;
     position: absolute;
-    color: #eee;
+    color: #D3D3D3;
 }
 
 #noteList .noteListContent .item-title {
     display: inline-block;
     padding-top: 10px;
+    color: #000;
 }
 
 
@@ -142,7 +226,7 @@ export default {
     margin-right:10px;
 }
 
-#noteList .item-title .fa-folder{
+#noteList .item-title .fa-folder {
     color: #f6ce62;
     margin-right:10px;
 }
@@ -153,14 +237,38 @@ export default {
 }
 
 #noteList .noteListContent .item-bottom span {
-    color: #ddd;
+    color: #D3D3D3;
 }
 
-#noteList .noteListContent .item-bottom .item-size{
-    padding-left: 35px;
+#noteList .noteListContent .item-bottom .item-size {
+    padding-left: 20px;
 }
 
-#noteList .noteListContent .totalCount {
+#noteList .noteListContent .no-note {
+    position: absolute;
+    top: 50%;
+    margin-left: 80px;
+}
+
+#noteList .noteListContent .no-note button{
+    padding: 10px 18px;
+    margin-top: 10px;
+}
+
+#noteList .noteListContent .no-note span {
+    display: block;
+    color: #D3D3D3;
+    margin-left: 18px;
+}
+
+#noteList .btn-info {
+   background-color: #398dee;
+}
+
+#noteList .btn-info:hover {
+    background-color: #337ab7;
+}
+#noteList .totalCount {
     width: 100%;
     height: 30px;
     line-height: 30px;

@@ -1,14 +1,17 @@
 <template>
-	<div v-if="items.length > 0" class="list">
+	<div v-if="items" class="list">
 		<ul>
 			<slot name="item"
 				v-for="item in items"
 				:item="item">
 			</slot>
 	    </ul>
+        has value : {{ items }}
+
     </div>
-    <div v-else="items.length <= 0 ">
-    	// todo 没记录显示的内容
+    <div v-else="items ">
+    	todo 没记录显示的内容
+        {{ items }}
 	</div>
 </template>
 
@@ -17,15 +20,21 @@
 export default {
     data () {
         return {
-            items:[]
+           items:[]
         }
     }
-    ,
-    mounted (){
-        this.$bus.$on('getNoteList', function(rst){
-            console.log("rst: ", rst);
+    ,mounted (){
+        this.$bus.$on("note:list:init",this.initNoteList);
+        // this.$bus.$on('note:addNote', function(rst){
+        //     console.log("rst: ", rst);
 
-        })
+        // })
+    }
+    ,methods:{
+        initNoteList:function(data){
+            this.items = data;
+        }
+        
     }
 }
     
