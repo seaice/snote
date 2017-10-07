@@ -169,8 +169,8 @@ export default {
             },
             
             this.getNoteList = function(fid, uid){
-                var sql = "  select '' as title, '' as content,'' as summary, updated, name, '1' as type from folder where pid = " + fid
-                        + " union select n.title,n.content,n.summary,n.updated, f.name,'0' as type from note n,folder f where f.id = n.fid and n.uid = " + store.state.User.id + " and n.fid = " + fid;
+                var sql = "  select '' as id, '' as title, '' as content,'' as summary, updated, name, '1' as type from folder where pid = " + fid
+                        + " union select n.id,n.title,n.content,n.summary,n.updated, f.name,'0' as type from note n,folder f where f.id = n.fid and n.uid = " + store.state.User.id + " and n.fid = " + fid;
                 db.link.all(sql, function(err, rows){
                     if (err) {
                         db.alert()
@@ -240,6 +240,10 @@ export default {
                     }
                     callbackFather(null, results[1], created)
                 })
+            },
+            this.modifyNoteTitle = function(id, newTitle){
+                var sql = "update note set title = '" + newTitle + "' where id = " + id;
+                db.link.run(sql);
             }
         }
     }
