@@ -2,8 +2,10 @@
     <div id="noteList" class="fl" :style="{ height: height - 52 + 'px' }">
         <div class="search-box">
             <span  class="levelup-icon"><i class="fa fa-level-up" aria-hidden="true"></i></span>
+            <!-- <div id="noteListSearchArea"> -->
             <span  class="search-icon"><i class="fa fa-search" aria-hidden="true"></i></span>
-            <input class="search" type="text" name="search" placeholder="搜索..." />
+            <input class="search" type="text" name="search" placeholder="搜索..." v-on:click="searchNote" />
+            <!-- </div> -->
             <span  class="list-icon"><i class="fa fa-th-list" aria-hidden="true"></i></span>
         </div>
         <div class="noteListContent" :style="{ height: height - 137 + 'px' }">
@@ -35,7 +37,13 @@
         <div class="totalCount">总共{{ this.items.length }}项</div>
         <div id="noteContextMenu" style="display:none;">
             <ul class="list-group">
-                <li class="list-group-item">新建</li>
+                <li  class="list-group-item">新建
+                    <ul class="list-group" id="right_menu">
+                        <li  v-on:click="createFolder" class="list-group-item"><i class="fa fa-folder-o" aria-hidden="true"></i><span>文件夹</span></li>
+                        <li v-on:click="createNote" class="list-group-item"><i class="fa fa-file-o" aria-hidden="true"></i><span>笔记</span></li>
+                        <li class="list-group-item"><i class="fa fa-file-o" aria-hidden="true"></i>MarkDown笔记</li>
+                    </ul>
+                </li>
                 <li class="list-group-item" v-on:click="renameNote">重命名</li>
                 <li class="list-group-item" v-on:click="deleteNote">删除</li>
             </ul>
@@ -69,9 +77,9 @@ export default {
         return {
             nickname: 'haibing1458',
             total: 0,
-            items: [],
-            selectedNode: {},
-            chooseItem:{}
+            items: [],  //所有笔记集合
+            selectedNode: {},// 选中的树节点
+            chooseItem:{} // 选中的笔记节点
         }
     },
     computed:{
@@ -83,12 +91,9 @@ export default {
          this.$bus.$on("note:list:init",this.initNoteList);//笔记列表初始化
          this.$bus.$on("note:addNote", this.addNote);//添加新增笔记
          this.$bus.$on('note:getSelectedNode', this.getSelectedNode);//获取选中的树节点id
-         console.log("scrollHeight", document.documentElement.scrollHeight);
-         console.log("clientHeight", document.documentElement.clientHeight);
-
     },
     methods: {
-         initNoteList:function(data){
+        initNoteList:function(data){
             this.items = data;
         },
         getContentSize: function(content){
@@ -128,6 +133,7 @@ export default {
             var newData = { title: "无标题笔记" , type: 0, state:0};
             var selectNode = this.selectedNode;
             console.log("selectNode: ", selectNode);
+            $("#noteContextMenu").hide();
            
             if (selectNode!= null && selectNode.id !=null) {
                 var asyncOps = [
@@ -197,7 +203,22 @@ export default {
             $("#noteListRenameWindow").modal("show");
         },
         deleteNote: function(){
+            $("#noteContextMenu").hide();// 删除前隐藏右键菜单
+            if (this.chooseItem == null){
+                this.$bus.$emit('alert', {msg:'数据异常，请重启笔记！<br>如果重启不能解决问题，请重新安装！',close:false, state:'danger'});
 
+            } else {
+                this.$db.deleteNote(this.chooseItem.id);
+
+                 if (this.selectedNode != null && this.selectedNode.id != null) {
+
+                     this.$db.getNoteList(this.selectedNode.id);
+                 } else {
+
+                    this.$bus.$emit('alert', {msg:'数据异常，请重启笔记！<br>如果重启不能解决问题，请重新安装！',close:false, state:'danger'});
+                 }
+                
+            }
         },
         saveModifyName: function(){
           
@@ -205,10 +226,55 @@ export default {
             if (newTitle == "" || newTitle == null){
                 this.$bus.$emit('alert', {msg:'笔记名称不能为空',close:true, state:'danger'});
             }
-            this.$db.modifyNoteTitle(this.chooseItem.id, newTitle);
-            this.chooseItem.title = newTitle;
-             $("#noteListRenameWindow").modal("hide");
-        }
+            if (this.chooseItem == null){
+                this.$bus.$emit('alert', {msg:'数据异常，请重启笔记！<br>如果重启不能解决问题，请重新安装！',close:false, state:'danger'});
+
+            } else {
+                this.$db.modifyNoteTitle(this.chooseItem.id, newTitle);
+                this.chooseItem.title = newTitle;
+                $("#noteListRenameWindow").modal("hide");
+            }
+        },
+        searchNote: function(){
+            $(".search-icon").toogle();
+            $(".search").toogle();
+            var searchValue = $(".search").val();
+
+        },
+        createFolder : function() {
+            var _this = this
+            $("#noteContextMenu").hide();
+            var newData = { name:"新建文件夹" };
+            var selectNode = this.selectedNode;
+            console.log("selectNode", selectNode);
+            if (selectNode) {
+                var asyncOps = [
+                    function(callback) {
+                        _this.$db.addFolder(selectNode, newData, callback)
+                    },
+                    function(id, callback) {
+                        newData.checked = selectNode.checked;
+                        newData.id = id
+                        newData.pid = selectNode.id
+                        // var newNode = _ztree.addNodes(selectNode, newData);
+                        // _ztree.editName(newNode[0])
+                        _this.$db.getFolder(_this.$store.state.User.id);
+
+                        callback(null)
+                    }
+                ]
+                // var async = require('async');
+                this.$async.waterfall(asyncOps, function (err, results) {
+                    if (err) {
+                        _this.$db.alert()
+                        return false
+                    }
+                });
+            } else {
+                // 没选中节点。不能添加
+            }
+
+        },
     }
 }
 
@@ -233,6 +299,15 @@ export default {
     width: 240px;
 }
 
+/*#noteList .search-box #noteListSearchArea {
+    position: absolute;
+    height: 37px;
+    line-height: 37px;
+    text-align: center;
+    top: 10px;
+    left: 25px;
+}*/
+
 #noteList .search-box .search {
     height: 35px;
     line-height: 35px;
@@ -251,7 +326,9 @@ export default {
 }
 
 #noteList  .search-box .list-icon {
-    text-align: left;
+    /*position: absolute;
+    right: 20px;*/
+    text-align: right;
 }
 
 #noteList  .search-box span i {
@@ -366,5 +443,29 @@ export default {
     text-align: center;
     font-size: 12px;
 }
+#noteList #noteContextMenu {
+    font-size: 11px;
+}
+
+#noteList #noteContextMenu #right_menu {
+    display: none;
+}
+
+#noteList #noteContextMenu ul li:hover #right_menu{     
+    display: block;
+    position: absolute;
+    left: 100px;
+    top: 0px;
+    z-index:999;
+}
+
+#noteList #noteContextMenu ul li ul li{
+    width: 130px;
+}
+
+#right_menu i {
+    margin-right: 5px;
+}
+
 
 </style>
