@@ -131,3 +131,8 @@ ul {
     border: none;
     outline: none;
 }
+
+
+.modal-body-form {
+    margin-top: 15px;
+}
