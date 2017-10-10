@@ -108,6 +108,7 @@ new Vue({
         // this.$db.addFolder('    ', 4)
 
         // 初始化第二列
+        this.$db.getNoteList(1, Vue.prototype.$store.state.User.id);
 
 
         // 初始化第三列

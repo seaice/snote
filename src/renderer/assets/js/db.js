@@ -137,6 +137,7 @@ export default {
                                 + "'" + updated + "'" 
                                 + ")"
                         // console.log(sql)
+
                         db.link.run(sql, function(err){
                             if(err) {
                                 return callback(err)
@@ -165,8 +166,90 @@ export default {
             this.close =function() {
                 this.link.close()
                 console.log('sqlite close')
-            }
+            },
+            
+            this.getNoteList = function(fid, uid){
+                var sql = "  select '' as id, '' as title, '' as content,'' as summary, updated, name, '1' as type from folder where pid = " + fid
+                        + " union select n.id,n.title,n.content,n.summary,n.updated, f.name,'0' as type from note n,folder f where n.state = 0 and f.id = n.fid and n.uid = " + store.state.User.id + " and n.fid = " + fid;
+                db.link.all(sql, function(err, rows){
+                    if (err) {
+                        db.alert()
+                        return console.error(err.message)
+                    }
+                    if(rows.length < 0) { // 没找到根节点
+                        db.alert()
+                        return console.error(err.message)                        
+                    }
+                    Vue.prototype.$bus.$emit('note:list:init', rows);
+                })
+            },
 
+            this.addNote = function(node, newnode, callbackFather){
+                var created = Date.parse(new Date())/1000;
+                var updated = created;
+                var asyncOps = [
+                    function (callback) {
+                        var sql = "select * from folder where id=" + node.id
+                        db.link.all(sql, function(e, rows){
+                            if(rows.length < 1) {
+                               db.alert()
+                               return console.error(err.message)
+                            }
+                            callback(null, node.id)
+                        })
+                    },
+                    function(id, callback){
+                        var sql = "select * from note where fid = "+ node.id + " and uid = " + store.state.User.id 
+                                + " and title like '" + newnode.title + "%'";
+                        
+                        db.link.all(sql,function(e,rows){
+                            if (rows.length >= 1){
+                                newnode.title = newnode.title + "(" + rows.length + ")";
+                            }
+                             callback(null, newnode.title);
+                        })
+                    },
+                    function(title, callback) {
+                        var sql = "insert into note (fid,uid,type,title,summary,content,state,created,updated) values ("
+                                + "'" + node.id + "',"
+                                + "'" + store.state.User.id + "',"
+                                + "'" + newnode.type + "',"
+                                + "'" + title + "',"
+                                + "'',"
+                                + "'',"
+                                + "'" + newnode.state + "',"
+                                + "'" + created + "',"
+                                + "'" + updated + "'" 
+                                + ")"
+
+                        db.link.run(sql, function(err){
+                            if(err) {
+                                return callback(err)
+                            }
+
+                            if(this.changes != 1) {
+                                return callback(1)
+                            }
+                            callback(null, this.lastID);
+                        })
+                }]
+                Vue.prototype.$async.waterfall(asyncOps, function (err, results) {
+                    if (err) {
+                        console.log(err);
+                        callbackFather(1)
+                    }
+                    callbackFather(null, results[1], created)
+                })
+            },
+            this.modifyNoteTitle = function(id, newTitle){
+                var sql = "update note set title = '" + newTitle + "' where id = " + id;
+                db.link.run(sql);
+            },
+            this.deleteNote = function(id){
+                // 删除先加入回收站
+                var sql = "update note  set state = 1 where id = " + id;
+                db.link.run(sql);
+            }
         }
     }
 }

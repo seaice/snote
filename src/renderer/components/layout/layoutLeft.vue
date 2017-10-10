@@ -25,7 +25,7 @@
                 <li id="tree_menu_add">新建
                     <ul>
                         <li v-on:click="createFolder"><i class="fa fa-folder-o" aria-hidden="true"></i><span>文件夹</span></li>
-                        <li><i class="fa fa-file-o" aria-hidden="true"></i><span>笔记</span></li>
+                        <li v-on:click="createNote"><i class="fa fa-file-o" aria-hidden="true"></i><span>笔记</span></li>
                         <li><i class="fa fa-file-o" aria-hidden="true"></i>MarkDown笔记</li>
                     </ul>
                 </li>
@@ -208,6 +208,9 @@ export default {
             } else if (treeNode && !treeNode.noR) {
                 this.ztree.selectNode(treeNode);
                 this.showRMenu("node", event.clientX, event.clientY);
+                //右键选中节点时，同样展现第二列笔记列表
+                this.$db.getNoteList(treeNode.id);
+                this.$bus.$emit('note:getSelectedNode', treeNode);
             }
         },
         getAllChildrenNodes : function (treeNode,result = []) {
@@ -252,9 +255,10 @@ export default {
         },
         ztree_onClick : function (event, treeId, treeNode) {
             var ret = this.getAllChildrenNodes(treeNode, [treeNode.id])
-            console.log(ret)
 
             //todo 获得所有节点的笔记,展示在第二列
+            this.$db.getNoteList(treeNode.id);
+            this.$bus.$emit('note:getSelectedNode', treeNode);
 
         },
         ztree_rebuildDiyDom : function(treeId, treeNode) {
@@ -309,6 +313,39 @@ export default {
             // this.ztreeObj = $.fn.zTree.init($("#treeDemo"), this.setting, data);
             // console.log(this.folder)
             // console.log(555)
+        },
+        createNote : function() {
+            var _this = this
+            var _ztree = this.ztree
+
+            var newData = { title: "无标题笔记" , type: 0, state:0};
+            var selectNode = this.ztree.getSelectedNodes()[0];
+            this.ztree_menu_flag = false
+            this.hideRMenu();
+            if (selectNode) {
+                var asyncOps = [
+                    function(callback) {
+                        _this.$db.addNote(selectNode, newData, callback)
+                    },
+                    function(id, created, callback) {
+                        
+                        newData.checked = selectNode.checked;
+                        newData.id = id
+                        newData.pid = selectNode.id
+                        newData.created = newData.updated = created;
+                        callback(null)
+                        _this.$bus.$emit("note:addNote", newData);
+                    }
+                ]
+                this.$async.waterfall(asyncOps, function (err, results) {
+                    if (err) {
+                        _this.$db.alert()
+                        return false
+                    }
+                });
+            } else {
+                // 没选中节点。不能添加
+            }
         }
     },
     computed: {
