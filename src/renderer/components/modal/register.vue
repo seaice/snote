@@ -45,7 +45,7 @@
                             <div class="col-sm-offset-3 col-sm-8">
                                 <button type="submit" v-on:click="register" class="btn btn-success">注册</button>
                                 <button type="reset" class="btn btn-default">重置</button>
-                                &nbsp;&nbsp;&nbsp;已有账号，<a href="#" v-on:click="login" style="color:red;">点击登陆</a>！
+                                &nbsp;&nbsp;&nbsp;已有账号，<a href="#" v-on:click="login" style="color:red;">去登陆</a>！
                             </div>
                         </div>
                     </form>
