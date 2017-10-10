@@ -36,15 +36,62 @@ export default {
     },
     methods: {
         directorySelectorCallback (filenames) {
-            var fs = require('fs');
+
+            if(filenames == undefined) {
+                return
+            }
+            const md5File = require('md5-file')
+            const fs = require('fs-extra')
+            const path   = require('path');
+            // var fs = require('fs')
+
+
             console.log(filenames)
             var content = ''
 
+
+            // 从路径中获得文件名
+            // var filename = fullPath.replace(/^.*[\\\/]/, '')
+
             console.log(this.$store.state.User.pathData)
 
+            var file_err = []
             for(var i = 0; i < filenames.length; i++) {
-                content += '<img src="snote:' + filenames[i] + '"/>'
+                try {
+                    var stat = fs.statSync(filenames[i])
+                    // console.log(stat)
+
+
+                    /* 最大图片2m */
+                    if(stat.size > 2 * 1024 * 1024) {
+                        file_err.push({'file':filenames[i],'msg':'图片不能大于2M'})
+                        continue
+                    }
+
+                    var ext = path.extname(filenames[i])
+                    if(ext  == '' || ext  == '.') {
+                        continue
+                    }
+
+                    var filename = md5File.sync(filenames[i]) + ext
+                    var file = path.join(this.$store.state.User.pathData, filename)
+
+                    fs.copySync(filenames[i], file)
+
+                    file = 'snote://img.makeclean.net/' 
+                            + this.$store.state.User.uid.toString(16).substr(-3)
+                            + '/' + this.$store.state.User.uid 
+                            + '/' + filename
+
+                    console.log(file)
+
+                    content += '<img src="' + file + '"/>'
+                } catch (err) {
+                    console.error(err)
+                }
+
             }
+            console.log(file_err)
             this.instance.setContent(content,true)
 
         },

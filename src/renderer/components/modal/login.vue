@@ -50,22 +50,28 @@ export default {
     methods: {
         login() {
             const remote = require('electron').remote
-            const path = require('path');
+            const path   = require('path');
+            const fs     = require('fs-extra')
 
             var id   = 1
             var name = 'haibing'
-            var pathData = path.join(remote.app.getPath('userData'), name)
+            var uid  = this.encrypt_uid(id)
 
-            const fs = require('fs-extra')
+            var pathData = path.join(remote.app.getPath('userData'), uid.toString())
+
+            console.log(pathData)
 
             //创建个人文件夹
             fs.ensureDirSync(pathData)
 
             this.$store.commit('user_login', {
-                id : 1,
-                name : 'haibing',
+                id : id,
+                uid : uid,
+                name : name,
                 pathData : pathData,
             })
+
+            return false
         }
     }
 };

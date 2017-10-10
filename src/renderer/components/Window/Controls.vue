@@ -45,7 +45,8 @@ export default {
     &__controls {
         float: right;
         list-style: none;
-        user-select: none;    
+        user-select: none;
+        line-height: 50px;
     }
 
     &__control {

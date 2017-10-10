@@ -30,29 +30,41 @@ require('./assets/main.css')
 console.log('at any moment you can check with navigator.onLine', navigator.onLine)
 
 
-/*
-const electron = require('electron').remote
-
-console.log(electron)
-
-electron.protocol.unregisterProtocol('snote')
-electron.protocol.registerFileProtocol('snote', (request, callback) => {
-    console.log(111111111111)
-    console.log(request)
-    console.log(callback)
-    console.log(111111111111)
-
-    const url = request.url.substr(6)
-    console.log(url)
-    // callback({path: path.normalize(`${__dirname}/${url}`)})
-    callback({path: url})
-}, (error) => {
-    console.log(error)
-    if (error) console.error('Failed to register protocol')
-})
-*/
-
 const remote = require('electron').remote
+// const electron = require('electron').remote
+
+console.log(remote)
+
+
+// var app = require('app');
+
+// function setupProtocol () {
+//   var protocol = require('protocol');
+
+//   console.log("http: " + protocol.isHandledProtocol('http'))
+
+//   protocol.interceptProtocol('http', function(request) {
+//     // Parse the URL
+//     var parsedUri = url.parse(request.url);
+
+//     var appName = parsedUri.hostname;
+
+//     console.log(parsedUri)
+
+//     // The default path is '/index.html'.
+//     if (parsedUri.pathname === "/")
+//       parsedUri.pathname = "/index.html"
+
+//     var filePath = path.join(__dirname, parsedUri.pathname);
+//     console.log('Requesting', filePath);
+
+//     return new protocol.RequestFileJob(filePath);
+//   })
+// }
+
+
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -74,12 +86,20 @@ new Vue({
         }
     },
     mounted: function () {
+        var _this = this
         // 用户登陆
         // Vue.prototype.$bus.$emit('alert', {msg:'数据异常，请重启笔记！<br>如果重启不能解决问题，请重新安装！',close:false, state:'danger'})
         // login()
 
 
+        console.log(this.encrypt_uid(1))
 
+        this.$store.commit('user_login', {
+            id : 1,
+            uid : 866747,
+            name : 'haibing',
+            pathData : 'C:\\Users\\seaice\\AppData\\Roaming\\Electron\\866747',
+        })
         // 初始化个人目录
         // remote.app.getPath('userData')
 
@@ -91,6 +111,25 @@ new Vue({
 
 
         // 初始化第三列
+
+        console.log('ready')
+        remote.protocol.unregisterProtocol('snote')
+        remote.protocol.registerFileProtocol('snote', (request, callback) => {
+            const path   = require('path');
+            // console.log(request)
+            // console.log(callback)
+
+            var url = path.join(store.state.User.pathData,  path.basename(request.url))
+            // console.log(url)
+            callback({path: url})
+        }, (error) => {
+            console.log(error)
+            if (error) {
+                console.error('Failed to register protocol')
+            }
+        })
+
+
 
 
         window.addEventListener('resize', this.handleResize);

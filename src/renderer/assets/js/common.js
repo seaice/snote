@@ -24,7 +24,10 @@ export default {
             return specialStr;  
         }
 
-        Vue.prototype.encrypt_token = function(key, iv, data) {
+        /*
+            内容加密
+        */
+        Vue.prototype.encrypt_note = function(key, iv, data) {
             var crypto = require('crypto')
 
             var cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
@@ -32,12 +35,33 @@ export default {
             return cipher.final('base64');
         }
 
-        Vue.prototype.decrypt_token = function(key, iv, data) {
+        /*
+            内容解密
+        */
+        Vue.prototype.decrypt_note = function(key, iv, data) {
             var crypto = require('crypto')
 
             var decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
             decipher.update(data, 'base64', 'binary');
             return decipher.final('binary');
+        }
+
+        /*
+            加密uid
+        */
+        Vue.prototype.encrypt_uid = function(uid) {
+            var uuid = 0
+            if(uid < 0) {
+                return uuid
+            }
+
+            uuid = (uid & 0x0000ff00) << 16
+            uuid += ((uid & 0xff000000) >> 8) & 0x00ff0000
+            uuid += (uid & 0x000000ff) << 8
+            uuid += (uid & 0x00ff0000) >> 16
+            uuid += uid & 0x7fffffff00000000
+            uuid ^= 866491
+            return uuid
         }
     }
 }
