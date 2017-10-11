@@ -11,7 +11,7 @@
         <div class="noteListContent" :style="{ height: height - 137 + 'px' }">
             <div v-if="items.length > 0" class="list">
                 <ul>
-                    <li v-for="item in items" v-on:contextmenu="getContentMenu(item,$event)">
+                    <li v-for="item in items" v-on:contextmenu="getContentMenu(item,$event)" v-on:click="getNoteContent" class="my-note-li">
                         <div v-bind:class="{'my-note-item-folder': item.type == 1, 'my-note-item': item.type == 0 }">
                             <span class="item-title">
                                 <i :class="{ 'fa fa-folder': item.type == 1, 'fa fa-pencil-square-o': item.type == 0} " aria-hidden="true"></i>
@@ -164,10 +164,29 @@ export default {
         getSelectedNode: function(treeNode){
             this.selectedNode = treeNode;
         },
-        getContentMenu:function(item,event){
+        getContentMenu:function(item, event){
+            //选择笔记列表条目
+            var target = event.target;
+
+            while (target.className.indexOf("my-note-li") < 0){
+                target = event.target.parentNode;
+            }
+
+            if (target.className.indexOf("my-note-li") >= 0){
+                $("." + target.className).css({
+                    "background-color": "#fff"
+                })
+            }
+
+            console.log("target： ", target);
+            $(target).css({
+                'background-color': "#e9f3ff"
+            })
+            // target.style.backgroundColor = "#e9f3ff";
+
             console.log("item : ", item);
             this.chooseItem = item;
-            console.log("target: ", event.target);
+            console.log("event: ", event);  
             var x = event.clientX - 201;//减去左侧树宽度
             var y = event.clientY - 52;//减去头部高度
             
@@ -236,10 +255,15 @@ export default {
             }
         },
         searchNote: function(){
-            $(".search-icon").toogle();
-            $(".search").toogle();
-            var searchValue = $(".search").val();
-
+            $(".search-icon").hide();
+            $(".search").val(" ");
+            $(".search").blur(function(){
+                var searchValue = $(".search").val();
+                if (searchValue == null || searchValue == ' '){
+                    $(".search").val("");
+                     $(".search-icon").show();
+                }
+            });
         },
         createFolder : function() {
             var _this = this
@@ -275,8 +299,40 @@ export default {
             }
 
         },
+        getNoteContent : function(event){
+            // 修改选中笔记列表背景，查询笔记内容，显示第三列
+            var target = event.target;
+
+            while (target.className.indexOf("my-note-li") < 0){
+                target = event.target.parentNode;
+            }
+
+            if (target.className.indexOf("my-note-li") >= 0){
+                $("." + target.className).css({
+                    "background-color": "#fff"
+                })
+            }
+            // target.style.backgroundColor = "#e9f3ff";
+
+            $(target).css({
+                'background-color': "#e9f3ff"
+            })
+
+            $(".my-note-li").hover(function(){
+                $(this).css({'background-color': '#f5f5f5'});
+                $(target).css({
+                    'background-color': "#e9f3ff"
+                })
+            },function(){
+                $(this).css({'background-color': '#fff'});
+                $(target).css({
+                    'background-color': "#e9f3ff"
+                }) 
+            })
+        }
     }
 }
+
 
 </script>
 
@@ -298,15 +354,6 @@ export default {
     bottom: 54px;
     width: 240px;
 }
-
-/*#noteList .search-box #noteListSearchArea {
-    position: absolute;
-    height: 37px;
-    line-height: 37px;
-    text-align: center;
-    top: 10px;
-    left: 25px;
-}*/
 
 #noteList .search-box .search {
     height: 35px;
@@ -345,7 +392,7 @@ export default {
 }
 
 #noteList .my-note-item {
-    width: 240px;
+    width: 239px;
     height: 125px;
     border-bottom: 1px solid  #ADB8C4;
     font-size: 12px;
@@ -353,7 +400,7 @@ export default {
 }
 
 #noteList .my-note-item-folder {
-    width: 240px;
+    width: 239px;
     height: 80px;
     border-bottom: 1px solid  #ADB8C4;
     font-size: 12px;
