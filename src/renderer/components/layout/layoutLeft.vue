@@ -209,7 +209,8 @@ export default {
                 this.ztree.selectNode(treeNode);
                 this.showRMenu("node", event.clientX, event.clientY);
                 //右键选中节点时，同样展现第二列笔记列表
-                this.$db.getNoteList(treeNode.id);
+                var fids = this.getAllChildrenNodes(treeNode, [treeNode.id])
+                this.$db.getNoteList(fids.join(","));
                 this.$bus.$emit('note:getSelectedNode', treeNode);
             }
         },
@@ -254,10 +255,14 @@ export default {
             return targetNode ? targetNode.drop !== false : true;
         },
         ztree_onClick : function (event, treeId, treeNode) {
-            var ret = this.getAllChildrenNodes(treeNode, [treeNode.id])
+            var fids = this.getAllChildrenNodes(treeNode, [treeNode.id])
+
+            console.log("fids: ", fids); 
+            console.log("treeNode.id ", treeNode.id);
 
             //todo 获得所有节点的笔记,展示在第二列
-            this.$db.getNoteList(treeNode.id);
+            
+            this.$db.getNoteList(fids.join(","));
             this.$bus.$emit('note:getSelectedNode', treeNode);
 
         },

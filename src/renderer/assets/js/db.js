@@ -169,8 +169,10 @@ export default {
             },
             
             this.getNoteList = function(fid, uid){
-                var sql = "  select '' as id, '' as title, '' as content,'' as summary, updated, name, '1' as type from folder where pid = " + fid
-                        + " union select n.id,n.title,n.content,n.summary,n.updated, f.name,'0' as type from note n,folder f where n.state = 0 and f.id = n.fid and n.uid = " + store.state.User.id + " and n.fid = " + fid;
+                // var sql = "  select '' as id, '' as title, '' as content,'' as summary, updated, name, '1' as type from folder where pid = " + fid
+                //         + " union select n.id,n.title,n.content,n.summary,n.updated, f.name,'0' as type from note n,folder f where n.state = 0 and f.id = n.fid and n.uid = " + store.state.User.id + " and n.fid = " + fid;
+                var sql = "select f.name,n.* from folder f ,note n where f.id = n.fid and n.fid in ("+ fid +") and n.state = 0 and n.uid=" + store.state.User.id
+                console.log("getNoteList: ", sql);
                 db.link.all(sql, function(err, rows){
                     if (err) {
                         db.alert()
