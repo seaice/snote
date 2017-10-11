@@ -2,9 +2,9 @@
     <div id="layoutTop" style="-webkit-app-region: drag">
         <div class="userinfo fl" style="-webkit-app-region: no-drag">
             <div class="fl">
-                <a class="s-figure clear" data-toggle="modal" data-target="#userinfo"><img src="~@/assets/img/default-figure.png"></a>
+                <a class="s-figure clear" data-toggle="modal" v-on:click="userinfo"><img src="~@/assets/img/default-figure.png"></a>
             </div>
-            <a class="fl" data-toggle="modal" data-target="#login">{{ name }}</a>
+            <a class="fl" data-toggle="modal" data-target="#modal_login">{{ name }}</a>
 
             <!-- <b-dropdown class="s-dropdown fl">
                 <span slot="text">haibing1458<i class="fa fa-angle-down" aria-hidden="true"></i></span>
@@ -23,12 +23,16 @@
         </div>
         <modalUserinfo></modalUserinfo>
         <modalLogin></modalLogin>
+        <modalRegister></modalRegister>
+        <modalForget></modalForget>
     </div>
 </template>
 <script>
 import Controls from '../Window/Controls'
 import modalUserinfo from '../modal/userinfo'
 import modalLogin from '../modal/login'
+import modalRegister from '../modal/register'
+import modalForget from '../modal/forget'
 
 export default {
     data () {
@@ -41,9 +45,18 @@ export default {
         Controls,
         modalUserinfo,
         modalLogin,
+        modalRegister,
+        modalForget,
     },
     methods: {
-
+        userinfo() {
+            console.log(this.$store.state.User)
+            if(this.$store.state.User.login) {
+                $('#modal_userinfo').modal('show')
+            } else {
+                $('#modal_login').modal('show')
+            }
+        }
     }
 }
 </script>

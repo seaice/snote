@@ -1,5 +1,5 @@
 <template>
-    <div class="modal" id="userinfo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal" id="modal_userinfo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">

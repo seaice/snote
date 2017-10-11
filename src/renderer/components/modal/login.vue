@@ -1,33 +1,33 @@
 <template>
-    <div class="modal" id="login" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal" id="modal_login" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <a href="#" class="fr btn-modal-close" style="-webkit-app-region: no-drag" data-dismiss="modal" aria-label="Close"><i class="fa fa-close" aria-hidden="true"></i></a>
-                    <h4 class="modal-title" id="myModalLabel">登陆</h4>
+                    <h4 class="modal-title">登陆</h4>
                 </div>
-                <div class="modal-body">
-                
+                <div class="modal-body modal-body-form">
                     <form class="form-horizontal" data-toggle="validator">
                         <div class="form-group">
-                            <label for="inputEmail3" class="col-sm-2 control-label">邮箱</label>
-                            <div class="col-sm-10">
-                                <!-- <input type="email" class="form-control" id="inputEmail3" placeholder="Email" data-error="请输入邮箱" required> -->
+                            <label for="inputEmail3" class="col-sm-3 control-label">邮箱</label>
+                            <div class="col-sm-8">
+                                <input type="email" class="form-control" id="inputEmail3" placeholder="Email" data-error="请输入邮箱" required>
                                 <div class="help-block with-errors"></div>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="inputPassword3" class="col-sm-2 control-label">密码</label>
-                            <div class="col-sm-10">
-                                <!-- <input type="password" class="form-control" id="inputPassword3" placeholder="Password" data-error="请输入密码" required data-minlength="6" data-minlength-error="密码不能少于6位"> -->
+                            <label for="inputPassword3" class="col-sm-3 control-label">密码</label>
+                            <div class="col-sm-8">
+                                <input type="password" class="form-control" id="inputPassword3" placeholder="密码" data-error="请输入密码" required data-minlength="6" data-minlength-error="密码不能少于6位">
                                 <div class="help-block with-errors"></div>
                             </div>
                         </div>
                         <div class="form-group">
-                            <div class="col-sm-offset-2 col-sm-10">
+                            <div class="col-sm-offset-3 col-sm-8">
                                 <button type="submit" v-on:click="login" class="btn btn-success">登陆</button>
                                 <button type="reset" class="btn btn-default">重置</button>
-                                &nbsp;&nbsp;&nbsp;没有账号，<a href="#" style="color:red;">点击注册</a>！
+                                &nbsp;&nbsp;&nbsp;<a href="#" v-on:click="register" style="color:red;">注册</a>
+                                &nbsp;&nbsp;&nbsp;<a href="#" v-on:click="forget" style="color:red;">忘记密码</a>
                                 <!-- <button type="reset" class="btn btn-info">注册</button> -->
                             </div>
                         </div>
@@ -72,6 +72,14 @@ export default {
             })
 
             return false
+        },
+        register() {
+            $('#modal_login').modal('hide')
+            $('#modal_register').modal('show')
+        },
+        forget() {
+            $('#modal_login').modal('hide')
+            $('#modal_forget').modal('show')
         }
     }
 };
