@@ -1,15 +1,21 @@
 /**
  * note 表结构
  * id   
+ * uuid 唯一id
  * fid  文件夹id
+ * nid  云端笔记id。默认为0。同步云端成功会返回。回写到此字段。
  * uid  用户id
  * type 类型：0，html；1，markdown
+ * cloud 是否云笔记：0，本地笔记；1，云笔记
  * title    标题
+ * thumbnail    缩略图，笔记中的第一个图。没有为空
  * summary  摘要
  * content  笔记内容
  * state    状态：0，正常；1，回收站；2，彻底删除；
+ * version  笔记版本。默认为0。同步云端成功会返回。回写到此字段。
  * created  创建时间
  * updated  修改时间
+ * synced   同步时间
  */
 
 export default {
