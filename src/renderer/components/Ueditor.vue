@@ -36,7 +36,6 @@ export default {
     },
     methods: {
         directorySelectorCallback (filenames) {
-
             if(filenames == undefined) {
                 return
             }
@@ -45,10 +44,8 @@ export default {
             const path   = require('path');
             // var fs = require('fs')
 
-
             console.log(filenames)
             var content = ''
-
 
             // 从路径中获得文件名
             // var filename = fullPath.replace(/^.*[\\\/]/, '')
@@ -104,6 +101,17 @@ export default {
                 // 绑定事件，当 UEditor 初始化完成后，将编辑器实例通过自定义的 ready 事件交出去
                 this.instance.addListener('ready', () => {
                     this.$emit('ready', this.instance)
+                    
+                    UE.dom.domUtils.on(this.instance.body,"paste",function(e){
+                        const clipboard = require('electron').clipboard
+    
+                        if(!clipboard.readImage().isEmpty()) {
+                            const fs = require('fs-extra')
+                            fs.writeFileSync(_this.$store.state.User.pathData + '\\test.jpg', clipboard.readImage().toJPEG(100))
+
+                            //todo 插入编辑器
+                        }
+                    })
                 })
             })
 

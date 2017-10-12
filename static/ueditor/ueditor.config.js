@@ -75,7 +75,8 @@
         //如果自定义，最好给p标签如下的行高，要不输入中文时，会有跳动感
         //,initialStyle:'p{line-height:1em}'//编辑器层级的基数,可以用来改变字体等
 
-        //,iframeCssUrl: URL + '/themes/iframe.css' //给编辑器内部引入一个css文件
+        // ,iframeCssUrl: URL + 'themes/iframe.css' //给编辑器内部引入一个css文件
+        // ,iframeJsUrl: URL + 'themes/iframe.js' //给编辑器内部引入一个css文件
 
         //indentValue
         //首行缩进距离,默认是2em
@@ -335,6 +336,10 @@
 
         //webAppKey 百度应用的APIkey，每个站长必须首先去百度官网注册一个key后方能正常使用app功能，注册介绍，http://app.baidu.com/static/cms/getapikey.html
         //, webAppKey: ""
+        
+
+        ,enablePasteUpload : false
+        
     };
 
     function getUEBasePath(docUrl, confUrl) {

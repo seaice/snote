@@ -33,7 +33,7 @@ console.log('at any moment you can check with navigator.onLine', navigator.onLin
 const remote = require('electron').remote
 // const electron = require('electron').remote
 
-console.log(remote)
+// console.log(remote)
 
 
 // var app = require('app');
@@ -63,9 +63,6 @@ console.log(remote)
 // }
 
 
-
-
-
 ///////////////////////////////////////////////////////////////////////////////////
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
@@ -92,13 +89,16 @@ new Vue({
         // login()
 
 
-        console.log(this.encrypt_uid(1))
+        // console.log(this.encrypt_uid(1))
 
+        //假数据
+        const path   = require('path');
+        var pathData = path.join(remote.app.getPath('userData'), '866747')
         this.$store.commit('user_login', {
             id : 1,
             uid : 866747,
             name : 'haibing',
-            pathData : 'C:\\Users\\seaice\\AppData\\Roaming\\Electron\\866747',
+            pathData : pathData,
         })
         // 初始化个人目录
         // remote.app.getPath('userData')
@@ -129,9 +129,6 @@ new Vue({
                 console.error('Failed to register protocol')
             }
         })
-
-
-
 
         window.addEventListener('resize', this.handleResize);
     },
