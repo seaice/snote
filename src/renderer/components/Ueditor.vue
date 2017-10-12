@@ -80,7 +80,6 @@ export default {
                             + '/' + this.$store.state.User.uid 
                             + '/' + filename
 
-                    console.log(file)
 
                     content += '<img src="' + file + '"/>'
                 } catch (err) {
@@ -89,8 +88,7 @@ export default {
 
             }
             console.log(file_err)
-            this.instance.setContent(content,true)
-
+            this.instance.execCommand('inserthtml', content);
         },
         initEditor () {
             var _this = this
@@ -106,10 +104,29 @@ export default {
                         const clipboard = require('electron').clipboard
     
                         if(!clipboard.readImage().isEmpty()) {
-                            const fs = require('fs-extra')
-                            fs.writeFileSync(_this.$store.state.User.pathData + '\\test.jpg', clipboard.readImage().toJPEG(100))
+                            const fs     = require('fs-extra')
+                            const path   = require('path');
+                            const crypto = require('crypto')
 
-                            //todo 插入编辑器
+                            try {
+                                var md5 = crypto.createHash('md5')
+
+                                var buffer = clipboard.readImage().toJPEG(100)
+                                var filename = md5.update(buffer).digest('hex') + '.jpg'
+
+                                var filepath = path.join(_this.$store.state.User.pathData, filename)
+
+                                fs.writeFileSync(filepath, buffer)
+
+                                var file = 'snote://img.makeclean.net/' 
+                                    + _this.$store.state.User.uid.toString(16).substr(-3)
+                                    + '/' + _this.$store.state.User.uid 
+                                    + '/' + filename
+
+                                _this.instance.execCommand('inserthtml', '<img src="' + file + '"/>');
+                            } catch (err) {
+                                console.error(err)
+                            }
                         }
                     })
                 })
