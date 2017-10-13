@@ -7,7 +7,11 @@
             </div>
         </div>
         <!-- <img src="~@/assets/logo.png" alt=""> -->
-        <Ueditor class="editor-panel" :height="height" @ready="editorReady" :style="{ height: height - 108 +'px', width: '100%' }"></Ueditor>
+        <div>
+            <div v-show="show_preview" class="preview" v-on:click="edit" :style="{ height: height - 108 +'px', width: '98%' }" v-html="content">
+            </div>
+            <Ueditor v-show="show_editor" class="editor-panel" :height="height" @ready="editorReady" :style="{ height: height - 108 +'px', width: '100%' }"></Ueditor>
+        </div>
     </div>    
 </template>
 <script>
@@ -19,12 +23,43 @@ export default{
     },
     data: function(){
         return {
+            show_preview : true,
+            show_editor : false,
+            content : '',
         }
     },
     mounted() {
+        this.$bus.$on('note:editor:blur', this.blur)
+
+        // $("#edui_fixedlayer, #note").on('click', function(e){
+        //     this.show_preview = false
+        //     this.show_editor  = true
+
+        //     console.log('#editor-panel click')
+        //     e.stopPropagation();
+        // })
+
+        $( document ).on( 'click', "#edui_fixedlayer, #note", function(e){
+            this.show_preview = false
+            this.show_editor  = true
+
+            console.log('#editor-panel click')
+            e.stopPropagation();
+        })
+
 
     },
     methods : {
+        blur(content) {
+            this.show_preview = true
+            this.show_editor  = false
+            // console.log(content)
+            this.content = content
+        },
+        edit() {
+            this.show_preview = false
+            this.show_editor  = true
+        },
         dialog () {
             const {dialog} = require('electron').remote
             dialog.showOpenDialog({properties: ['openFile', 'multiSelections']})
@@ -87,6 +122,10 @@ export default{
 }
 
 #note .editor-panel {
+    line-height: 1;
+    overflow: hidden;
+}
+#note .preview {
     line-height: 1;
     overflow: hidden;
 }

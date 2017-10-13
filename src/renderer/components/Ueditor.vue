@@ -7,7 +7,7 @@
 const remote = require('electron').remote
 
 import '../../../static/ueditor/ueditor.config.js'
-import '../../../static/ueditor/ueditor.all.min.js'
+import '../../../static/ueditor/ueditor.all.js'
 import '../../../static/ueditor/lang/zh-cn/zh-cn.js'
 
 export default {
@@ -129,7 +129,34 @@ export default {
                             }
                         }
                     })
+
+                    this.instance.addListener("contentChange", () => {
+                        // console.log(2123)
+                        // console.log('内容改变:'+this.instance.getContent())
+                        // SyntaxHighlighter.highlight()
+                        // console.log(this.instance)
+                        // console.log(this.instance.iframe.id)
+                        // console.log(this.instance.body)
+                        // var iframe = document.getElementById(this.instance.iframe.id);
+                        // console.log(iframe)
+
+                        // var iframeContent = (iframe.contentWindow || iframe.contentDocument);
+                        // console.log(iframeContent)
+                        // iframeContent.SyntaxHighlighter.highlight();
+                    })
+
+                    // this.instance.addListener('blur', () => {
+                    //     _this.$bus.$emit('note:editor:blur', this.instance.getContent());
+                    //     // _this.$emit('note:editor:blur', this.instance.getContent());
+                    // });
                 })
+
+                // document 
+                $(document).on('click', function(){
+                    console.log('document click')
+                    _this.$bus.$emit('note:editor:blur', _this.instance.getContent());
+                }) 
+
             })
 
             UE.registerUI('snote_imageupload',function(editor,uiName){
@@ -150,6 +177,7 @@ export default {
                     cssRules :'background-position: -380px 0;',
                     //点击时执行的命令
                     onclick:function () {
+                        btn.setDisabled(true)
                         // let configDir = remote.app.getPath('pictures');
                         // const {dialog} = require('electron').remote
                         remote.dialog.showOpenDialog({
@@ -178,6 +206,7 @@ export default {
                 //因为你是添加button,所以需要返回这个button
                 return btn
             })
+
 
         }
     },
