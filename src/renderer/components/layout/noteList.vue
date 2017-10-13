@@ -317,9 +317,11 @@ export default {
             $(target).css({
                 'background-color': "#e9f3ff"
             })
+            console.log("target: click ", target);
 
             $(".my-note-li").hover(function(){
                 $(this).css({'background-color': '#f5f5f5'});
+                console.log("target: ", target);
                 $(target).css({
                     'background-color': "#e9f3ff"
                 })
@@ -332,6 +334,7 @@ export default {
         }
     }
 }
+
 
 
 </script>

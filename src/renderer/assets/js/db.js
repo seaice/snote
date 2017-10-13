@@ -218,16 +218,24 @@ export default {
                         })
                     },
                     function(title, callback) {
-                        var sql = "insert into note (fid,uid,type,title,summary,content,state,created,updated) values ("
+                        const uuidv1 = require('uuid/v1');
+                        var uuid = uuidv1(); 
+                        var sql = "insert into note (uuid,fid,uid,nid,type,cloud,title,thumbnail,summary,content,state,version,created,updated,synced) values ("
+                                + "'" + uuid + "',"
                                 + "'" + node.id + "',"
                                 + "'" + store.state.User.id + "',"
+                                + "0,"
                                 + "'" + newnode.type + "',"
+                                + "1,"
                                 + "'" + title + "',"
                                 + "'',"
                                 + "'',"
+                                + "'',"
                                 + "'" + newnode.state + "',"
+                                + "0,"
                                 + "'" + created + "',"
-                                + "'" + updated + "'" 
+                                + "'" + updated + "'," 
+                                + "0"
                                 + ")"
 
                         db.link.run(sql, function(err){
