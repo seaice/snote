@@ -184,7 +184,7 @@ export default {
                         db.alert()
                         return console.error(err.message)
                     }
-                    if(rows.length < 0) { // 没找到根节点
+                    if(rows.length < 0) { // 没找到节点
                         db.alert()
                         return console.error(err.message)                        
                     }
@@ -208,7 +208,7 @@ export default {
                     },
                     function(id, callback){
                         var sql = "select * from note where fid = "+ node.id + " and uid = " + store.state.User.id 
-                                + " and title like '" + newnode.title + "%'";
+                                + " and title like '" + newnode.title + "%' and state = 0";
                         
                         db.link.all(sql,function(e,rows){
                             if (rows.length >= 1){
@@ -264,7 +264,24 @@ export default {
             this.deleteNote = function(id){
                 // 删除先加入回收站
                 var sql = "update note  set state = 1 where id = " + id;
+                console.log("delete note : ", sql);
                 db.link.run(sql);
+            },
+            this.findRootFolderByUid = function(callback){
+                var sql = "select * from folder where uid = " + store.state.User.id + " and pid = 0";
+                console.log("findRootFolderByUid sql: ", sql)
+                db.link.all(sql, function(err, rows){
+                    if (err) {
+                        db.alert()
+                        return console.error(err.message)
+                    }
+                    if(rows.length < 0) { // 没找到节点
+                        db.alert()
+                        return console.error(err.message)                        
+                    }
+                    console.log("findRootFolderByUid: ", rows);
+                    callback(null , rows[0]);
+                })
             }
         }
     }

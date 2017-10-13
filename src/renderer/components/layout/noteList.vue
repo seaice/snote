@@ -79,7 +79,8 @@ export default {
             total: 0,
             items: [],  //所有笔记集合
             selectedNode: {},// 选中的树节点
-            chooseItem:{} // 选中的笔记节点
+            chooseItem:{}, // 选中的笔记节点
+            rootFolder: null // 当前用户的根节点
         }
     },
     computed:{
@@ -134,31 +135,65 @@ export default {
             var selectNode = this.selectedNode;
             console.log("selectNode: ", selectNode);
             $("#noteContextMenu").hide();
+
+            var node = null;
            
-            if (selectNode!= null && selectNode.id !=null) {
+            if (selectNode != null && selectNode.id != null) {
+                node = selectNode;
                 var asyncOps = [
+
                     function(callback) {
-                        _this.$db.addNote(selectNode, newData, callback)
+                        _this.$db.addNote(node, newData, callback)
                     },
+
                     function(id, created, callback) {
-                        
-                        newData.checked = selectNode.checked;
+                        newData.checked = node.checked;
                         newData.id = id
-                        newData.pid = selectNode.id
+                        newData.pid = node.id
                         newData.created = newData.updated = created;
                         callback(null)
                         _this.$bus.$emit("note:addNote", newData);
                     }
                 ]
-                this.$async.waterfall(asyncOps, function (err, results) {
+                _this.$async.waterfall(asyncOps, function (err, results) {
                     if (err) {
                         _this.$db.alert()
                         return false
                     }
                 });
             } else {
-                // 没选中节点。不能添加
-                this.$bus.$emit('alert', {msg:'请选择笔记所属文件夹',close:true, state:'danger'})
+
+                var ops = [
+
+                    function (callback){
+                        _this.$db.findRootFolderByUid(callback);
+                    },
+
+                    function(folder, callback) {
+                        console.log("folder11: ", folder);
+                        node = foler;
+                        _this.$db.addNote(node, newData, callback)
+                    },
+
+                    function(id, created, callback) {
+                        newData.checked = node.checked;
+                        newData.id = id
+                        newData.pid = node.id
+                        newData.created = newData.updated = created;
+                        callback(null)
+                        _this.$bus.$emit("note:addNote", newData);
+                    }
+                ]
+
+                this.$async.waterfall(ops, function (err, results) {
+                    if (err) {
+                        _this.$db.alert()
+                        return false
+                    }
+
+                    console.log("results: ", results);
+
+                });
             }
         },
         getSelectedNode: function(treeNode){
@@ -303,34 +338,22 @@ export default {
             // 修改选中笔记列表背景，查询笔记内容，显示第三列
             var target = event.target;
 
-            while (target.className.indexOf("my-note-li") < 0){
-                target = event.target.parentNode;
-            }
+            // while (target.tagName != 'li'){
+            //     target = event.target.parentNode;
+            // }
 
-            if (target.className.indexOf("my-note-li") >= 0){
-                $("." + target.className).css({
-                    "background-color": "#fff"
-                })
-            }
-            // target.style.backgroundColor = "#e9f3ff";
+                // $("li.my-note-li").siblings().removeClass("active");
+                // $(target).addClass("active");
 
-            $(target).css({
-                'background-color': "#e9f3ff"
-            })
-            console.log("target: click ", target);
-
-            $(".my-note-li").hover(function(){
-                $(this).css({'background-color': '#f5f5f5'});
-                console.log("target: ", target);
-                $(target).css({
-                    'background-color': "#e9f3ff"
-                })
-            },function(){
-                $(this).css({'background-color': '#fff'});
-                $(target).css({
-                    'background-color': "#e9f3ff"
-                }) 
-            })
+            // $(".my-note-li").hover(function(){
+            //     $(this).siblings().removeClass("hoverUnActive");
+            //     $(this).addClass("hoverActive");
+            //     $(target).addClass("active");
+            // },function(){
+            //     $(this).siblings().removeClass("hoverActive");
+            //     $(this).addClass("hoverUnActive");
+            //     $(target).addClass("active");
+            // })
         }
     }
 }
@@ -515,6 +538,18 @@ export default {
 
 #right_menu i {
     margin-right: 5px;
+}
+
+#noteList .active {
+    background-color: #e9f3ff;
+}
+
+#noteList .hoverActive {
+    background-color: #f5f5f5;
+}
+
+#noteList .hoverUnActive {
+    background-color: #fff;
 }
 
 
