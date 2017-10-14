@@ -200,8 +200,19 @@ export default {
             },
 
             /* 获取笔记详情 */
-            this.getNote = function(id) {
+            this.getNote = function(id, callback) {
+                if(id < 0) {
+                    return false
+                }
+                var sql = "select * from note where id=" + id
+                db.link.get(sql, function(e, row){
+                    if(row.length < 1) {
+                       db.alert()
+                       return console.error(err.message)
+                    }
 
+                    callback(null, row)
+                })
             }
 
             /* 

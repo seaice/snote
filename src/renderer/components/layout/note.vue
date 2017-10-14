@@ -1,14 +1,14 @@
 <template>
     <div id="note" class="fl" :style="{ height: height - 52 +'px', width: width - 442 +'px'}">
         <div class="note-top">
-            <input class="title" :style="{ width: width - 442 +'px' }" type="text" value="无标题笔记" />
+            <input class="title" :style="{ width: width - 442 +'px' }" type="text" v-model="note.title">
             <div class="meta">
                 <input type="checkbox" id="note-cloud" name="note-cloud" value="1"><label for="note-cloud">云端</label>
             </div>
         </div>
         <!-- <img src="~@/assets/logo.png" alt=""> -->
         <!-- <div> -->
-            <div v-show="show_preview" class="preview" v-on:click="edit" :style="{ height: height - 108 +'px', width: '100%' }" v-html="content">
+            <div v-show="show_preview" class="preview" v-on:click="active" :style="{ height: height - 108 +'px', width: '100%' }" v-html="note.content">
             </div>
             <Ueditor v-show="show_editor" class="editor-panel" :height="height" @ready="editorReady" :style="{ height: height - 108 +'px', width: '100%' }"></Ueditor>
         <!-- </div> -->
@@ -25,15 +25,14 @@ export default{
         return {
             show_preview : true,
             show_editor  : false,
-            note         : null, // 当前激活的笔记
-            content      : '',
+            // note         : this.$store.state.Global.note, // 当前激活的笔记
         }
     },
     mounted() {
         this.$bus.$on('note:editor:preview', this.preview)
         this.$bus.$on('note:editor:active', this.active)
 
-        $( document ).on( 'click', "#edui_fixedlayer, #note", function(e){
+        $( document ).on( 'click', "#edui_fixedlayer, #note, #noteList", function(e){
             this.show_preview = false
             this.show_editor  = true
 
@@ -42,25 +41,43 @@ export default{
     },
     methods : {
         preview(note) {
-            this.note = note
+            console.log('preview')
+            if(note == undefined) {
+                if(this.$store.state.Global.note.id != undefined) {
+                    note = this.$store.state.Global.note
+                }
+            }
+            if(note == undefined || note.id == undefined) {
+                return
+            }
+
+            var _this = this
             this.show_preview = true
             this.show_editor  = false
-            // this.content = note.content
 
-            console.log(note)
+            var asyncOps = [
+                function(callback) {
+                    _this.$db.getNote(note.id, callback)
+                },
 
+                function(note_detail, callback) {
+                    _this.$store.commit('setNote', note_detail)
+                    callback(null)
+                }
+            ]
+            this.$async.waterfall(asyncOps, function (err, results) {
+                if (err) {
+                    _this.$db.alert()
+                    return false
+                }
+            });
             //todo update note
-
         },
-        active(content) {
+        active() {
+            console.log('active')
             this.show_preview = false
             this.show_editor  = true
-            this.content = content
-            this.$bus.$emit('note:editor:focus', content)
-        },
-        edit() {
-            this.show_preview = false
-            this.show_editor  = true
+            this.$bus.$emit('note:editor:focus')
         },
         dialog () {
             const {dialog} = require('electron').remote
@@ -75,11 +92,14 @@ export default{
         },
     },
     computed: {
+        note: function() {
+            return this.$store.state.Global.note
+        },
         height: function(){
-            return this.$store.state.Window.height;
+            return this.$store.state.Window.height
         },
         width: function(){
-            return this.$store.state.Window.width;
+            return this.$store.state.Window.width
         }
     }
 }

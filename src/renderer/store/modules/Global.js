@@ -1,11 +1,15 @@
 const state = {
-    folder: [],
+    folder : [],
+    note   : {title:'',content:''}, //当前激活的note
 }
 
 const mutations = {
     folderinit (state, folder) {
         state.folder = folder
     },
+    setNote(state, note) {
+        state.note = note
+    }
 }
 
 export default {

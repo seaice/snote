@@ -12,20 +12,14 @@
             <div v-if="items.length > 0" class="list">
                 <ul>
                     <li v-for="(item,index) in items" v-on:contextmenu="getContentMenu(item,$event)" v-on:click="notePreview(index)" :class="{active:index==active_note_index}">
-                        <!-- <div class="my-note-item"> -->
-                            <span class="item-title">
-                                <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-                                {{ item.title }}
-                            </span>
-          <!--                   <div class="item-folder-bottom" v-if="item.type == 1">
-                                 <span class="item-createtime">{{ getUpdatedTime(item.updated) }}</span>
-                            </div>
-                            -->
-                            <div class="item-bottom">
-                                <span class="item-createtime">{{ getUpdatedTime(item.updated) }}</span>
-                                <span class="item-size">云端或本地</span>
-                            </div>
-                        <!-- </div> -->
+                        <span class="item-title">
+                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                            {{ item.title }}
+                        </span>
+                        <div class="item-bottom">
+                            <span class="item-createtime">{{ getUpdatedTime(item.updated) }}</span>
+                            <span class="item-size">云端或本地</span>
+                        </div>
                     </li>
                 </ul>
             </div>
@@ -63,9 +57,9 @@
                     <button type="button" class="btn btn-primary"  v-on:click="saveModifyName">保存</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
                 </div>
-              </div><!-- /.modal-content -->
-            </div><!-- /.modal-dialog -->
-        </div><!-- /.modal -->
+              </div>
+            </div>
+        </div>
     </div>
 </template>
 <script type="text/javascript">
@@ -321,18 +315,10 @@ export default {
             // 高亮选中
             this.active_note_index = index
             //todo 渲染编辑器。传递参数
-            console.log(this.items[index])
-            // console.log(event)
-            console.log(index)
-
             this.$bus.$emit('note:editor:preview', this.items[index])
-
-
         }
     }
 }
-
-
 
 </script>
 

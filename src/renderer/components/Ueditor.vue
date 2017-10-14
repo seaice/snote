@@ -36,8 +36,10 @@ export default {
         }
     },
     methods: {
-        focus(content) {
-            console.log(content)
+        focus() {
+            console.log('focus')
+            console.log(this.$store.state.Global.note.content)
+            this.instance.setContent(this.$store.state.Global.note.content)
             this.instance.focus()
         },
         directorySelectorCallback (filenames) {
@@ -144,7 +146,7 @@ export default {
 
                 $(document).on('click', function(){
                     console.log('document click')
-                    _this.$bus.$emit('note:editor:preview', _this.instance.getContent());
+                    _this.$bus.$emit('note:editor:preview');
                 }) 
 
             })
@@ -196,8 +198,6 @@ export default {
                 //因为你是添加button,所以需要返回这个button
                 return btn
             })
-
-
         }
     },
 }
