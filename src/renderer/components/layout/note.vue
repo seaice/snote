@@ -31,13 +31,6 @@ export default{
     mounted() {
         this.$bus.$on('note:editor:preview', this.preview)
         this.$bus.$on('note:editor:active', this.active)
-
-        $( document ).on( 'click', "#edui_fixedlayer, #note, #noteList", function(e){
-            this.show_preview = false
-            this.show_editor  = true
-
-            e.stopPropagation();
-        })
     },
     methods : {
         preview(note) {

@@ -86,7 +86,7 @@ export default {
                             db.link.run(sql)
                         }
                     }
-                });
+                })
             }
 
             /* 重命名 */
@@ -217,7 +217,6 @@ export default {
 
             /* 
                 更新笔记
-
             */
             this.updateNote = function(id, data) {
 
@@ -303,6 +302,7 @@ export default {
                 console.log("delete note : ", sql);
                 db.link.run(sql);
             },
+
             this.findRootFolderByUid = function(callback){
                 var sql = "select * from folder where uid = " + store.state.User.id + " and pid = 0";
                 console.log("findRootFolderByUid sql: ", sql)
@@ -318,6 +318,50 @@ export default {
                     console.log("findRootFolderByUid: ", rows);
                     callback(null , rows[0]);
                 })
+            }
+
+            // this.getFolderByid = function(fid, callback) {
+            //     var sql = "select * from folder where id = " + fid + " and uid=" + store.state.User.id
+
+            //     db.link.get(sql, function(err, row){
+            //         if(err) {
+            //            db.alert()
+            //            return console.error(err.message)
+            //         }
+
+            //         callback(null, row)
+            //     })
+            // }
+
+            this.initFolderRoot = function() {
+                db.link.serialize(function() {
+                    var sql = "select * from folder where pid =0 and uid=" + store.state.User.id
+                    db.link.get(sql, function(err, row){
+                        if(err) {
+                           db.alert()
+                           return console.error(err.message)
+                        }
+                    })
+
+                    console.log(row)
+
+    
+                });
+
+                
+
+                // var created = Date.parse(new Date())/1000;
+                // var updated = created
+                // var sql = "insert into folder (name,uid,pid,created,updated) values ("
+                //         + "'我的文件夹',"
+                //         + store.state.User.id + ","
+                //         + 0 + "," 
+                //         + created + ","
+                //         + updated 
+                //         + ")"                
+
+                // var_dump(sql)
+
             }
         }
     }

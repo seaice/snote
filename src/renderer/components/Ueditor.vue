@@ -80,8 +80,8 @@ export default {
                     fs.copySync(filenames[i], file)
 
                     file = 'snote://img.makeclean.net/' 
-                            + this.$store.state.User.uid.toString(16).substr(-3)
-                            + '/' + this.$store.state.User.uid 
+                            + this.$store.state.User.id.toString(16).substr(-3)
+                            + '/' + this.$store.state.User.id 
                             + '/' + filename
 
 
@@ -123,8 +123,8 @@ export default {
                                 fs.writeFileSync(filepath, buffer)
 
                                 var file = 'snote://img.makeclean.net/' 
-                                    + _this.$store.state.User.uid.toString(16).substr(-3)
-                                    + '/' + _this.$store.state.User.uid 
+                                    + _this.$store.state.User.id.toString(16).substr(-3)
+                                    + '/' + _this.$store.state.User.id 
                                     + '/' + filename
 
                                 _this.instance.execCommand('inserthtml', '<img src="' + file + '"/>');

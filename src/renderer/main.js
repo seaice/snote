@@ -62,6 +62,7 @@ const remote = require('electron').remote
 //   })
 // }
 
+const Store  = require('electron-store');
 
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -83,6 +84,10 @@ new Vue({
         }
     },
     mounted: function () {
+        this.init()
+
+        // this.check_login()
+
         var _this = this
         // 用户登陆
         // Vue.prototype.$bus.$emit('alert', {msg:'数据异常，请重启笔记！<br>如果重启不能解决问题，请重新安装！',close:false, state:'danger'})
@@ -96,7 +101,6 @@ new Vue({
         var pathData = path.join(remote.app.getPath('userData'), '866747')
         this.$store.commit('user_login', {
             id : 1,
-            uid : 866747,
             name : 'haibing',
             pathData : pathData,
         })
@@ -137,6 +141,36 @@ new Vue({
         this.$db.close()
     },
     methods: {
+        init() {
+            // 全局配置
+            const store = new Store()
+            if(!store.has('autostart')) {
+                store.set('autostart', true)
+            }
+            if(!store.has('autoupdate')) {
+                store.set('autoupdate', true)
+            }
+
+            $(document).on('click', "#edui_fixedlayer, #note, #noteList", function(e){
+                this.show_preview = false
+                this.show_editor  = true
+
+                e.stopPropagation();
+            })
+
+            $(".modal").on('click', function(e) {
+                e.stopPropagation();
+            })
+        },
+        check_login() {
+            // const store = new Store('')
+            if(true) { //未登录
+                this.$bus.$emit('user:login:modal:active', {close:false})
+            }
+            
+
+
+        },
         handleResize (event) {
             store.commit('resize', {
                 width: document.documentElement.clientWidth,
