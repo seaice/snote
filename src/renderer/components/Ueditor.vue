@@ -27,6 +27,7 @@ export default {
     //此时--el挂载到实例上去了,可以初始化对应的编辑器了
     mounted () {
         this.initEditor()
+        this.$bus.$on('note:editor:focus', this.focus)
     },
     beforeDestroy () {
         // 组件销毁的时候，要销毁 UEditor 实例
@@ -35,6 +36,10 @@ export default {
         }
     },
     methods: {
+        focus(content) {
+            console.log(content)
+            this.instance.focus()
+        },
         directorySelectorCallback (filenames) {
             if(filenames == undefined) {
                 return
@@ -130,31 +135,16 @@ export default {
                         }
                     })
 
-                    this.instance.addListener("contentChange", () => {
-                        // console.log(2123)
-                        // console.log('内容改变:'+this.instance.getContent())
-                        // SyntaxHighlighter.highlight()
-                        // console.log(this.instance)
-                        // console.log(this.instance.iframe.id)
-                        // console.log(this.instance.body)
-                        // var iframe = document.getElementById(this.instance.iframe.id);
-                        // console.log(iframe)
-
-                        // var iframeContent = (iframe.contentWindow || iframe.contentDocument);
-                        // console.log(iframeContent)
-                        // iframeContent.SyntaxHighlighter.highlight();
-                    })
+                    // this.instance.addListener("contentChange", () => {
+                    // })
 
                     // this.instance.addListener('blur', () => {
-                    //     _this.$bus.$emit('note:editor:blur', this.instance.getContent());
-                    //     // _this.$emit('note:editor:blur', this.instance.getContent());
                     // });
                 })
 
-                // document 
                 $(document).on('click', function(){
                     console.log('document click')
-                    _this.$bus.$emit('note:editor:blur', _this.instance.getContent());
+                    _this.$bus.$emit('note:editor:preview', _this.instance.getContent());
                 }) 
 
             })

@@ -37,6 +37,6 @@ export default {
 
 <style type="text/css">
 #index {
-    border: 1px solid #398dee;
+    /*border-bottom: 1px solid #a0a0a0;*/
 }
 </style>

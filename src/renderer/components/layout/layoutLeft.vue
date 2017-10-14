@@ -79,6 +79,7 @@ export default {
         }
     },
     methods: {
+        // 新建文件夹
         createFolder : function() {
             var _this = this
             var _ztree = this.ztree
@@ -112,13 +113,13 @@ export default {
             } else {
                 // 没选中节点。不能添加
             }
-
         },
         ztree_beforeRename : function(treeId, treeNode, newName, isCancel) {
             if(treeNode.pid == 0)
                 return false
             this.ztree_node_oldname = treeNode.name
         },
+        // 删除文件夹
         deleteFolder : function() {
             var nodes = this.ztree.getSelectedNodes()
             console.log(nodes)
@@ -129,6 +130,7 @@ export default {
             //方案：删除目录，目录以及其子目录，直接删除。目录内部笔记，直接进入垃圾站。不在进行分类。恢复笔记，直接恢复到我的文件夹。
             this.ztree.removeNode(nodes[0])
         },
+        // 重命名文件夹
         renameFolder : function() {
             this.ztree_menu_flag = false
             this.hideRMenu()
@@ -262,7 +264,7 @@ export default {
 
             //todo 获得所有节点的笔记,展示在第二列
             
-            this.$db.getNoteList(fids.join(","));
+            this.$db.getNoteList(fids);
             this.$bus.$emit('note:getSelectedNode', treeNode);
 
         },
@@ -333,13 +335,13 @@ export default {
                         _this.$db.addNote(selectNode, newData, callback)
                     },
                     function(id, created, callback) {
-                        
                         newData.checked = selectNode.checked;
                         newData.id = id
                         newData.pid = selectNode.id
                         newData.created = newData.updated = created;
                         callback(null)
                         _this.$bus.$emit("note:addNote", newData);
+                        _this.$bus.$emit('note:editor:active', '');
                     }
                 ]
                 this.$async.waterfall(asyncOps, function (err, results) {
@@ -377,6 +379,7 @@ export default {
     overflow: hidden;
     border-right: 1px solid #ddd;
     clear: both;
+    /*border-left:1px solid #a0a0a0;*/
 }
 #layoutLeft a{
     color: #000;
@@ -485,6 +488,7 @@ export default {
     /*list-style: none outside none;*/
     position: relative;
     width: 130px;
+    list-style:none;
 
 }
 #layoutLeft #tree_menu ul li:hover{

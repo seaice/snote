@@ -7,11 +7,11 @@
             </div>
         </div>
         <!-- <img src="~@/assets/logo.png" alt=""> -->
-        <div>
-            <div v-show="show_preview" class="preview" v-on:click="edit" :style="{ height: height - 108 +'px', width: '98%' }" v-html="content">
+        <!-- <div> -->
+            <div v-show="show_preview" class="preview" v-on:click="edit" :style="{ height: height - 108 +'px', width: '100%' }" v-html="content">
             </div>
             <Ueditor v-show="show_editor" class="editor-panel" :height="height" @ready="editorReady" :style="{ height: height - 108 +'px', width: '100%' }"></Ueditor>
-        </div>
+        <!-- </div> -->
     </div>    
 </template>
 <script>
@@ -24,37 +24,39 @@ export default{
     data: function(){
         return {
             show_preview : true,
-            show_editor : false,
-            content : '',
+            show_editor  : false,
+            note         : null, // 当前激活的笔记
+            content      : '',
         }
     },
     mounted() {
-        this.$bus.$on('note:editor:blur', this.blur)
-
-        // $("#edui_fixedlayer, #note").on('click', function(e){
-        //     this.show_preview = false
-        //     this.show_editor  = true
-
-        //     console.log('#editor-panel click')
-        //     e.stopPropagation();
-        // })
+        this.$bus.$on('note:editor:preview', this.preview)
+        this.$bus.$on('note:editor:active', this.active)
 
         $( document ).on( 'click', "#edui_fixedlayer, #note", function(e){
             this.show_preview = false
             this.show_editor  = true
 
-            console.log('#editor-panel click')
             e.stopPropagation();
         })
-
-
     },
     methods : {
-        blur(content) {
+        preview(note) {
+            this.note = note
             this.show_preview = true
             this.show_editor  = false
-            // console.log(content)
+            // this.content = note.content
+
+            console.log(note)
+
+            //todo update note
+
+        },
+        active(content) {
+            this.show_preview = false
+            this.show_editor  = true
             this.content = content
+            this.$bus.$emit('note:editor:focus', content)
         },
         edit() {
             this.show_preview = false
@@ -85,6 +87,8 @@ export default{
 <style>
 
 #note {
+    overflow: hidden;
+    /*border-right:1px solid #a0a0a0;*/
 }
 
 #note .note-top {
@@ -126,8 +130,28 @@ export default{
     overflow: hidden;
 }
 #note .preview {
-    line-height: 1;
+    padding: 10px;
     overflow: hidden;
+    font-size: 16px;
+}
+
+#note .preview table { 
+    border-collapse: collapse; 
+    border: none; 
+} 
+#note .preview td, #note .preview th { 
+    padding: 5px 10px;
+    border: 1px solid #DDD;
+    box-sizing: content-box;
+} 
+
+#note .preview p {
+    margin: 5px 0;
+}
+
+#note .preview ol, #note .preview ul {
+    padding-left: 30px;
+    /*list-style-type: initial;*/
 }
 
 </style>

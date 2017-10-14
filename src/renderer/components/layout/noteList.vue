@@ -1,6 +1,6 @@
 <template>
     <div id="noteList" class="fl" :style="{ height: height - 52 + 'px' }">
-        <div class="search-box">
+        <div class="search-box clear">
             <span  class="levelup-icon"><i class="fa fa-level-up" aria-hidden="true"></i></span>
             <!-- <div id="noteListSearchArea"> -->
             <span  class="search-icon"><i class="fa fa-search" aria-hidden="true"></i></span>
@@ -8,24 +8,24 @@
             <!-- </div> -->
             <span  class="list-icon"><i class="fa fa-th-list" aria-hidden="true"></i></span>
         </div>
-        <div class="noteListContent" :style="{ height: height - 137 + 'px' }">
+        <div class="noteListContent" :style="{ height: height - 135 + 'px' }">
             <div v-if="items.length > 0" class="list">
                 <ul>
-                    <li v-for="item in items" v-on:contextmenu="getContentMenu(item,$event)" v-on:click="getNoteContent" class="my-note-li">
-                        <div v-bind:class="{'my-note-item-folder': item.type == 1, 'my-note-item': item.type == 0 }">
+                    <li v-for="(item,index) in items" v-on:contextmenu="getContentMenu(item,$event)" v-on:click="notePreview(index)" :class="{active:index==active_note_index}">
+                        <!-- <div class="my-note-item"> -->
                             <span class="item-title">
-                                <i :class="{ 'fa fa-folder': item.type == 1, 'fa fa-pencil-square-o': item.type == 0} " aria-hidden="true"></i>
-                                {{ item.type == 1  ? item.name : item.title }}
+                                <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                                {{ item.title }}
                             </span>
-                            <div class="item-folder-bottom" v-if="item.type == 1">
+          <!--                   <div class="item-folder-bottom" v-if="item.type == 1">
                                  <span class="item-createtime">{{ getUpdatedTime(item.updated) }}</span>
                             </div>
-                           
-                            <div class="item-bottom"  v-else="item.type == 0">
+                            -->
+                            <div class="item-bottom">
                                 <span class="item-createtime">{{ getUpdatedTime(item.updated) }}</span>
-                                <span class="item-size">{{ getContentSize(item.content) }}</span>
+                                <span class="item-size">云端或本地</span>
                             </div>
-                        </div>
+                        <!-- </div> -->
                     </li>
                 </ul>
             </div>
@@ -75,12 +75,12 @@ export default {
     },
     data () {
         return {
-            nickname: 'haibing1458',
-            total: 0,
-            items: [],  //所有笔记集合
-            selectedNode: {},// 选中的树节点
-            chooseItem:{}, // 选中的笔记节点
-            rootFolder: null // 当前用户的根节点
+            total             : 0,
+            items             : [],  //所有笔记集合
+            selectedNode      : {},// 选中的树节点
+            chooseItem        : {}, // 选中的笔记节点
+            rootFolder        : null, // 当前用户的根节点
+            active_note_index : 0, // 当前用户的根节点
         }
     },
     computed:{
@@ -241,15 +241,15 @@ export default {
             $("#noteContextMenu ul li").hover(function(){
                 $(this).css({'background-color': '#f5f5f5'})
             },function(){
-                 $(this).css({'background-color': '#fff'})
+                $(this).css({'background-color': '#fff'})
             });
 
             // 鼠标离开右键菜单时，隐藏右键菜单
             $("#noteContextMenu ul li").on('mouseleave', function(event){
-                 var tag = event.relatedTarget.tagName.toLowerCase();
-                 if (tag !== "li" && tag !== "ul"){
-                     $("#noteContextMenu").hide();
-                 }
+                var tag = event.relatedTarget.tagName.toLowerCase();
+                if (tag !== "li" && tag !== "ul"){
+                    $("#noteContextMenu").hide();
+                }
             })
         },
         renameNote: function(){
@@ -264,13 +264,12 @@ export default {
             } else {
                 this.$db.deleteNote(this.chooseItem.id);
 
-                 if (this.selectedNode != null && this.selectedNode.id != null) {
+                if (this.selectedNode != null && this.selectedNode.id != null) {
 
-                     this.$db.getNoteList(this.selectedNode.id);
-                 } else {
-
+                    this.$db.getNoteList(this.selectedNode.id);
+                } else {
                     this.$bus.$emit('alert', {msg:'数据异常，请重启笔记！<br>如果重启不能解决问题，请重新安装！',close:false, state:'danger'});
-                 }
+                }
                 
             }
         },
@@ -334,26 +333,17 @@ export default {
             }
 
         },
-        getNoteContent : function(event){
-            // 修改选中笔记列表背景，查询笔记内容，显示第三列
-            var target = event.target;
+        notePreview : function(index){
+            // 高亮选中
+            this.active_note_index = index
+            //todo 渲染编辑器。传递参数
+            console.log(this.items[index])
+            // console.log(event)
+            console.log(index)
 
-            // while (target.tagName != 'li'){
-            //     target = event.target.parentNode;
-            // }
+            this.$bus.$emit('note:editor:preview', this.items[index])
 
-                // $("li.my-note-li").siblings().removeClass("active");
-                // $(target).addClass("active");
 
-            // $(".my-note-li").hover(function(){
-            //     $(this).siblings().removeClass("hoverUnActive");
-            //     $(this).addClass("hoverActive");
-            //     $(target).addClass("active");
-            // },function(){
-            //     $(this).siblings().removeClass("hoverActive");
-            //     $(this).addClass("hoverUnActive");
-            //     $(target).addClass("active");
-            // })
         }
     }
 }
@@ -370,14 +360,10 @@ export default {
 }
 
 #noteList .search-box {
-    height: 54px;
-    line-height: 54px;
+    height: 55px;
+    line-height: 55px;
     border-bottom: 1px solid #ddd;
-    position: fixed;
     font-size: 12px;
-    top: 52px;
-    left: 201px;
-    bottom: 54px;
     width: 240px;
 }
 
@@ -409,22 +395,22 @@ export default {
 }
 
 #noteList  .search-box i {
-    color: #ADB8C4;
+    color: #ddd;
     font-size:14px;
+}
+
+#noteList .list li {
+    width: 239px;
+    height: 125px;
+    border-bottom: 1px solid  #ddd;
+    font-size: 12px;
+    padding: 15px;
 }
 
 #noteList .list li:hover {
     background: #f5f5f5;
 }
-
-#noteList .my-note-item {
-    width: 239px;
-    height: 125px;
-    border-bottom: 1px solid  #ADB8C4;
-    font-size: 12px;
-    color: #eee;
-}
-
+/*
 #noteList .my-note-item-folder {
     width: 239px;
     height: 80px;
@@ -435,47 +421,65 @@ export default {
 #noteList .my-note-item, #noteList .my-note-item-folder {
     padding-left: 20px;
 }
-
+*/
 #noteList .noteListContent {
-    position: absolute;
-    top: 56px;
-    overflow-y: auto;
-
+    overflow: hidden;
 }
+
+#noteList .noteListContent:hover {
+    overflow-y: auto;
+}
+
+#noteList .noteListContent::-webkit-scrollbar
+{
+    width: 10px;
+} 
+
+/*滚动条背景*/
+#noteList .noteListContent::-webkit-scrollbar-track
+{
+    background: none;
+}
+
+/*滚动条颜色*/
+#noteList .noteListContent::-webkit-scrollbar-thumb  
+{  
+    background-color: #bfd8f5;
+} 
+
+/*滚动条颜色*/
+#noteList .noteListContent::-webkit-scrollbar-thumb:hover
+{  
+    background-color: #9ec7f7;
+}
+
 #noteList .noteListContent .list li {
     position: relative;
 }
-
+/*
 #noteList .my-note-item-folder .item-folder-bottom .item-createtime {
     bottom: 10px;
     position: absolute;
     color: #D3D3D3;
 }
-
+*/
 #noteList .noteListContent .item-title {
     display: inline-block;
-    padding-top: 10px;
-    color: #000;
 }
 
 
 #noteList .noteListContent .item-title .fa-pencil-square-o {
     color: #398dee;
-    margin-right:10px;
-}
-
-#noteList .item-title .fa-folder {
-    color: #f6ce62;
-    margin-right:10px;
 }
 
 #noteList .noteListContent .item-bottom {
     position: absolute;
-    bottom: 5px;
+    bottom: 15px;
+    left: 15px;
 }
 
 #noteList .noteListContent .item-bottom span {
-    color: #D3D3D3;
+    color: #aaa;
 }
 
 #noteList .noteListContent .item-bottom .item-size {
@@ -507,14 +511,12 @@ export default {
     background-color: #337ab7;
 }
 #noteList .totalCount {
-    /*width: 100%;*/
     width: 240px;
     height: 30px;
     line-height: 30px;
-    position: fixed;
-    bottom: 0;
     text-align: center;
     font-size: 12px;
+    border-top: 1px solid #398dee;
 }
 #noteList #noteContextMenu {
     font-size: 11px;
@@ -540,17 +542,8 @@ export default {
     margin-right: 5px;
 }
 
-#noteList .active {
-    background-color: #e9f3ff;
+#noteList .list li.active {
+    background-color: #e0eafa!important;
 }
-
-#noteList .hoverActive {
-    background-color: #f5f5f5;
-}
-
-#noteList .hoverUnActive {
-    background-color: #fff;
-}
-
 
 </style>
