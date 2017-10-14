@@ -38,7 +38,6 @@ export default {
     methods: {
         focus() {
             console.log('focus')
-            console.log(this.$store.state.Global.note.content)
             this.instance.setContent(this.$store.state.Global.note.content)
             this.instance.focus()
         },
@@ -63,8 +62,6 @@ export default {
             for(var i = 0; i < filenames.length; i++) {
                 try {
                     var stat = fs.statSync(filenames[i])
-                    // console.log(stat)
-
 
                     /* 最大图片2m */
                     if(stat.size > 2 * 1024 * 1024) {
