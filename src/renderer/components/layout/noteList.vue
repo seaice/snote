@@ -203,22 +203,6 @@ export default {
             //选择笔记列表条目
             var target = event.target;
 
-            while (target.className.indexOf("my-note-li") < 0){
-                target = event.target.parentNode;
-            }
-
-            if (target.className.indexOf("my-note-li") >= 0){
-                $("." + target.className).css({
-                    "background-color": "#fff"
-                })
-            }
-
-            console.log("target： ", target);
-            $(target).css({
-                'background-color': "#e9f3ff"
-            })
-            // target.style.backgroundColor = "#e9f3ff";
-
             console.log("item : ", item);
             this.chooseItem = item;
             console.log("event: ", event);  
