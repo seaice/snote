@@ -120,7 +120,7 @@ export default {
             var _this = this
             $("#noteContextMenu").hide()
 
-            var newData = { title: "无标题笔记" , type: 0, state : 0, cloud : cloud }
+            var newData = { title: "无标题笔记" , content: "", type: 0, cloud : cloud }
 
             var asyncOps = [
                 // 新建笔记

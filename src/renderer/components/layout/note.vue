@@ -6,14 +6,14 @@
             </div>
         </div>
         <div class="note-top">
-            <input class="title" :style="{ width: width - 442 +'px' }" type="text" v-model="note.title">
+            <input class="title" :style="{ width: width - 442 +'px' }" type="text" v-model="title">
             <div class="meta">
-                <input type="checkbox" id="note-cloud" name="note-cloud" value="1"><label for="note-cloud">云端</label>
+                <input type="checkbox" id="note-cloud" name="note-cloud" v-model="cloud"><label for="note-cloud">云端</label>
             </div>
         </div>
         <!-- <img src="~@/assets/logo.png" alt=""> -->
         <!-- <div> -->
-            <div v-show="show_preview" class="preview" v-on:click="active" :style="{ height: height - 108 +'px', width: '100%' }" v-html="note.content">
+            <div v-show="show_preview" class="preview" v-on:click="active" :style="{ height: height - 108 +'px', width: '100%' }" v-html="content">
             </div>
             <Ueditor v-show="show_editor" class="editor-panel" :height="height" @ready="editorReady" :style="{ height: height - 108 +'px', width: '100%' }"></Ueditor>
         <!-- </div> -->
@@ -28,7 +28,9 @@ export default{
     },
     data: function(){
         return {
-            content      : "",
+            title        : null,
+            content      : null,   // 从编辑器获得的笔记
+            cloud        : 1,   // 从编辑器获得的笔记
             no_preview   : true,
             show_preview : false,
             show_editor  : false,
@@ -59,9 +61,30 @@ export default{
                 function(callback) {
                     _this.$db.noteGet(note.id, callback)
                 },
+                function(noteDetail, callback) {
+                    // 判断是否有更新
+                    if(note.id == _this.$store.state.Global.note.id) {
+                        if(noteDetail.title != _this.title || noteDetail.content != _this.content) {
+                            console.log("update to db")
 
-                function(note_detail, callback) {
-                    _this.$store.commit('setNote', note_detail)
+                            noteDetail.title   = _this.title
+                            noteDetail.content = _this.content
+
+                            _this.$db.noteUpdate(note.id, noteDetail, callback)
+                        }
+                    } else {
+                        callback(null, noteDetail)
+                    }
+
+                },
+                function(noteDetail, callback) {
+                    _this.$store.commit('setNote', noteDetail)
+                    _this.title   = noteDetail.title
+                    _this.content = noteDetail.content
+                    _this.cloud   = noteDetail.cloud
+
+                    // console.log(_this.cloud)
+
                     callback(null)
                 }
             ]
@@ -92,9 +115,6 @@ export default{
         },
     },
     computed: {
-        note: function() {
-            return this.$store.state.Global.note
-        },
         height: function(){
             return this.$store.state.Window.height
         },

@@ -242,13 +242,26 @@ export default {
             /* 
                 更新笔记
             */
-            this.noteUpdate = function(id, data) {
+            this.noteUpdate = function(id, data, callback) {
                 if(id < 0) {
                     return false
                 }
+                var note = this.getTable('note')
                 var time = Date.parse(new Date())/1000;
-                var sql  = "update note set content = '" + data.content+ " , updated = " + time + ", title = '"+ data.title+ "' where id = " + id;
-                db.link.run(sql);
+                var sql  = "update " + note + " set" 
+                        + " content = '" + data.content + "',"
+                        + " title = '"+ data.title + "',"
+                        + " cloud = "+ data.cloud + "," 
+                        + " updated = " + time 
+                        + " where id = " + id
+
+                db.link.run(sql, function(err){
+                    if(err) {
+                        return callback(err)
+                    }
+
+                    callback(null, data)
+                })
             }
 
             /*
@@ -289,18 +302,15 @@ export default {
                     function(title, callback) {
                         const uuidv1 = require('uuid/v1')
                         var uuid = uuidv1()
-                        var sql = "insert into " + note + " (uuid,fid,nid,type,cloud,title,thumbnail,summary,content,state,version,created,updated,synced) values ("
+                        var sql = "insert into " + note + " (uuid,fid,type,cloud,title,thumbnail,summary,content,created,updated,synced) values ("
                                 + "'" + uuid + "',"
-                                + "'" + id + "',"
+                                + id + ","
+                                + data.type + ","
                                 + data.cloud + ","
-                                + "'" + data.type + "',"
-                                + "1,"
                                 + "'" + title + "',"
                                 + "'',"
                                 + "'',"
-                                + "'',"
-                                + "'" + data.state + "',"
-                                + "0,"
+                                + "'" + data.content + "',"
                                 + "'" + created + "',"
                                 + "'" + updated + "'," 
                                 + "0"
