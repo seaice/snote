@@ -59,7 +59,10 @@ export default{
 
             var asyncOps = [
                 function(callback) {
-                    _this.$db.noteGet(note.id, callback)
+                    //判断是不是需要取数据库，相同的笔记
+                    if(_this.$store.state.Global.note.id != note.id) {
+                        _this.$db.noteGet(note.id, callback)
+                    }
                 },
                 function(noteDetail, callback) {
                     // 判断是否有更新
