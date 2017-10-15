@@ -34,11 +34,12 @@
                 <li  class="list-group-item">新建
                     <ul class="list-group" id="right_menu">
                         <li  v-on:click="folderCreate" class="list-group-item"><i class="fa fa-folder-o" aria-hidden="true"></i><span>文件夹</span></li>
-                        <li v-on:click="noteCreateCloud" class="list-group-item"><i class="fa fa-file-o" aria-hidden="true"></i><span>云笔记</span></li>
-                        <li v-on:click="noteCreateLocal" class="list-group-item"><i class="fa fa-file-o" aria-hidden="true"></i><span>本地笔记</span></li>
+                        <li v-on:click="noteCreateCloud($store.state.Global.cur_fid)" class="list-group-item"><i class="fa fa-file-o" aria-hidden="true"></i><span>云笔记</span></li>
+                        <li v-on:click="noteCreateLocal($store.state.Global.cur_fid)" class="list-group-item"><i class="fa fa-file-o" aria-hidden="true"></i><span>本地笔记</span></li>
                         <!-- <li class="list-group-item"><i class="fa fa-file-o" aria-hidden="true"></i>MarkDown笔记</li> -->
                     </ul>
                 </li>
+                <li class="list-group-item" v-on:click="">置顶</li>
                 <li class="list-group-item" v-on:click="noteRename">重命名</li>
                 <li class="list-group-item" v-on:click="noteDelete">删除</li>
             </ul>
@@ -87,8 +88,6 @@ export default {
         this.$bus.$on("note:create:cloud", this.noteCreateCloud);//云笔记创建
         this.$bus.$on("note:create:local", this.noteCreateLocal);//本地笔记创建
 
-
-
         // this.$bus.$on("note:list:init",this.initNoteList);//笔记列表初始化
         // this.$bus.$on("note:addNote", this.addNote);//添加新增笔记
         // this.$bus.$on('note:getSelectedNode', this.getSelectedNode);//获取选中的树节点id
@@ -116,14 +115,17 @@ export default {
                 }
             })
         },
+        /* 创建笔记 */
         noteCreate(fid, cloud) {
             var _this = this
+            $("#noteContextMenu").hide()
 
             var newData = { title: "无标题笔记" , type: 0, state : 0, cloud : cloud }
 
             var asyncOps = [
                 // 新建笔记
                 function(callback) {
+                    console.log(_this.$store.state.Global.cur_fid)
                     if(fid == undefined) {
                         fid = 1
                     }
@@ -183,91 +185,13 @@ export default {
             }
         },
 
-        /*
-        createNote: function(){
-            var _this = this
-
-            var newData = { title: "无标题笔记" , type: 0, state:0};
-            var selectNode = this.selectedNode;
-            console.log("selectNode: ", selectNode);
-            $("#noteContextMenu").hide();
-
-            var node = null;
-           
-            if (selectNode != null && selectNode.id != null) {
-                node = selectNode;
-                var asyncOps = [
-
-                    function(callback) {
-                        _this.$db.addNote(node.id, newData, callback)
-                    },
-
-                    function(id, created, callback) {
-                        newData.checked = node.checked;
-                        newData.id = id
-                        newData.pid = node.id
-                        newData.created = newData.updated = created;
-                        callback(null)
-                        _this.$bus.$emit("note:addNote", newData);
-                        _this.$bus.$emit('note:editor:active', '');
-                    }
-                ]
-                _this.$async.waterfall(asyncOps, function (err, results) {
-                    if (err) {
-                        _this.$db.alert()
-                        return false
-                    }
-                });
-            } else {
-
-                var ops = [
-
-                    function (callback){
-                        _this.$db.findRootFolderByUid(callback);
-                    },
-
-                    function(folder, callback) {
-                        console.log("folder11: ", folder);
-                        node = foler;
-                        _this.$db.addNote(node.id, newData, callback)
-                    },
-
-                    function(id, created, callback) {
-                        newData.checked = node.checked;
-                        newData.id = id
-                        newData.pid = node.id
-                        newData.created = newData.updated = created;
-                        callback(null)
-                        _this.$bus.$emit("note:addNote", newData);
-                    }
-                ]
-
-                this.$async.waterfall(ops, function (err, results) {
-                    if (err) {
-                        _this.$db.alert()
-                        return false
-                    }
-
-                    console.log("results: ", results);
-
-                });
-            }
-        },
-        */
 
         getContentMenu:function(index, event){
             // console.log("item : ", item)
             // console.log("event: ", event)
 
-            // this.chooseItem = item
             this.active_note_index = index
             this.notePreview(index)
-
-            // console.log(index)
-            // console.log(event)
-
-
-            // return
 
             //选择笔记列表条目
             var target = event.target;
@@ -303,12 +227,15 @@ export default {
                 }
             })
         },
+
+        // 笔记重命名
+        //todo 参考删除写
         noteRename: function(){
             $("#noteContextMenu").hide();
             $("#noteListRenameWindow").modal("show");
         },
 
-
+        // 删除笔记
         noteDelete: function() {
             var _this = this
             $("#noteContextMenu").hide();
@@ -318,18 +245,18 @@ export default {
             }
 
             var asyncOps = [
-                // 获取笔记
+                // 删除笔记
                 function(callback) {
                     _this.$db.noteDelete(_this.items[_this.active_note_index].id, callback)
                 },
-                // 取消显示
-                function(notelist, callback) {
+                // 列表中删除
+                function(callback) {
                     _this.items.splice(_this.active_note_index, 1)
                     _this.active_note_index = null
                 }
             ]
             
-            this.$async.waterfall(asyncOps, function (err, results) {
+            this.$async.series(asyncOps, function (err, results) {
                 if (err) {
                     _this.$db.alert()
                 }
@@ -352,6 +279,8 @@ export default {
                 $("#noteListRenameWindow").modal("hide");
             }
         },
+
+        // 搜索笔记
         noteSearch: function(){
             $(".search-icon").hide();
             $(".search").val(" ");
@@ -359,13 +288,15 @@ export default {
                 var searchValue = $(".search").val();
                 if (searchValue == null || searchValue == ' '){
                     $(".search").val("");
-                     $(".search-icon").show();
+                    $(".search-icon").show();
                 }
             });
         },
-        folderCreate : function() {
-            
 
+        // 创建文件夹
+        folderCreate : function() {
+            $("#noteContextMenu").hide()
+            this.$bus.$emit('folder:create')
         },
         // 点击笔记，右侧预览
         notePreview : function(index){
@@ -525,7 +456,7 @@ export default {
 
 #noteList .noteListContent .no-note {
     position: relative;
-    top: 50%;
+    top: 42%;
     margin-left: 80px;
 }
 

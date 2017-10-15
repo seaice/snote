@@ -124,8 +124,8 @@ export default {
                 @param newNode  新文件夹
                 @param callback
             */
-            this.folderCreate = function(node, newNode, callback) {
-                if(!node.id) {
+            this.folderCreate = function(fid, newNode, callback) {
+                if(fid == undefined) {
                     return false
                 }
 
@@ -133,22 +133,22 @@ export default {
                 var updated = created
 
                 var folder = this.getTable('folder')
-
+                
                 var asyncOps = [
                     function (callback) {
-                        var sql = "select * from " + folder + " where id="+node.id
+                        var sql = "select * from " + folder + " where id=" + fid
                         // console.log(sql)
                         db.link.all(sql, function(e, rows){
                             if(rows.length < 1) {
                                 callback(1)
                             }
-                            callback(null, node.id)
+                            callback(null, fid)
                         })
                     },
                     function(callback) {
                         var sql = "insert into " + folder + " (name,pid,created,updated) values ("
                                 + "'" + newNode.name + "',"
-                                + "'" + node.id + "'," 
+                                + "'" + fid + "'," 
                                 + "'" + created + "',"
                                 + "'" + updated + "'" 
                                 + ")"

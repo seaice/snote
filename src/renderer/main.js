@@ -121,7 +121,6 @@ new Vue({
         init() {
             // 全局配置
             this.config = new Store()
-            // const store = 
             if(!this.config.has('autostart')) {
                 this.config.set('autostart', true)
             }

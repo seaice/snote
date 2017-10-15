@@ -88,11 +88,20 @@ export default {
             this.hideRMenu()
             var newData = { name:"新建文件夹" };
             var selectNode = this.ztree.getSelectedNodes()[0]
+            console.log(selectNode)
+
+            if(selectNode == undefined) {
+                selectNode = _ztree.getNodesByParam('id', 1)[0]
+                console.log(selectNode)
+            }
+
             if (selectNode) {
                 var asyncOps = [
+                    // 创建文件夹
                     function(callback) {
-                        _this.$db.folderCreate(selectNode, newData, callback)
+                        _this.$db.folderCreate(selectNode.id, newData, callback)
                     },
+                    // 添加到树
                     function(id, callback) {
                         newData.checked = selectNode.checked;
                         newData.id = id
@@ -100,10 +109,11 @@ export default {
                         var newNode = _ztree.addNodes(selectNode, newData);
                         _ztree.editName(newNode[0])
 
+                        _this.$bus.$emit('note:list:load', id)
+
                         callback(null)
                     }
                 ]
-                // var async = require('async');
                 this.$async.waterfall(asyncOps, function (err, results) {
                     if (err) {
                         _this.$db.alert()
@@ -336,6 +346,7 @@ export default {
     },
     mounted() {
         this.$bus.$on('folder:init', this.folderInit)
+        this.$bus.$on('folder:create', this.folderCreate)
     },
 }
 </script>
