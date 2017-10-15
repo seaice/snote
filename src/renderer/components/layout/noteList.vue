@@ -11,7 +11,7 @@
         <div class="noteListContent" :style="{ height: height - 135 + 'px' }">
             <div v-if="items.length > 0" class="list">
                 <ul>
-                    <li v-for="(item,index) in items" v-on:contextmenu="getContentMenu(item,$event)" v-on:click="notePreview(index)" :class="{active:index==active_note_index}">
+                    <li v-for="(item,index) in items" v-on:contextmenu="getContentMenu(item,$event)" v-on:click="notePreview(index)" :class="{active:index==active_note_index}" v-on:scroll="getMoreNotes">
                         <span class="item-title">
                             <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                             {{ item.title }}
@@ -75,6 +75,7 @@ export default {
             chooseItem        : {}, // 选中的笔记节点
             rootFolder        : null, // 当前用户的根节点
             active_note_index : 0, // 当前用户的根节点
+            page              : 1, // 加载笔记的页数
         }
     },
     computed:{
@@ -137,7 +138,7 @@ export default {
                 var asyncOps = [
 
                     function(callback) {
-                        _this.$db.addNote(node, newData, callback)
+                        _this.$db.addNote(node.id, newData, callback)
                     },
 
                     function(id, created, callback) {
@@ -147,6 +148,7 @@ export default {
                         newData.created = newData.updated = created;
                         callback(null)
                         _this.$bus.$emit("note:addNote", newData);
+                        _this.$bus.$emit('note:editor:active', '');
                     }
                 ]
                 _this.$async.waterfall(asyncOps, function (err, results) {
@@ -166,7 +168,7 @@ export default {
                     function(folder, callback) {
                         console.log("folder11: ", folder);
                         node = foler;
-                        _this.$db.addNote(node, newData, callback)
+                        _this.$db.addNote(node.id, newData, callback)
                     },
 
                     function(id, created, callback) {
@@ -316,6 +318,16 @@ export default {
             this.active_note_index = index
             //todo 渲染编辑器。传递参数
             this.$bus.$emit('note:editor:preview', this.items[index])
+        },
+        getMoreNotes: function(event){
+            var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            console.log("scrollTop: ", scrollTop);
+            var totalHeight = this.$store.state.Window.height;
+            if (scrollTop - totalHeight - 135 >= 0){
+
+
+
+            }
         }
     }
 }

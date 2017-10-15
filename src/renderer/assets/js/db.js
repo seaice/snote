@@ -174,7 +174,7 @@ export default {
                 console.log('sqlite close')
             },
             
-            this.getNoteList = function(fid, uid){
+            this.getNoteList = function(fid, data){
                 switch(typeof(fid)) {
                     case 'object':
                          fid = fid.join(",")
@@ -184,7 +184,7 @@ export default {
                 // var sql = "  select '' as id, '' as title, '' as content,'' as summary, updated, name, '1' as type from folder where pid = " + fid
                 //         + " union select n.id,n.title,n.content,n.summary,n.updated, f.name,'0' as type from note n,folder f where n.state = 0 and f.id = n.fid and n.uid = " + store.state.User.id + " and n.fid = " + fid;
                 // var sql = "select f.name,n.* from folder f ,note n where f.id = n.fid and n.fid in ("+ fid +") and n.state = 0 and n.uid=" + store.state.User.id + " order by updated desc"
-                var sql = "select id,title,summary,updated,cloud from note where fid in ("+ fid +") and state = 0 and uid=" + store.state.User.id + " order by updated desc"
+                var sql = "select id,title,summary,updated,cloud from note where fid in ("+ fid +") and state = 0 and uid=" + store.state.User.id + " order by updated desc "; //limit " + (data.pageSize * data.page) + " offset 0"
                 console.log("getNoteList: ", sql);
                 db.link.all(sql, function(err, rows){
                     if (err) {
@@ -219,7 +219,12 @@ export default {
                 更新笔记
             */
             this.updateNote = function(id, data) {
-
+                if(id < 0) {
+                    return false
+                }
+                var time = Date.parse(new Date())/1000;
+                var sql  = "update note set content = '" + data.content+ " , updated = " + time + ", title = '"+ data.title+ "' where id = " + id;
+                db.link.run(sql);
             }
 
             /*
@@ -228,18 +233,18 @@ export default {
                 @data
                 @callback  
             */
-            this.addNote = function(node, data, callbackFather){
+            this.addNote = function(id, data, callbackFather){
                 var created = Date.parse(new Date())/1000;
                 var updated = created;
                 var asyncOps = [
                     function (callback) {
-                        var sql = "select * from folder where id=" + node.id
+                        var sql = "select * from folder where id=" + id
                         db.link.all(sql, function(e, rows){
                             if(rows.length < 1) {
                                db.alert()
                                return console.error(err.message)
                             }
-                            callback(null, node.id)
+                            callback(null, id)
                         })
                     },
                     function(id, callback){
@@ -257,7 +262,7 @@ export default {
                         var uuid = uuidv1()
                         var sql = "insert into note (uuid,fid,uid,nid,type,cloud,title,thumbnail,summary,content,state,version,created,updated,synced) values ("
                                 + "'" + uuid + "',"
-                                + "'" + node.id + "',"
+                                + "'" + id + "',"
                                 + "'" + store.state.User.id + "',"
                                 + "0,"
                                 + "'" + data.type + "',"

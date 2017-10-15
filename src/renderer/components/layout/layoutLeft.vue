@@ -212,7 +212,7 @@ export default {
                 this.showRMenu("node", event.clientX, event.clientY);
                 //右键选中节点时，同样展现第二列笔记列表
                 var fids = this.getAllChildrenNodes(treeNode, [treeNode.id])
-                this.$db.getNoteList(fids.join(","));
+                this.$db.getNoteList(fids);
                 this.$bus.$emit('note:getSelectedNode', treeNode);
             }
         },
@@ -332,7 +332,7 @@ export default {
             if (selectNode) {
                 var asyncOps = [
                     function(callback) {
-                        _this.$db.addNote(selectNode, newData, callback)
+                        _this.$db.addNote(selectNode.id, newData, callback)
                     },
                     function(id, created, callback) {
                         newData.checked = selectNode.checked;
