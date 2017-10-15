@@ -302,19 +302,39 @@ export default {
 
             this.$db.moveFolder(data)
         },
-        new_window : function(event) {
-            this.$modal.show('hello-world');
+        // new_window : function(event) {
+            // this.$modal.show('hello-world');
 
             // this.$route.router
             // console.log(this.$route)
             // this.$router.replace({name: "config", query: {redirect: encodeURIComponent(this.$route.path)}});
             // this.$router.push({path: '/config'})
-        },
-        initFolders (data) {
-            this.ztree = $.fn.zTree.init($("#treeDemo"), this.setting, data);
+        // },
+        /* 初始化文件夹列表 */
+        folderInit (data) {
+            console.log('folder init')
+            var _this = this
+
+            var asyncOps = [
+                function(callback) {
+                    // 获得数据
+                    _this.$db.getFolder(_this.$store.state.User.id, callback)
+                },
+                function(folder, callback) {
+                    console.log(folder)
+                    // 初始化数据库
+                    _this.ztree = $.fn.zTree.init($("#treeDemo"), _this.setting, folder);
+                }
+            ]
+            this.$async.waterfall(asyncOps, function (err, results) {
+                if (err) {
+                    _this.$db.alert()
+                    return false
+                }
+            });
         },
         getFolder () {
-            this.$db.getFolder(1)
+            // this.$db.getFolder(1)
             // console.log(555)
             // this.folder = data
             // this.ztreeObj = $.fn.zTree.init($("#treeDemo"), this.setting, data);
@@ -367,7 +387,7 @@ export default {
         // }
     },
     mounted() {
-        this.$bus.$on('folder:init', this.initFolders)
+        this.$bus.$on('folder:init', this.folderInit)
     },
 }
 </script>
