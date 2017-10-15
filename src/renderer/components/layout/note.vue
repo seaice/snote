@@ -1,5 +1,10 @@
 <template>
     <div id="note" class="fl" :style="{ height: height - 52 +'px', width: width - 442 +'px'}">
+        <div class="no-preview" v-show="no_preview" :style="{ 'line-height': height - 52 +'px' }">
+            <div>
+                <i class="fa fa-file-text-o" aria-hidden="true"></i><span>无预览</span>
+            </div>
+        </div>
         <div class="note-top">
             <input class="title" :style="{ width: width - 442 +'px' }" type="text" v-model="note.title">
             <div class="meta">
@@ -23,7 +28,8 @@ export default{
     },
     data: function(){
         return {
-            show_preview : true,
+            no_preview : true,
+            show_preview : false,
             show_editor  : false,
             // note         : this.$store.state.Global.note, // 当前激活的笔记
         }
@@ -101,7 +107,25 @@ export default{
 
 #note {
     overflow: hidden;
+    position: relative;
     /*border-right:1px solid #a0a0a0;*/
+}
+
+#note .no-preview {
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 30px;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    z-index: 1000;
+    text-align: center;
+    color: #aaa;
+}
+#note .no-preview span {
+    font-size: 22px;
+    margin-left: 10px;
 }
 
 #note .note-top {
