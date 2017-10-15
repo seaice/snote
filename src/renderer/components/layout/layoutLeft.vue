@@ -24,8 +24,9 @@
                 <li id="tree_menu_add">新建
                     <ul>
                         <li v-on:click="folderCreate"><i class="fa fa-folder-o" aria-hidden="true"></i><span>文件夹</span></li>
-                        <li v-on:click="createNote"><i class="fa fa-file-o" aria-hidden="true"></i><span>笔记</span></li>
-                        <li><i class="fa fa-file-o" aria-hidden="true"></i>MarkDown笔记</li>
+                        <li v-on:click="createNoteCloud"><i class="fa fa-file-o" aria-hidden="true"></i><span>云笔记</span></li>
+                        <li v-on:click="createNoteLocal"><i class="fa fa-file-o" aria-hidden="true"></i><span>本地笔记</span></li>
+                        <!-- <li><i class="fa fa-file-o" aria-hidden="true"></i>MarkDown笔记</li> -->
                     </ul>
                 </li>
                 <li id="tree_menu_rename" v-on:click="folderRename">重命名</li>
@@ -43,7 +44,7 @@ export default {
             fullHeight: document.documentElement.clientHeight - 52,
             ztree : {},
             ztree_node_oldname : "",
-            ztree_menu_flag : false, //是否隐藏菜单
+            ztree_menu_flag : false, //是否隐藏菜单，二级菜单判断~
             setting : {
                 view : {
                     // showLine: false,
@@ -90,7 +91,7 @@ export default {
             if (selectNode) {
                 var asyncOps = [
                     function(callback) {
-                        _this.$db.folderCreate(_this.$store.state.User.id, selectNode, newData, callback)
+                        _this.$db.folderCreate(selectNode, newData, callback)
                     },
                     function(id, callback) {
                         newData.checked = selectNode.checked;
@@ -207,8 +208,7 @@ export default {
                 this.showRMenu("node", event.clientX, event.clientY);
                 //右键选中节点时，同样展现第二列笔记列表
                 var fids = this.getAllChildrenNodes(treeNode, [treeNode.id])
-                this.$db.getNoteList(fids);
-                this.$bus.$emit('note:getSelectedNode', treeNode);
+                this.$bus.$emit('note:list:load', fids);
             }
         },
         getAllChildrenNodes : function (treeNode,result = []) {
@@ -253,14 +253,9 @@ export default {
         ztree_onClick : function (event, treeId, treeNode) {
             var fids = this.getAllChildrenNodes(treeNode, [treeNode.id])
 
-            // console.log("fids: ", fids); 
-            // console.log("treeNode.id ", treeNode.id);
+            this.$store.commit('setCurFolder', treeNode.id)
 
-            //todo 获得所有节点的笔记,展示在第二列
-            
-            this.$db.getNoteList(fids);
-            this.$bus.$emit('note:getSelectedNode', treeNode);
-
+            this.$bus.$emit('note:list:load', fids);
         },
         ztree_rebuildDiyDom : function(treeId, treeNode) {
             this.ztree_addDiyDom(treeId, treeNode)
@@ -318,38 +313,17 @@ export default {
                 }
             });
         },
-        createNote : function() {
-            var _this = this
-            var _ztree = this.ztree
-
-            var newData = { title: "无标题笔记" , type: 0, state:0};
-            var selectNode = this.ztree.getSelectedNodes()[0];
+        createNoteCloud : function() {
             this.ztree_menu_flag = false
-            this.hideRMenu();
-            if (selectNode) {
-                var asyncOps = [
-                    function(callback) {
-                        _this.$db.addNote(selectNode.id, newData, callback)
-                    },
-                    function(id, created, callback) {
-                        newData.checked = selectNode.checked;
-                        newData.id = id
-                        newData.pid = selectNode.id
-                        newData.created = newData.updated = created;
-                        callback(null)
-                        _this.$bus.$emit("note:addNote", newData);
-                        _this.$bus.$emit('note:editor:active', '');
-                    }
-                ]
-                this.$async.waterfall(asyncOps, function (err, results) {
-                    if (err) {
-                        _this.$db.alert()
-                        return false
-                    }
-                });
-            } else {
-                // 没选中节点。不能添加
-            }
+            this.hideRMenu()
+            var selectNode = this.ztree.getSelectedNodes()[0];
+            this.$bus.$emit('note:create:cloud', selectNode.id, 1)
+        },
+        createNoteLocal : function() {
+            this.ztree_menu_flag = false
+            this.hideRMenu()
+            var selectNode = this.ztree.getSelectedNodes()[0];
+            this.$bus.$emit('note:create:local', selectNode.id, 0)
         }
     },
     computed: {

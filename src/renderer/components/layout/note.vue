@@ -28,10 +28,10 @@ export default{
     },
     data: function(){
         return {
-            no_preview : true,
+            content      : "",
+            no_preview   : true,
             show_preview : false,
             show_editor  : false,
-            // note         : this.$store.state.Global.note, // 当前激活的笔记
         }
     },
     mounted() {
@@ -51,12 +51,13 @@ export default{
             }
 
             var _this = this
+            this.no_preview = false
             this.show_preview = true
             this.show_editor  = false
 
             var asyncOps = [
                 function(callback) {
-                    _this.$db.getNote(note.id, callback)
+                    _this.$db.noteGet(note.id, callback)
                 },
 
                 function(note_detail, callback) {
@@ -86,7 +87,7 @@ export default{
             instance.setContent('');
 
             instance.addListener('contentChange', () => {
-              this.content = instance.getContent();
+                this.content = instance.getContent();
             });
         },
     },

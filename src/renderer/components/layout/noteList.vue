@@ -4,28 +4,28 @@
             <span  class="levelup-icon"><i class="fa fa-level-up" aria-hidden="true"></i></span>
             <!-- <div id="noteListSearchArea"> -->
             <span  class="search-icon"><i class="fa fa-search" aria-hidden="true"></i></span>
-            <input class="search" type="text" name="search" placeholder="搜索..." v-on:click="searchNote" />
+            <input class="search" type="text" name="search" placeholder="搜索..." v-on:click="noteSearch" />
             <!-- </div> -->
             <span  class="list-icon"><i class="fa fa-th-list" aria-hidden="true"></i></span>
         </div>
         <div class="noteListContent" :style="{ height: height - 135 + 'px' }">
             <div v-if="items.length > 0" class="list">
                 <ul>
-                    <li v-for="(item,index) in items" v-on:contextmenu="getContentMenu(item,$event)" v-on:click="notePreview(index)" :class="{active:index==active_note_index}" v-on:scroll="getMoreNotes">
+                    <li v-for="(item,index) in items" v-on:contextmenu="getContentMenu(index, $event)" v-on:click="notePreview(index)" :class="{active:index==active_note_index}" v-on:scroll="getMoreNotes">
                         <span class="item-title">
                             <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                             {{ item.title }}
                         </span>
                         <div class="item-bottom">
                             <span class="item-createtime">{{ getUpdatedTime(item.updated) }}</span>
-                            <span class="item-size">云端或本地</span>
+                            <span class="item-size">云端或本地 {{item.fname}}</span>
                         </div>
                     </li>
                 </ul>
             </div>
             <div v-else="items.length < 0" class="no-note">
                 <span>没有内容</span>
-                <button class="btn btn-info" @click="createNote">新建笔记</button>
+                <button class="btn btn-info" @click="">新建笔记</button>
             </div>
         </div>
         <div class="totalCount">总共{{ this.items.length }}项</div>
@@ -33,13 +33,14 @@
             <ul class="list-group">
                 <li  class="list-group-item">新建
                     <ul class="list-group" id="right_menu">
-                        <li  v-on:click="createFolder" class="list-group-item"><i class="fa fa-folder-o" aria-hidden="true"></i><span>文件夹</span></li>
-                        <li v-on:click="createNote" class="list-group-item"><i class="fa fa-file-o" aria-hidden="true"></i><span>笔记</span></li>
-                        <li class="list-group-item"><i class="fa fa-file-o" aria-hidden="true"></i>MarkDown笔记</li>
+                        <li  v-on:click="folderCreate" class="list-group-item"><i class="fa fa-folder-o" aria-hidden="true"></i><span>文件夹</span></li>
+                        <li v-on:click="noteCreateCloud" class="list-group-item"><i class="fa fa-file-o" aria-hidden="true"></i><span>云笔记</span></li>
+                        <li v-on:click="noteCreateLocal" class="list-group-item"><i class="fa fa-file-o" aria-hidden="true"></i><span>本地笔记</span></li>
+                        <!-- <li class="list-group-item"><i class="fa fa-file-o" aria-hidden="true"></i>MarkDown笔记</li> -->
                     </ul>
                 </li>
-                <li class="list-group-item" v-on:click="renameNote">重命名</li>
-                <li class="list-group-item" v-on:click="deleteNote">删除</li>
+                <li class="list-group-item" v-on:click="noteRename">重命名</li>
+                <li class="list-group-item" v-on:click="noteDelete">删除</li>
             </ul>
         </div>
         <div id="noteListRenameWindow" class="modal fade" tabindex="-1" role="dialog">
@@ -71,10 +72,8 @@ export default {
         return {
             total             : 0,
             items             : [],  //所有笔记集合
-            selectedNode      : {},// 选中的树节点
             chooseItem        : {}, // 选中的笔记节点
-            rootFolder        : null, // 当前用户的根节点
-            active_note_index : 0, // 当前用户的根节点
+            active_note_index : null, // 选中的笔记
             page              : 1, // 加载笔记的页数
         }
     },
@@ -84,14 +83,76 @@ export default {
         }
     },
     mounted:function(){
-         this.$bus.$on("note:list:init",this.initNoteList);//笔记列表初始化
-         this.$bus.$on("note:addNote", this.addNote);//添加新增笔记
-         this.$bus.$on('note:getSelectedNode', this.getSelectedNode);//获取选中的树节点id
+        this.$bus.$on("note:list:load",    this.noteListLoad);//笔记列表初始化
+        this.$bus.$on("note:create:cloud", this.noteCreateCloud);//云笔记创建
+        this.$bus.$on("note:create:local", this.noteCreateLocal);//本地笔记创建
+
+
+
+        // this.$bus.$on("note:list:init",this.initNoteList);//笔记列表初始化
+        // this.$bus.$on("note:addNote", this.addNote);//添加新增笔记
+        // this.$bus.$on('note:getSelectedNode', this.getSelectedNode);//获取选中的树节点id
     },
     methods: {
-        initNoteList:function(data){
-            this.items = data;
+        /* 加载笔记 */
+        noteListLoad : function(fids, pageNum=1, pageSize=100) {
+            var _this = this
+            this.active_note_index = null
+
+            var asyncOps = [
+                // 获取笔记
+                function(callback) {
+                    _this.$db.notelistGet(fids, pageNum, pageSize, callback)
+                },
+                // 显示
+                function(notelist, callback) {
+                    _this.items = notelist
+                }
+            ]
+            
+            this.$async.waterfall(asyncOps, function (err, results) {
+                if (err) {
+                    _this.$db.alert()
+                }
+            })
         },
+        noteCreate(fid, cloud) {
+            var _this = this
+
+            var newData = { title: "无标题笔记" , type: 0, state : 0, cloud : cloud }
+
+            var asyncOps = [
+                // 新建笔记
+                function(callback) {
+                    if(fid == undefined) {
+                        fid = 1
+                    }
+
+                    _this.$db.noteCreate(fid, newData, callback)
+                },
+                // 渲染
+                function(data, callback) {
+                    _this.items.unshift(data)
+                    _this.notePreview(0)
+                    _this.$bus.$emit('note:editor:active');
+                }
+            ]
+            this.$async.waterfall(asyncOps, function (err, results) {
+                if (err) {
+                    _this.$db.alert()
+                    return false
+                }
+            })
+        },
+        /* 创建本地笔记 */
+        noteCreateLocal: function(fid){
+            this.noteCreate(fid, 0)
+        },
+        /* 创建云笔记 */
+        noteCreateCloud: function(fid){
+            this.noteCreate(fid, 1)
+        },
+
         getContentSize: function(content){
             if (content != null && content != ''){
                 var length = content.length;
@@ -110,6 +171,7 @@ export default {
                 return "0B"
             }
         },
+
         getUpdatedTime: function(time){
             if (time != 0 && time != null){
                 var date = new Date(time * 1000);
@@ -120,9 +182,8 @@ export default {
                 return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + day;
             }
         },
-        addNote: function(item){
-            this.items.unshift(item);
-        },
+
+        /*
         createNote: function(){
             var _this = this
 
@@ -192,16 +253,25 @@ export default {
                 });
             }
         },
-        getSelectedNode: function(treeNode){
-            this.selectedNode = treeNode;
-        },
-        getContentMenu:function(item, event){
+        */
+
+        getContentMenu:function(index, event){
+            // console.log("item : ", item)
+            // console.log("event: ", event)
+
+            // this.chooseItem = item
+            this.active_note_index = index
+            this.notePreview(index)
+
+            // console.log(index)
+            // console.log(event)
+
+
+            // return
+
             //选择笔记列表条目
             var target = event.target;
 
-            console.log("item : ", item);
-            this.chooseItem = item;
-            console.log("event: ", event);  
             var x = event.clientX - 201;//减去左侧树宽度
             var y = event.clientY - 52;//减去头部高度
             
@@ -212,10 +282,11 @@ export default {
                 "left": x + "px",
                 "z-index": '10000',
                 'position': 'absolute'
-            });
+            })
+
             $("#noteList #noteContextMenu .list-group").css({
                 'width': '100px'
-            });
+            })
 
             // 鼠标移入移出菜单效果
             $("#noteContextMenu ul li").hover(function(){
@@ -232,27 +303,40 @@ export default {
                 }
             })
         },
-        renameNote: function(){
-            $("#noteContextMenu").hide();// 弹出修改框前隐藏右键菜单
+        noteRename: function(){
+            $("#noteContextMenu").hide();
             $("#noteListRenameWindow").modal("show");
         },
-        deleteNote: function(){
-            $("#noteContextMenu").hide();// 删除前隐藏右键菜单
-            if (this.chooseItem == null){
-                this.$bus.$emit('alert', {msg:'数据异常，请重启笔记！<br>如果重启不能解决问题，请重新安装！',close:false, state:'danger'});
 
-            } else {
-                this.$db.deleteNote(this.chooseItem.id);
 
-                if (this.selectedNode != null && this.selectedNode.id != null) {
-
-                    this.$db.getNoteList(this.selectedNode.id);
-                } else {
-                    this.$bus.$emit('alert', {msg:'数据异常，请重启笔记！<br>如果重启不能解决问题，请重新安装！',close:false, state:'danger'});
-                }
-                
+        noteDelete: function() {
+            var _this = this
+            $("#noteContextMenu").hide();
+            
+            if(this.active_note_index == null || this.items[this.active_note_index] == undefined) {
+                return
             }
+
+            var asyncOps = [
+                // 获取笔记
+                function(callback) {
+                    _this.$db.noteDelete(_this.items[_this.active_note_index].id, callback)
+                },
+                // 取消显示
+                function(notelist, callback) {
+                    _this.items.splice(_this.active_note_index, 1)
+                    _this.active_note_index = null
+                }
+            ]
+            
+            this.$async.waterfall(asyncOps, function (err, results) {
+                if (err) {
+                    _this.$db.alert()
+                }
+            })
         },
+
+        //todo 这里迁移到modal里面~~~~~
         saveModifyName: function(){
           
             var newTitle = $("#NoteListRename").val();
@@ -268,7 +352,7 @@ export default {
                 $("#noteListRenameWindow").modal("hide");
             }
         },
-        searchNote: function(){
+        noteSearch: function(){
             $(".search-icon").hide();
             $(".search").val(" ");
             $(".search").blur(function(){
@@ -279,40 +363,11 @@ export default {
                 }
             });
         },
-        createFolder : function() {
-            var _this = this
-            $("#noteContextMenu").hide();
-            var newData = { name:"新建文件夹" };
-            var selectNode = this.selectedNode;
-            console.log("selectNode", selectNode);
-            if (selectNode) {
-                var asyncOps = [
-                    function(callback) {
-                        _this.$db.addFolder(selectNode, newData, callback)
-                    },
-                    function(id, callback) {
-                        newData.checked = selectNode.checked;
-                        newData.id = id
-                        newData.pid = selectNode.id
-                        // var newNode = _ztree.addNodes(selectNode, newData);
-                        // _ztree.editName(newNode[0])
-                        _this.$db.getFolder(_this.$store.state.User.id);
-
-                        callback(null)
-                    }
-                ]
-                // var async = require('async');
-                this.$async.waterfall(asyncOps, function (err, results) {
-                    if (err) {
-                        _this.$db.alert()
-                        return false
-                    }
-                });
-            } else {
-                // 没选中节点。不能添加
-            }
+        folderCreate : function() {
+            
 
         },
+        // 点击笔记，右侧预览
         notePreview : function(index){
             // 高亮选中
             this.active_note_index = index

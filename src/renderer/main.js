@@ -93,16 +93,6 @@ new Vue({
         this.init()
         this.check_login()
 
-
-        // 初始化文件夹列表
-        // this.$db.getFolder(1)
-
-        // 初始化第二列
-        // this.$db.getNoteList(1, Vue.prototype.$store.state.User.id);
-        // 初始化第三列
-
-
-
         console.log('ready')
         remote.protocol.unregisterProtocol('snote')
         remote.protocol.registerFileProtocol('snote', (request, callback) => {
@@ -181,6 +171,9 @@ new Vue({
 
             /* 文件夹初始化 */
             this.$bus.$emit('folder:init')
+
+            /* 笔记列表初始化 */
+            this.$bus.$emit('note:list:load');
         },
         handleResize (event) {
             store.commit('resize', {

@@ -124,7 +124,7 @@ export default {
                 @param newNode  新文件夹
                 @param callback
             */
-            this.folderCreate = function(uid, node, newNode, callback) {
+            this.folderCreate = function(node, newNode, callback) {
                 if(!node.id) {
                     return false
                 }
@@ -132,7 +132,7 @@ export default {
                 var created = Date.parse(new Date())/1000
                 var updated = created
 
-                var folder = this.getTable('folder', uid)
+                var folder = this.getTable('folder')
 
                 var asyncOps = [
                     function (callback) {
@@ -184,6 +184,40 @@ export default {
                 console.log('sqlite close')
             },
             
+
+            this.notelistGet = function(fid, pageNum=1, pageSize=100, callback) {
+                var note   = this.getTable('note')
+                var folder = this.getTable('folder')
+
+                switch(typeof(fid)) {
+                    case 'object':
+                         fid = fid.join(",")
+                    default:
+                }
+                if(pageNum < 1) {
+                    pageNum = 1
+                }
+
+                var offset = (pageNum - 1) * pageSize
+
+                if(fid == undefined) {
+                    var sql = "select t1.id, t1.title, t1.summary, t1.updated, t1.cloud, t1.fid, t2.name as fname from " + note + " t1 left join " + folder + " t2 on t1.fid = t2.id where t1.state = 0 order by t1.updated desc limit " + offset + "," + pageSize
+                } else {
+                    var sql = "select t1.id, t1.title, t1.summary, t1.updated, t1.cloud, t1.fid, t2.name as fname from " + note + " t1 left join " + folder + " t2 on t1.fid = t2.id where t1.fid in ("+ fid +") and t1.state = 0 order by t1.updated desc limit " + offset + "," + pageSize
+                }
+
+                // console.log(sql)
+                db.link.all(sql, function(err, rows) {
+                    if (err) {
+                        db.alert()
+                        return console.error(err.message)
+                    }
+                    
+                    callback(null, rows)
+                })
+            },
+
+            /*
             this.getNoteList = function(fid, data){
                 switch(typeof(fid)) {
                     case 'object':
@@ -208,15 +242,22 @@ export default {
                     Vue.prototype.$bus.$emit('note:list:init', rows);
                 })
             },
+*/
 
             /* 获取笔记详情 */
-            this.getNote = function(id, callback) {
+            this.noteGet = function(id, callback) {
                 if(id < 0) {
                     return false
                 }
-                var sql = "select * from note where id=" + id
-                db.link.get(sql, function(e, row){
-                    if(row.length < 1) {
+                var note = this.getTable('note')
+                var sql = "select * from " + note + " where id=" + id
+                db.link.get(sql, function(err, row){
+                    if(err) {
+                        db.alert()
+                        return callback(err)
+                    }
+
+                    if(row == undefined) {
                        db.alert()
                        return console.error(err.message)
                     }
@@ -243,24 +284,29 @@ export default {
                 @data
                 @callback  
             */
-            this.addNote = function(id, data, callbackFather){
+            this.noteCreate = function(id, data, callbackFather){
                 var created = Date.parse(new Date())/1000;
                 var updated = created;
+
+                var folder = this.getTable('folder')
+                var note   = this.getTable('note')
+
                 var asyncOps = [
                     function (callback) {
-                        var sql = "select * from folder where id=" + id
-                        db.link.all(sql, function(e, rows){
-                            if(rows.length < 1) {
+                        var sql = "select * from " + folder + " where id=" + id
+                        db.link.get(sql, function(e, row){
+                            if(row == undefined) {
                                db.alert()
                                return console.error(err.message)
                             }
-                            callback(null, id)
+                            data.fid   = id
+                            data.fname = row.name
+                            callback(null, row)
                         })
                     },
-                    function(id, callback){
-                        var sql = "select count(*) as count from note where uid = " + store.state.User.id 
-                                + " and title like '" + data.title + "%'"
-                        db.link.get(sql,function(e,row){
+                    function(folder, callback){
+                        var sql = "select count(*) as count from " + note + " where title like '" + data.title + "%'"
+                        db.link.get(sql, function(e, row) {
                             if (row.count > 0){
                                 data.title = data.title + "(" + row.count + ")"
                             }
@@ -270,11 +316,10 @@ export default {
                     function(title, callback) {
                         const uuidv1 = require('uuid/v1')
                         var uuid = uuidv1()
-                        var sql = "insert into note (uuid,fid,uid,nid,type,cloud,title,thumbnail,summary,content,state,version,created,updated,synced) values ("
+                        var sql = "insert into " + note + " (uuid,fid,nid,type,cloud,title,thumbnail,summary,content,state,version,created,updated,synced) values ("
                                 + "'" + uuid + "',"
                                 + "'" + id + "',"
-                                + "'" + store.state.User.id + "',"
-                                + "0,"
+                                + data.cloud + ","
                                 + "'" + data.type + "',"
                                 + "1,"
                                 + "'" + title + "',"
@@ -296,26 +341,42 @@ export default {
                             if(this.changes != 1) {
                                 return callback(1)
                             }
-                            callback(null, this.lastID);
+
+                            data.id      = this.lastID
+                            data.title   = title
+                            data.created = created
+                            data.updated = updated
+
+                            callback(null);
                         })
                 }]
                 Vue.prototype.$async.waterfall(asyncOps, function (err, results) {
                     if (err) {
-                        console.log(err);
-                        callbackFather(1)
+                        db.alert()
+                        return console.error(err.message)
                     }
-                    callbackFather(null, results[1], created)
+                    callbackFather(null, data)
                 })
             },
+            
             this.modifyNoteTitle = function(id, newTitle){
                 var sql = "update note set title = '" + newTitle + "' where id = " + id;
                 db.link.run(sql);
             },
-            this.deleteNote = function(id){
+
+            this.noteDelete = function(id, callback){
                 // 删除先加入回收站
-                var sql = "update note  set state = 1 where id = " + id;
-                console.log("delete note : ", sql);
-                db.link.run(sql);
+                var note = this.getTable('note')
+
+                var sql = "update " + note + " set state = 1 where id = " + id
+                db.link.run(sql, function(err){
+                    if(err) {
+                        console.error(err)
+                        callback(1)
+                    }
+
+                    callback(null)
+                })
             },
 
             this.findRootFolderByUid = function(callback){
