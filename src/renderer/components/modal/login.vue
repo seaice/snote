@@ -7,12 +7,11 @@
                     <h4 class="modal-title">登陆</h4>
                 </div>
                 <div class="modal-body modal-body-form">
-                    <form class="form-horizontal" data-toggle="validator">
+                    <form class="form-horizontal" id="form_login" v-on:submit="login">
                         <div class="form-group">
                             <label class="col-sm-3 control-label">邮箱</label>
                             <div class="col-sm-8">
-                                <input type="text" class="form-control" placeholder="Email" v-model="user.email">
-                                <!-- <input type="email" class="form-control" id="inputEmail3" placeholder="Email" data-error="请输入邮箱" required> -->
+                                <input type="email" name="email" class="form-control" placeholder="Email" data-error="请输入邮箱" v-model="user.email" required>
                                 <div class="help-block with-errors"></div>
                             </div>
                         </div>
@@ -65,8 +64,9 @@ export default {
             $('#modal_login').modal('show')
         },
         login() {
-            console.log(this.user)
-            // return;
+            // $('#form_login').validator()
+
+            var _this = this
 
             // 登陆成功
             if(this.user.email == this.user.password) { 
@@ -75,31 +75,55 @@ export default {
                 var token    = id
                 var pathData = path.join(remote.app.getPath('userData'), id.toString())
 
-                // 创建个人文件夹
-                fs.ensureDirSync(pathData)
+                var asyncOps = [
+                    function(callback) {
+                        // 创建个人文件夹
+                        fs.ensureDirSync(pathData)
+                        callback(null)
+                    },
+                    function(callback) {
+                        // 初始化数据库
+                        _this.$db.initUserDb(callback)
+                    },
+                    function(callback) {
+                        // 存储个人信息到本地
+                        const store = new Store()
+                        store.set('id', id)
+                        store.set('name', name)
+                        store.set('token', token)
 
-                // 创建根节点
-                // this.$db.initFolderRoot(0)
+                        callback(null)
+                    },
+                    function(callback) {
+                        // 设置global
+                        _this.$store.commit('user_login', {
+                            id : id,
+                            name : name,
+                            token : token,
+                            pathData : pathData,
+                        })
 
-                // 存储个人信息到本地
-                const store = new Store()
-                store.set('id', id)
-                store.set('name', name)
-                store.set('token', token)
-
-                // 设置global
-                this.$store.commit('user_login', {
-                    id : id,
-                    name : name,
-                    token : token,
-                    pathData : pathData,
-                })
+                        callback(null)
+                    }
+                ]
+                this.$async.series(asyncOps, function (err, results) {
+                    if (err) {
+                        _this.$db.alert()
+                        return false
+                    }
+                });
 
                 $('#modal_login').modal('hide')
             } else {
+                console.log('login error')
                 // 密码错误
+                console.log($("#form_login input[name=email]").parents('.form-group'))
 
+                $("#form_login input[name=email]").parents('.form-group').addClass('has-error has-danger')
+                $("#form_login input[name=email]").siblings('.help-block').html('<ul class="list-unstyled"><li>用户名或密码错误</li></ul>');
             }
+
+            return false
         },
         register() {
             $('#modal_login').modal('hide')

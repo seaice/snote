@@ -62,8 +62,8 @@ const remote = require('electron').remote
 //   })
 // }
 
-const Store  = require('electron-store');
-
+const Store  = require('electron-store')
+// const storeFile = new Store()
 ///////////////////////////////////////////////////////////////////////////////////
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
@@ -81,41 +81,27 @@ new Vue({
     template: '<App/>',
     data() {
         return {
+            'config' : null,
         }
     },
     mounted: function () {
-        this.init()
-
-        // this.check_login()
+        /* 登陆成功后，触发 */
+        this.$bus.$on('user:login:success', this.userLoginSuccess)
 
         var _this = this
-        // 用户登陆
-        // Vue.prototype.$bus.$emit('alert', {msg:'数据异常，请重启笔记！<br>如果重启不能解决问题，请重新安装！',close:false, state:'danger'})
-        // login()
+        
+        this.init()
+        this.check_login()
 
-
-        // console.log(this.encrypt_uid(1))
-
-        //假数据
-        const path   = require('path');
-        var pathData = path.join(remote.app.getPath('userData'), '866747')
-        this.$store.commit('user_login', {
-            id : 1,
-            name : 'haibing',
-            pathData : pathData,
-        })
-        // 初始化个人目录
-        // remote.app.getPath('userData')
 
         // 初始化文件夹列表
-        this.$db.getFolder(1)
-        // this.$db.addFolder('    ', 4)
+        // this.$db.getFolder(1)
 
         // 初始化第二列
-        this.$db.getNoteList(1, Vue.prototype.$store.state.User.id);
-
-
+        // this.$db.getNoteList(1, Vue.prototype.$store.state.User.id);
         // 初始化第三列
+
+
 
         console.log('ready')
         remote.protocol.unregisterProtocol('snote')
@@ -141,16 +127,19 @@ new Vue({
         this.$db.close()
     },
     methods: {
+        /* snote 初始化 */
         init() {
             // 全局配置
-            const store = new Store()
-            if(!store.has('autostart')) {
-                store.set('autostart', true)
+            this.config = new Store()
+            // const store = 
+            if(!this.config.has('autostart')) {
+                this.config.set('autostart', true)
             }
-            if(!store.has('autoupdate')) {
-                store.set('autoupdate', true)
+            if(!this.config.has('autoupdate')) {
+                this.config.set('autoupdate', true)
             }
 
+            // 事件监听
             $(document).on('click', "#edui_fixedlayer, #note, #noteList", function(e){
                 this.show_preview = false
                 this.show_editor  = true
@@ -158,18 +147,37 @@ new Vue({
                 e.stopPropagation();
             })
 
-            $(".modal").on('click', function(e) {
+            $(document).on('click', ".modal", function(e) {
                 e.stopPropagation();
             })
         },
+
+        /* 登陆校验 */
         check_login() {
-            // const store = new Store('')
-            if(true) { //未登录
+            
+            if(!this.config.has('id') || !this.config.has('name') || !this.config.has('token')) {
                 this.$bus.$emit('user:login:modal:active', {close:false})
             }
-            
+            //todo 去server检查登陆
 
+            this.$bus.$emit('user:login:success')
+        },
 
+        /* 登陆成功后，初始化用户数据 */
+        userLoginSuccess() {
+            console.log('login success')
+            //初始化 store user
+            const path   = require('path');
+            var pathData = path.join(remote.app.getPath('userData'), this.config.get('id').toString())
+            this.$store.commit('user_login', {
+                id       : this.config.get('id'),
+                name     : this.config.get('name'),
+                token    : this.config.get('token'),
+                pathData : pathData,
+            })
+
+            /* 文件夹初始化 */
+            this.$bus.$emit('folder:init')
         },
         handleResize (event) {
             store.commit('resize', {
