@@ -15,7 +15,6 @@
             </div>
         </div>
         <div class="ad-left">
-            <a href="#" v-on:click="getFolder">加载目录</a> <br>
             此处是广告 <br>
             {{ height }}<br>
             {{ width }}
@@ -24,13 +23,13 @@
             <ul>
                 <li id="tree_menu_add">新建
                     <ul>
-                        <li v-on:click="createFolder"><i class="fa fa-folder-o" aria-hidden="true"></i><span>文件夹</span></li>
+                        <li v-on:click="folderCreate"><i class="fa fa-folder-o" aria-hidden="true"></i><span>文件夹</span></li>
                         <li v-on:click="createNote"><i class="fa fa-file-o" aria-hidden="true"></i><span>笔记</span></li>
                         <li><i class="fa fa-file-o" aria-hidden="true"></i>MarkDown笔记</li>
                     </ul>
                 </li>
-                <li id="tree_menu_rename" v-on:click="renameFolder">重命名</li>
-                <li id="tree_menu_del" v-on:click="deleteFolder">删除</li>
+                <li id="tree_menu_rename" v-on:click="folderRename">重命名</li>
+                <li id="tree_menu_del" v-on:click="folderDelete">删除</li>
             </ul>
         </div>
     </div>
@@ -80,7 +79,7 @@ export default {
     },
     methods: {
         // 新建文件夹
-        createFolder : function() {
+        folderCreate : function() {
             var _this = this
             var _ztree = this.ztree
 
@@ -91,7 +90,7 @@ export default {
             if (selectNode) {
                 var asyncOps = [
                     function(callback) {
-                        _this.$db.addFolder(selectNode, newData, callback)
+                        _this.$db.folderCreate(_this.$store.state.User.id, selectNode, newData, callback)
                     },
                     function(id, callback) {
                         newData.checked = selectNode.checked;
@@ -120,9 +119,8 @@ export default {
             this.ztree_node_oldname = treeNode.name
         },
         // 删除文件夹
-        deleteFolder : function() {
+        folderDelete : function() {
             var nodes = this.ztree.getSelectedNodes()
-            console.log(nodes)
             this.ztree_menu_flag = false
             this.hideRMenu()
 
@@ -131,7 +129,7 @@ export default {
             this.ztree.removeNode(nodes[0])
         },
         // 重命名文件夹
-        renameFolder : function() {
+        folderRename : function() {
             this.ztree_menu_flag = false
             this.hideRMenu()
             var nodes = this.ztree.getSelectedNodes()
@@ -152,7 +150,7 @@ export default {
                 this.ztree.updateNode(treeNode)
             }
 
-            this.$db.renameFolder(treeNode)
+            this.$db.folderRename(treeNode)
         },
         showRMenu : function (type, x, y) {
             var nodes = this.ztree.getSelectedNodes()
@@ -201,9 +199,6 @@ export default {
         /* 右键菜单 */
         OnRightClick : function (event, treeId, treeNode) {
             console.log('menu right click')
-            console.log(treeId)
-            console.log(treeNode)
-            console.log('menu right click')
             if (!treeNode && event.target.tagName.toLowerCase() != "button" && $(event.target).parents("a").length == 0) {
                 this.ztree.cancelSelectedNode();
                 this.showRMenu("root", event.clientX, event.clientY);
@@ -221,7 +216,6 @@ export default {
                 var childrenNodes = treeNode.children;
                 if (childrenNodes) {
                     for (var i = 0; i < childrenNodes.length; i++) {
-                        // console.log(childrenNodes[i])
                         result.push(childrenNodes[i].id)
                         result = this.getAllChildrenNodes(childrenNodes[i], result);
                     }
@@ -259,8 +253,8 @@ export default {
         ztree_onClick : function (event, treeId, treeNode) {
             var fids = this.getAllChildrenNodes(treeNode, [treeNode.id])
 
-            console.log("fids: ", fids); 
-            console.log("treeNode.id ", treeNode.id);
+            // console.log("fids: ", fids); 
+            // console.log("treeNode.id ", treeNode.id);
 
             //todo 获得所有节点的笔记,展示在第二列
             
@@ -300,16 +294,8 @@ export default {
                 }
             }
 
-            this.$db.moveFolder(data)
+            this.$db.folderMove(data)
         },
-        // new_window : function(event) {
-            // this.$modal.show('hello-world');
-
-            // this.$route.router
-            // console.log(this.$route)
-            // this.$router.replace({name: "config", query: {redirect: encodeURIComponent(this.$route.path)}});
-            // this.$router.push({path: '/config'})
-        // },
         /* 初始化文件夹列表 */
         folderInit (data) {
             console.log('folder init')
@@ -318,10 +304,9 @@ export default {
             var asyncOps = [
                 function(callback) {
                     // 获得数据
-                    _this.$db.getFolder(_this.$store.state.User.id, callback)
+                    _this.$db.folderGet(callback)
                 },
                 function(folder, callback) {
-                    console.log(folder)
                     // 初始化数据库
                     _this.ztree = $.fn.zTree.init($("#treeDemo"), _this.setting, folder);
                 }
@@ -332,14 +317,6 @@ export default {
                     return false
                 }
             });
-        },
-        getFolder () {
-            // this.$db.getFolder(1)
-            // console.log(555)
-            // this.folder = data
-            // this.ztreeObj = $.fn.zTree.init($("#treeDemo"), this.setting, data);
-            // console.log(this.folder)
-            // console.log(555)
         },
         createNote : function() {
             var _this = this
@@ -382,9 +359,6 @@ export default {
         width () {
             return this.$store.state.Window.width;
         },
-        // folder() {
-        //     return this.$store.state.Global.folder;
-        // }
     },
     mounted() {
         this.$bus.$on('folder:init', this.folderInit)

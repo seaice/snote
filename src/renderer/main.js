@@ -114,13 +114,13 @@ new Vue({
             // console.log(url)
             callback({path: url})
         }, (error) => {
-            console.log(error)
             if (error) {
+                console.log(error)
                 console.error('Failed to register protocol')
             }
         })
 
-        window.addEventListener('resize', this.handleResize);
+        
     },
     beforeDestroy: function () {
         window.removeEventListener('resize', this.handleWindowResize, 100)
@@ -150,17 +150,20 @@ new Vue({
             $(document).on('click', ".modal", function(e) {
                 e.stopPropagation();
             })
+
+            window.addEventListener('resize', this.handleResize);
         },
 
         /* 登陆校验 */
         check_login() {
-            
             if(!this.config.has('id') || !this.config.has('name') || !this.config.has('token')) {
                 this.$bus.$emit('user:login:modal:active', {close:false})
+                return 
             }
-            //todo 去server检查登陆
 
+            //todo 去server检查登陆
             this.$bus.$emit('user:login:success')
+
         },
 
         /* 登陆成功后，初始化用户数据 */

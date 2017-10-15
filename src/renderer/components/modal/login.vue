@@ -104,6 +104,10 @@ export default {
                         })
 
                         callback(null)
+                    },
+                    function(callback) {
+                        _this.$bus.$emit('user:login:success')
+                        callback(null)
                     }
                 ]
                 this.$async.series(asyncOps, function (err, results) {

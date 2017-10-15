@@ -40,7 +40,7 @@ export default {
             }
 
             /* 根据数据库结果，构建数据给ztree */
-            this.buildFolder =  function (data) {
+            this.folderBuild =  function (data) {
                 // 删除 所有 children,以防止多次调用
                 data.forEach(function (item) {
                     if(item.depth == 0) {
@@ -75,14 +75,15 @@ export default {
             }
 
             /* 拖拽节点移动 */
-            this.moveFolder = function(data) {
+            this.folderMove = function(data) {
+                var folder = this.getTable('folder')
                 db.link.serialize(function() {
-                    var sql = "update folder set pid="+data.to_node.id+" where id="+data.node.id
+                    var sql = "update " + folder + " set pid="+data.to_node.id+" where id="+data.node.id
                     db.link.run(sql)
 
                     if(data.children.length > 1) {
                         for (var i = 0; i < data.children.length; i++) {
-                            var sql = "update folder set sort="+data.children[i].sort+" where id="+data.children[i].id
+                            var sql = "update " + folder + " set sort="+data.children[i].sort+" where id="+data.children[i].id
                             db.link.run(sql)
                         }
                     }
@@ -90,15 +91,17 @@ export default {
             }
 
             /* 重命名 */
-            this.renameFolder = function(node) {
-                var sql = "update folder set name='" + node.name + "' where id=" + node.id;
+            this.folderRename = function(node) {
+                var folder = this.getTable('folder')
+                var sql = "update " + folder + " set name='" + node.name + "' where id=" + node.id;
                 // console.log(sql)
                 db.link.run(sql)
             }
 
             /* 获得树，并初始化左侧树 */
-            this.getFolder = function(uid) {
-                var sql = "select id,name,pid,sort,depth from folder where uid=" + uid + " order by sort desc, id asc"
+            this.folderGet = function(callback) {
+                var sql = "select id,name,pid,sort from " + this.getTable('folder') + " where state=0 order by sort desc, id asc"
+
                 db.link.all(sql, function(err, rows){
                     if (err) {
                         db.alert()
@@ -109,13 +112,19 @@ export default {
                         return console.error(err.message)                        
                     }
 
-                    this.tree = db.buildFolder(rows)
-
-                    Vue.prototype.$bus.$emit('folder:init', this.tree)
+                    if(callback != undefined) {
+                        callback(null, db.folderBuild(rows))
+                    }
                 })
             }
 
-            this.addFolder = function(node, newNode, callbackFather) {
+            /*
+                @param uid
+                @param node     父文件夹
+                @param newNode  新文件夹
+                @param callback
+            */
+            this.folderCreate = function(uid, node, newNode, callback) {
                 if(!node.id) {
                     return false
                 }
@@ -123,9 +132,11 @@ export default {
                 var created = Date.parse(new Date())/1000
                 var updated = created
 
+                var folder = this.getTable('folder', uid)
+
                 var asyncOps = [
                     function (callback) {
-                        var sql = "select * from folder where id="+node.id
+                        var sql = "select * from " + folder + " where id="+node.id
                         // console.log(sql)
                         db.link.all(sql, function(e, rows){
                             if(rows.length < 1) {
@@ -135,9 +146,8 @@ export default {
                         })
                     },
                     function(callback) {
-                        var sql = "insert into folder (name,uid,pid,created,updated) values ("
+                        var sql = "insert into " + folder + " (name,pid,created,updated) values ("
                                 + "'" + newNode.name + "',"
-                                + "'" + store.state.User.id + "',"
                                 + "'" + node.id + "'," 
                                 + "'" + created + "',"
                                 + "'" + updated + "'" 
@@ -162,9 +172,9 @@ export default {
                     if (err) {
                         console.log(err);
 
-                        callbackFather(1)
+                        callback(1)
                     }
-                    callbackFather(null, results[1])
+                    callback(null, results[1])
                 })
             }
 
@@ -332,36 +342,54 @@ export default {
             //         callback(null, row)
             //     })
             // }
+            this.getTable = function(table) {
+                return table + '_' +  store.state.User.id
+            }
 
-            this.initFolderRoot = function() {
+            /*
+                用户登陆，初始化
+            */
+            this.initUserDb = function(callback) {
+                var table_folder = this.getTable('folder')
+                var table_note   = this.getTable('note')
                 db.link.serialize(function() {
-                    var sql = "select * from folder where pid =0 and uid=" + store.state.User.id
-                    db.link.get(sql, function(err, row){
-                        if(err) {
-                           db.alert()
-                           return console.error(err.message)
-                        }
-                    })
+                    var sql = "CREATE TABLE IF NOT EXISTS " + table_folder + " (\
+                                id INTEGER PRIMARY KEY AUTOINCREMENT, \
+                                name VARCHAR (20) NOT NULL, \
+                                pid INT (11) NOT NULL DEFAULT (0), \
+                                sort INT (11) NOT NULL DEFAULT (0), \
+                                state INT (11) NOT NULL DEFAULT (0), \
+                                created INT (11) NOT NULL DEFAULT (0), \
+                                updated INT (11) NOT NULL DEFAULT (0))"
+                    // console.log(sql)
+                    db.link.run(sql)
 
-                    console.log(row)
+                    var sql = "CREATE TABLE IF NOT EXISTS `" + table_note + "` ( \
+                            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
+                            uuid STRING (36) NOT NULL, \
+                            nid INT (11) NOT NULL DEFAULT (0), \
+                            fid INT (11) NOT NULL, \
+                            type INT (1) NOT NULL DEFAULT (0), \
+                            cloud INT (1) NOT NULL DEFAULT (1), \
+                            title VARCHAR (200) NOT NULL, \
+                            thumbnail VARCHAR (100), \
+                            summary VARCHAR (500) NOT NULL, \
+                            content TEXT NOT NULL, \
+                            state INT (1) NOT NULL DEFAULT (0), \
+                            version INT (11) DEFAULT (0) NOT NULL, \
+                            created INT (11) NOT NULL, \
+                            updated INT (11) NOT NULL, \
+                            synced INT (11) NOT NULL DEFAULT (0))"
+                    // console.log(sql)
+                    db.link.run(sql)
 
-    
-                });
-
-                
-
-                // var created = Date.parse(new Date())/1000;
-                // var updated = created
-                // var sql = "insert into folder (name,uid,pid,created,updated) values ("
-                //         + "'我的文件夹',"
-                //         + store.state.User.id + ","
-                //         + 0 + "," 
-                //         + created + ","
-                //         + updated 
-                //         + ")"                
-
-                // var_dump(sql)
-
+                    var sql = "INSERT OR REPLACE INTO " + table_folder + " (id, name, pid, created, updated) VALUES (1, '我的文件夹', 0, 0, 0)"
+                    // console.log(sql)
+                    db.link.run(sql)    
+                })
+                if(callback != undefined) {
+                    callback(null)
+                }
             }
         }
     }
