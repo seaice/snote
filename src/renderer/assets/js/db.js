@@ -133,7 +133,7 @@ export default {
                 var updated = created
 
                 var folder = this.getTable('folder')
-                
+
                 var asyncOps = [
                     function (callback) {
                         var sql = "select * from " + folder + " where id=" + fid
@@ -217,33 +217,6 @@ export default {
                 })
             },
 
-            /*
-            this.getNoteList = function(fid, data){
-                switch(typeof(fid)) {
-                    case 'object':
-                         fid = fid.join(",")
-                    default:
-                }
-               
-                // var sql = "  select '' as id, '' as title, '' as content,'' as summary, updated, name, '1' as type from folder where pid = " + fid
-                //         + " union select n.id,n.title,n.content,n.summary,n.updated, f.name,'0' as type from note n,folder f where n.state = 0 and f.id = n.fid and n.uid = " + store.state.User.id + " and n.fid = " + fid;
-                // var sql = "select f.name,n.* from folder f ,note n where f.id = n.fid and n.fid in ("+ fid +") and n.state = 0 and n.uid=" + store.state.User.id + " order by updated desc"
-                var sql = "select id,title,summary,updated,cloud from note where fid in ("+ fid +") and state = 0 and uid=" + store.state.User.id + " order by updated desc "; //limit " + (data.pageSize * data.page) + " offset 0"
-                console.log("getNoteList: ", sql);
-                db.link.all(sql, function(err, rows){
-                    if (err) {
-                        db.alert()
-                        return console.error(err.message)
-                    }
-                    if(rows.length < 0) { // 没找到节点
-                        db.alert()
-                        return console.error(err.message)                        
-                    }
-                    Vue.prototype.$bus.$emit('note:list:init', rows);
-                })
-            },
-*/
-
             /* 获取笔记详情 */
             this.noteGet = function(id, callback) {
                 if(id < 0) {
@@ -269,7 +242,7 @@ export default {
             /* 
                 更新笔记
             */
-            this.updateNote = function(id, data) {
+            this.noteUpdate = function(id, data) {
                 if(id < 0) {
                     return false
                 }
@@ -359,6 +332,8 @@ export default {
                 })
             },
             
+
+            //todo  修改一下名字noteUpdateTitle,要修改updated更新时间
             this.modifyNoteTitle = function(id, newTitle){
                 var sql = "update note set title = '" + newTitle + "' where id = " + id;
                 db.link.run(sql);
@@ -379,35 +354,6 @@ export default {
                 })
             },
 
-            this.findRootFolderByUid = function(callback){
-                var sql = "select * from folder where uid = " + store.state.User.id + " and pid = 0";
-                console.log("findRootFolderByUid sql: ", sql)
-                db.link.all(sql, function(err, rows){
-                    if (err) {
-                        db.alert()
-                        return console.error(err.message)
-                    }
-                    if(rows.length < 0) { // 没找到节点
-                        db.alert()
-                        return console.error(err.message)                        
-                    }
-                    console.log("findRootFolderByUid: ", rows);
-                    callback(null , rows[0]);
-                })
-            }
-
-            // this.getFolderByid = function(fid, callback) {
-            //     var sql = "select * from folder where id = " + fid + " and uid=" + store.state.User.id
-
-            //     db.link.get(sql, function(err, row){
-            //         if(err) {
-            //            db.alert()
-            //            return console.error(err.message)
-            //         }
-
-            //         callback(null, row)
-            //     })
-            // }
             this.getTable = function(table) {
                 return table + '_' +  store.state.User.id
             }
