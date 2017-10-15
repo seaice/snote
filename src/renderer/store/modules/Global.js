@@ -1,6 +1,7 @@
 const state = {
     folder : [],
     note   : {title:'',content:''}, //当前激活的note
+    page_size : 10
 }
 
 const mutations = {
