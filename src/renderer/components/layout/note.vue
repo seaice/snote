@@ -6,15 +6,15 @@
             </div>
         </div>
         <div class="note-top">
-            <input class="title" :style="{ width: width - 442 +'px' }" type="text" v-model="title">
+            <input class="title" :style="{ width: width - 442 +'px' }" type="text" v-model="note_edit.title">
             <div class="meta">
-                <input type="checkbox" id="note-cloud" name="note-cloud" v-model="cloud" :true-value="1" :false-value="0"><label for="note-cloud">云端</label>
+                <input type="checkbox" id="note-cloud" name="note-cloud" v-model="note_edit.cloud" :true-value="1" :false-value="0"><label for="note-cloud">云端</label>
             </div>
         </div>
 
         <!-- <img src="~@/assets/logo.png" alt=""> -->
         <!-- <div> -->
-            <div v-show="show_preview" class="preview" v-on:click="active" :style="{ height: height - 108 +'px', width: '100%' }" v-html="content">
+            <div v-show="show_preview" class="preview" v-on:click="active" :style="{ height: height - 108 +'px', width: '100%' }" v-html="note_edit.content">
             </div>
             <Ueditor v-show="show_editor" class="editor-panel" :height="height" @ready="editorReady" :style="{ height: height - 108 +'px', width: '100%' }"></Ueditor>
         <!-- </div> -->
@@ -22,6 +22,8 @@
 </template>
 <script>
 import Ueditor from '../Ueditor'
+
+const clone = require('clone')
 
 // v4
 import "../../../../static/ueditor/third-party/SyntaxHighlighter/syntaxhighlighter.js"
@@ -33,6 +35,14 @@ export default{
     },
     data: function(){
         return {
+            instance    : null, 
+            note_empty  : {
+                id      : null,
+                title   : null,
+                content : null,
+                cloud   : null,
+
+            }, 
             note_db      : null,    // 当前笔记数据库中值
             note_edit    : null,    // 当前笔记编辑器中值
 
@@ -43,6 +53,10 @@ export default{
             show_preview : false,
             show_editor  : false,
         }
+    },
+    created() {
+        this.note_db   = clone(this.note_empty)
+        this.note_edit = clone(this.note_empty)
     },
     mounted() {
         // let syntex = document.createElement('script');
@@ -59,12 +73,33 @@ export default{
             this.no_preview = true
             this.show_preview = false
             this.show_editor  = false
-            this.title = null    
-            this.content = null    
+
+            this.note_db   = clone(this.note_empty)
+            this.note_edit = clone(this.note_empty)
         },
 
         // 保存笔记
-        save(note, newNote, callback) {
+        save(note_db, note_edit, callback) {
+            if(note_db.id != null 
+                && note_edit.id != null 
+                && note_db.id == note_edit.id) {
+
+                note_edit.content = this.instance.getContent()
+
+                if(note_db.title != note_edit.title
+                    || note_db.content != note_edit.content
+                    || note_db.cloud != note_edit.cloud
+                    ) {
+                    console.log('save note db')
+                    this.$db.noteUpdate(note_edit.id, note_edit, callback)
+                } else {
+                    if(callback != undefined)
+                        callback(null)
+                }
+            } else {
+                if(callback != undefined)
+                    callback(null)
+            }
 
         },
 
@@ -72,11 +107,7 @@ export default{
         // @param note 笔记列表中的值
         preview(note, active) {
             console.log('preview')
-            if(note == undefined) {
-                if(this.$store.state.Global.note.id != undefined) {
-                    note = this.$store.state.Global.note
-                }
-            }
+
             if(note == undefined || note.id == undefined) {
                 return
             }
@@ -88,53 +119,22 @@ export default{
 
             var asyncOps = [
                 // 保存笔记
-                // function(callback) {
-                //     // _this.save(note, note)
-                //     // 
-                //     callback(null)
-
-                // },
                 function(callback) {
-                    //判断是不是需要取数据库，相同的笔记
-                    if(_this.$store.state.Global.note.id != note.id) {
-                        _this.$db.noteGet(note.id, callback)
-                    } else {
-                        callback(null, _this.$store.state.Global.note)
-                    }
+                    _this.save(_this.note_db, _this.note_edit, callback)
+                },
+                function(callback) {
+                    // console.log('get note ' + note.id)
+                    _this.$db.noteGet(note.id, callback)
                 },
                 function(noteDetail, callback) {
-                    // 判断是否有更新
-                    console.log("update check")
-                    if(noteDetail.id == _this.$store.state.Global.note.id) { //判断是否首次加载
-                        if(noteDetail.title != _this.title || noteDetail.content != _this.content || noteDetail.cloud != _this.cloud) {
-                            console.log("update to db")
+                    _this.note_db   = clone(noteDetail)
+                    _this.note_edit = clone(noteDetail)
+                    _this.instance.setContent(_this.note_edit.content)
 
-                            noteDetail.title   = _this.title
-                            noteDetail.content = _this.content
-                            noteDetail.cloud = _this.cloud
+                    _this.$store.commit('setNote', clone(noteDetail))
 
-                            _this.$db.noteUpdate(noteDetail.id, noteDetail, callback)
-                        } else {
-                            callback(null, noteDetail)
-                        }
-                    } else {
-                        callback(null, noteDetail)
-                    }
-                },
-                function(noteDetail, callback) {
-                    note.id = noteDetail.id
-                    note.title = noteDetail.title
-                    note.content = noteDetail.content
-                    note.cloud = noteDetail.cloud
-
-                    _this.$store.commit('setNote', note)
-
-                    _this.title   = note.title
-                    _this.content = note.content
-                    _this.cloud   = note.cloud
-                    
                     callback(null)
-                }, 
+                },
                 function(callback) {
                     _this.$nextTick(function () {
                         sh.highlight()
@@ -151,9 +151,7 @@ export default{
                     _this.$db.alert()
                     return false
                 }
-                
             })
-
         },
         active() {
             console.log('active')
@@ -166,10 +164,12 @@ export default{
             dialog.showOpenDialog({properties: ['openFile', 'multiSelections']})
         },
         editorReady (instance) {
-            instance.setContent('');
+            this.instance = instance
+
+            // instance.setContent('')
 
             instance.addListener('contentChange', () => {
-                this.content = instance.getContent();
+                this.note_edit.content = instance.getContent()
             });
         },
     },

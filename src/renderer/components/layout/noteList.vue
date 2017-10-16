@@ -12,13 +12,11 @@
             <div v-if="items.length > 0" class="list">
                 <ul>
                     <li v-for="(item,index) in items" v-on:contextmenu="getContentMenu(index, $event)" v-on:click="notePreview(index)" :class="{active:index==active_note_index}" v-on:scroll="getMoreNotes">
-                        <span class="item-title">
-                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-                            {{ item.title }}
-                        </span>
+                        <span class="item-title"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>{{ item.title }}</span>
+                        <div class="item-summary">{{ item.summary }}</div>
                         <div class="item-bottom">
-                            <span class="item-createtime">{{ getUpdatedTime(item.updated) }}</span>
-                            <span class="item-size">云端或本地 {{item.fname}}</span>
+                            <span class="item-folder"><i class="fa fa-folder-o" aria-hidden="true"></i>{{item.fname}}</span>
+                            <span class="item-time">{{ getUpdatedTime(item.updated) }}</span>
                         </div>
                     </li>
                 </ul>
@@ -433,34 +431,47 @@ export default {
 #noteList .noteListContent .list li {
     position: relative;
 }
-/*
-#noteList .my-note-item-folder .item-folder-bottom .item-createtime {
-    bottom: 10px;
-    position: absolute;
-    color: #D3D3D3;
-}
-*/
+
 #noteList .noteListContent .item-title {
-    display: inline-block;
+    /*display: inline-block;*/
+    color: #000;
 }
 
-
-#noteList .noteListContent .item-title .fa-pencil-square-o {
+#noteList .noteListContent .item-title i {
+    margin: -1px 6px 0 0;
     color: #398dee;
 }
 
+#noteList .noteListContent .item-summary {
+    height: 40px;
+    line-height: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    word-break: break-all;
+    display: -webkit-box;
+    margin: 10px 0 0 0;
+    color: #999;
+}
+
+#noteList .noteListContent .item-folder {
+    color: #000;
+}
+#noteList .noteListContent .item-folder i {
+    margin: -1px 6px 0 0;
+    color: #999;
+}
+
 #noteList .noteListContent .item-bottom {
-    position: absolute;
-    bottom: 15px;
-    left: 15px;
+    margin:10px 0 0 0;
 }
-
-#noteList .noteListContent .item-bottom span {
-    color: #aaa;
+#noteList .noteListContent .item-bottom .item-time {
+    float: right;
+    color: #999;
 }
-
 #noteList .noteListContent .item-bottom .item-size {
-    padding-left: 20px;
+    /*padding-left: 20px;*/
 }
 
 #noteList .noteListContent .no-note {

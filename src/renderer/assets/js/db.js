@@ -250,21 +250,33 @@ export default {
                     console.log('error update end')
                     return false
                 }
+
+                var div = document.createElement("div");
+                div.innerHTML = data.content;
+                var text = div.textContent || div.innerText || "";
+
+                var summary = text.substring(0, 60)
+
                 var note = this.getTable('note')
                 var time = Date.parse(new Date())/1000;
                 var sql  = "update " + note + " set" 
                         + " content = '" + data.content + "',"
                         + " title = '"+ data.title + "',"
+                        + " summary = '"+ summary + "',"
                         + " cloud = "+ data.cloud + "," 
                         + " updated = " + time 
                         + " where id = " + id
-                console.log(sql)
+                // console.log(sql)
                 db.link.run(sql, function(err){
                     if(err) {
-                        return callback(err)
+                        if(callback != undefined) {
+                            callback(err)
+                        } else {
+                            console.error(err.message)       
+                        }
                     }
-
-                    callback(null, data)
+                    if(callback != undefined)
+                        callback(null)
                 })
             }
 
