@@ -255,7 +255,7 @@ export default {
                 div.innerHTML = data.content;
                 var text = div.textContent || div.innerText || "";
 
-                var summary = text.substring(0, 60)
+                var summary = text.substring(0, 100)
 
                 var note = this.getTable('note')
                 var time = Date.parse(new Date())/1000;
