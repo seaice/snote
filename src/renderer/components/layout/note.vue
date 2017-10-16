@@ -88,10 +88,12 @@ export default{
 
             var asyncOps = [
                 // 保存笔记
-                function(callback) {
-                    // _this.save(note, note)
+                // function(callback) {
+                //     // _this.save(note, note)
+                //     // 
+                //     callback(null)
 
-                },
+                // },
                 function(callback) {
                     //判断是不是需要取数据库，相同的笔记
                     if(_this.$store.state.Global.note.id != note.id) {
