@@ -33,13 +33,14 @@
             <ul class="list-group">
                 <li  class="list-group-item">新建
                     <ul class="list-group" id="right_menu">
-                        <li  v-on:click="folderCreate" class="list-group-item"><i class="fa fa-folder-o" aria-hidden="true"></i><span>文件夹</span></li>
+                        <li v-on:click="folderCreate" class="list-group-item"><i class="fa fa-folder-o" aria-hidden="true"></i><span>文件夹</span></li>
                         <li v-on:click="noteCreateCloud($store.state.Global.cur_fid)" class="list-group-item"><i class="fa fa-file-o" aria-hidden="true"></i><span>云笔记</span></li>
                         <li v-on:click="noteCreateLocal($store.state.Global.cur_fid)" class="list-group-item"><i class="fa fa-file-o" aria-hidden="true"></i><span>本地笔记</span></li>
                         <!-- <li class="list-group-item"><i class="fa fa-file-o" aria-hidden="true"></i>MarkDown笔记</li> -->
                     </ul>
                 </li>
                 <li class="list-group-item" v-on:click="">置顶</li>
+                <li class="list-group-item" v-on:click="">移动到</li>
                 <li class="list-group-item" v-on:click="noteRename">重命名</li>
                 <li class="list-group-item" v-on:click="noteDelete">删除</li>
             </ul>
@@ -149,6 +150,7 @@ export default {
                 }
             })
         },
+
         /* 创建本地笔记 */
         noteCreateLocal: function(fid){
             this.noteCreate(fid, 0)

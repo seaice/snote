@@ -33,6 +33,9 @@ export default{
     },
     data: function(){
         return {
+            note_db      : null,    // 当前笔记数据库中值
+            note_edit    : null,    // 当前笔记编辑器中值
+
             title        : null,
             content      : null,   // 从编辑器获得的笔记
             cloud        : 1,   // 从编辑器获得的笔记
@@ -59,6 +62,14 @@ export default{
             this.title = null    
             this.content = null    
         },
+
+        // 保存笔记
+        save(note, newNote, callback) {
+
+        },
+
+        // 预览笔记
+        // @param note 笔记列表中的值
         preview(note, active) {
             console.log('preview')
             if(note == undefined) {
@@ -76,6 +87,11 @@ export default{
             this.show_editor  = false
 
             var asyncOps = [
+                // 保存笔记
+                function(callback) {
+                    // _this.save(note, note)
+
+                },
                 function(callback) {
                     //判断是不是需要取数据库，相同的笔记
                     if(_this.$store.state.Global.note.id != note.id) {
@@ -102,7 +118,6 @@ export default{
                     } else {
                         callback(null, noteDetail)
                     }
-
                 },
                 function(noteDetail, callback) {
                     note.id = noteDetail.id
