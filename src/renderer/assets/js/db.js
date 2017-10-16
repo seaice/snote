@@ -411,7 +411,7 @@ export default {
                             cloud INT (1) NOT NULL DEFAULT (1), \
                             title VARCHAR (200) NOT NULL, \
                             thumbnail VARCHAR (100), \
-                            summary VARCHAR (500) NOT NULL, \
+                            summary VARCHAR (100) NOT NULL, \
                             content TEXT NOT NULL, \
                             state INT (1) NOT NULL DEFAULT (0), \
                             version INT (11) DEFAULT (0) NOT NULL, \
