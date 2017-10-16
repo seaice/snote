@@ -52,9 +52,8 @@ export default{
         this.$bus.$on('note:editor:active', this.active)
     },
     methods : {
-        preview(note) {
+        preview(note, active) {
             console.log('preview')
-
             if(note == undefined) {
                 if(this.$store.state.Global.note.id != undefined) {
                     note = this.$store.state.Global.note
@@ -114,6 +113,9 @@ export default{
                 function(callback) {
                     _this.$nextTick(function () {
                         sh.highlight()
+                        if(active) {
+                            _this.active()
+                        }
                     })
 
                     callback(null)

@@ -243,7 +243,11 @@ export default {
                 更新笔记
             */
             this.noteUpdate = function(id, data, callback) {
-                if(id < 0 || id == undefined) {
+                if(id < 0 || id == undefined || data.title == null || data.content == null) {
+                    console.log('error update start')
+                    console.log('id')
+                    console.log('data')
+                    console.log('error update end')
                     return false
                 }
                 var note = this.getTable('note')

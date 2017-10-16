@@ -135,8 +135,11 @@ export default {
                 // 渲染
                 function(data, callback) {
                     _this.items.unshift(data)
-                    _this.notePreview(0)
-                    _this.$bus.$emit('note:editor:active');
+
+                    _this.$nextTick(function () {
+                        _this.notePreview(0,true)
+                        // _this.$bus.$emit('note:editor:active');
+                    })
                 }
             ]
             this.$async.waterfall(asyncOps, function (err, results) {
@@ -299,11 +302,11 @@ export default {
             this.$bus.$emit('folder:create')
         },
         // 点击笔记，右侧预览
-        notePreview : function(index){
+        notePreview : function(index, active=false){
             // 高亮选中
             this.active_note_index = index
             //todo 渲染编辑器。传递参数
-            this.$bus.$emit('note:editor:preview', this.items[index])
+            this.$bus.$emit('note:editor:preview', this.items[index], active)
         },
         getMoreNotes: function(event){
             var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
