@@ -120,7 +120,8 @@
 	    defaults = __webpack_require__(19),
 	    HtmlScript = __webpack_require__(20);
 	
-	var sh = {
+	// var sh = {
+	window.sh = {
 	  Match: match.Match,
 	  Highlighter: __webpack_require__(22),
 	

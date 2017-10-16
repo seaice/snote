@@ -6,7 +6,6 @@ const state = {
 
 const mutations = {
     setNote(state, note) {
-        console.log(11111111)
         state.note = note
     },
     setCurFolder(state, fid) {

@@ -8,9 +8,10 @@
         <div class="note-top">
             <input class="title" :style="{ width: width - 442 +'px' }" type="text" v-model="title">
             <div class="meta">
-                <input type="checkbox" id="note-cloud" name="note-cloud" v-model="cloud"><label for="note-cloud">云端</label>
+                <input type="checkbox" id="note-cloud" name="note-cloud" v-model="cloud" :true-value="1" :false-value="0"><label for="note-cloud">云端</label>
             </div>
         </div>
+
         <!-- <img src="~@/assets/logo.png" alt=""> -->
         <!-- <div> -->
             <div v-show="show_preview" class="preview" v-on:click="active" :style="{ height: height - 108 +'px', width: '100%' }" v-html="content">
@@ -21,6 +22,10 @@
 </template>
 <script>
 import Ueditor from '../Ueditor'
+
+// v4
+import "../../../../static/ueditor/third-party/SyntaxHighlighter/syntaxhighlighter.js"
+// console.log(sh)
 
 export default{
     components: {
@@ -37,12 +42,19 @@ export default{
         }
     },
     mounted() {
+        // let syntex = document.createElement('script');
+        // syntex.setAttribute('src',"/static/ueditor/third-party/SyntaxHighlighter/shCore.js");
+        // document.head.appendChild(syntex);
+
+        // console.log(SyntaxHighlighter)
+
         this.$bus.$on('note:editor:preview', this.preview)
         this.$bus.$on('note:editor:active', this.active)
     },
     methods : {
         preview(note) {
             console.log('preview')
+
             if(note == undefined) {
                 if(this.$store.state.Global.note.id != undefined) {
                     note = this.$store.state.Global.note
@@ -62,18 +74,23 @@ export default{
                     //判断是不是需要取数据库，相同的笔记
                     if(_this.$store.state.Global.note.id != note.id) {
                         _this.$db.noteGet(note.id, callback)
+                    } else {
+                        callback(null, _this.$store.state.Global.note)
                     }
                 },
                 function(noteDetail, callback) {
                     // 判断是否有更新
-                    if(note.id == _this.$store.state.Global.note.id) {
-                        if(noteDetail.title != _this.title || noteDetail.content != _this.content) {
+                    if(noteDetail.id == _this.$store.state.Global.note.id) { //判断是否首次加载
+                        if(noteDetail.title != _this.title || noteDetail.content != _this.content || noteDetail.cloud != _this.cloud) {
                             console.log("update to db")
 
                             noteDetail.title   = _this.title
                             noteDetail.content = _this.content
+                            noteDetail.cloud = _this.cloud
 
-                            _this.$db.noteUpdate(note.id, noteDetail, callback)
+                            _this.$db.noteUpdate(noteDetail.id, noteDetail, callback)
+                        } else {
+                            callback(null, noteDetail)
                         }
                     } else {
                         callback(null, noteDetail)
@@ -81,12 +98,23 @@ export default{
 
                 },
                 function(noteDetail, callback) {
-                    _this.$store.commit('setNote', noteDetail)
-                    _this.title   = noteDetail.title
-                    _this.content = noteDetail.content
-                    _this.cloud   = noteDetail.cloud
+                    note.id = noteDetail.id
+                    note.title = noteDetail.title
+                    note.content = noteDetail.content
+                    note.cloud = noteDetail.cloud
 
-                    // console.log(_this.cloud)
+                    _this.$store.commit('setNote', note)
+
+                    _this.title   = note.title
+                    _this.content = note.content
+                    _this.cloud   = note.cloud
+                    
+                    callback(null)
+                }, 
+                function(callback) {
+                    _this.$nextTick(function () {
+                        sh.highlight()
+                    })
 
                     callback(null)
                 }
@@ -96,8 +124,9 @@ export default{
                     _this.$db.alert()
                     return false
                 }
-            });
-            //todo update note
+                
+            })
+
         },
         active() {
             console.log('active')
@@ -128,6 +157,8 @@ export default{
 }
 </script>
 <style>
+/*@import '/static/ueditor/third-party/SyntaxHighlighter/theme.css'*/
+/*@import '/static/ueditor/third-party/SyntaxHighlighter/theme.css'*/
 
 #note {
     overflow: hidden;
@@ -214,5 +245,8 @@ export default{
     padding-left: 30px;
     /*list-style-type: initial;*/
 }
+
+/* v4 */
+@import '/static/ueditor/third-party/SyntaxHighlighter/theme.css'
 
 </style>
