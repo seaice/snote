@@ -82,6 +82,17 @@ export default {
                         callback(null)
                     },
                     function(callback) {
+                        // 设置global
+                        _this.$store.commit('user_login', {
+                            id : id,
+                            name : name,
+                            token : token,
+                            pathData : pathData,
+                        })
+
+                        callback(null)
+                    },
+                    function(callback) {
                         // 初始化数据库
                         _this.$db.initUserDb(callback)
                     },
@@ -95,17 +106,6 @@ export default {
                         callback(null)
                     },
                     function(callback) {
-                        // 设置global
-                        _this.$store.commit('user_login', {
-                            id : id,
-                            name : name,
-                            token : token,
-                            pathData : pathData,
-                        })
-
-                        callback(null)
-                    },
-                    function(callback) {
                         _this.$bus.$emit('user:login:success')
                         callback(null)
                     }
@@ -115,19 +115,18 @@ export default {
                         _this.$db.alert()
                         return false
                     }
+                    $('#modal_login').modal('hide')
+                    return true
                 });
 
-                $('#modal_login').modal('hide')
             } else {
                 console.log('login error')
-                // 密码错误
-                console.log($("#form_login input[name=email]").parents('.form-group'))
-
+                // 登陆错误
                 $("#form_login input[name=email]").parents('.form-group').addClass('has-error has-danger')
                 $("#form_login input[name=email]").siblings('.help-block').html('<ul class="list-unstyled"><li>用户名或密码错误</li></ul>');
+                return false
             }
 
-            return false
         },
         register() {
             $('#modal_login').modal('hide')
