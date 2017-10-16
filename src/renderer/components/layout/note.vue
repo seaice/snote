@@ -46,12 +46,19 @@ export default{
         // syntex.setAttribute('src',"/static/ueditor/third-party/SyntaxHighlighter/shCore.js");
         // document.head.appendChild(syntex);
 
-        // console.log(SyntaxHighlighter)
-
         this.$bus.$on('note:editor:preview', this.preview)
+        this.$bus.$on('note:editor:preview:no', this.previewNo)
         this.$bus.$on('note:editor:active', this.active)
     },
     methods : {
+        previewNo() {
+            console.log('preview no')
+            this.no_preview = true
+            this.show_preview = false
+            this.show_editor  = false
+            this.title = null    
+            this.content = null    
+        },
         preview(note, active) {
             console.log('preview')
             if(note == undefined) {
@@ -79,6 +86,7 @@ export default{
                 },
                 function(noteDetail, callback) {
                     // 判断是否有更新
+                    console.log("update check")
                     if(noteDetail.id == _this.$store.state.Global.note.id) { //判断是否首次加载
                         if(noteDetail.title != _this.title || noteDetail.content != _this.content || noteDetail.cloud != _this.cloud) {
                             console.log("update to db")

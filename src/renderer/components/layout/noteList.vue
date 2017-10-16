@@ -240,6 +240,8 @@ export default {
 
         // 删除笔记
         noteDelete: function() {
+            console.log('note delete')
+
             var _this = this
             $("#noteContextMenu").hide();
             
@@ -256,6 +258,7 @@ export default {
                 function(callback) {
                     _this.items.splice(_this.active_note_index, 1)
                     _this.active_note_index = null
+                    callback(null)
                 }
             ]
             
@@ -263,6 +266,7 @@ export default {
                 if (err) {
                     _this.$db.alert()
                 }
+                _this.$bus.$emit('note:editor:preview:no')
             })
         },
 
