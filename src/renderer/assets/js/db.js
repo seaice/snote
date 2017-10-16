@@ -243,7 +243,7 @@ export default {
                 更新笔记
             */
             this.noteUpdate = function(id, data, callback) {
-                if(id < 0) {
+                if(id < 0 || id == undefined) {
                     return false
                 }
                 var note = this.getTable('note')
@@ -254,7 +254,7 @@ export default {
                         + " cloud = "+ data.cloud + "," 
                         + " updated = " + time 
                         + " where id = " + id
-
+                console.log(sql)
                 db.link.run(sql, function(err){
                     if(err) {
                         return callback(err)
