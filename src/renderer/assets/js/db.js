@@ -185,7 +185,7 @@ export default {
             },
             
 
-            this.notelistGet = function(fid, pageNum=1, pageSize=100, callback) {
+            this.notelistGet = function(fid, pageNum=1, pageSize=10, callback) {
                 var note   = this.getTable('note')
                 var folder = this.getTable('folder')
 

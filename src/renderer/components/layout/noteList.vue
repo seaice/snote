@@ -8,10 +8,10 @@
             <!-- </div> -->
             <span  class="list-icon"><i class="fa fa-th-list" aria-hidden="true"></i></span>
         </div>
-        <div class="noteListContent" :style="{ height: height - 135 + 'px' }">
-            <div v-if="items.length > 0" class="list">
+        <div class="noteListContent" :style="{ height: height - 135 + 'px' }" v-on:scroll="getMoreNotes">
+            <div v-if="items.length > 0" id="note_list" class="list">
                 <ul>
-                    <li v-for="(item,index) in items" v-on:contextmenu="getContentMenu(index, $event)" v-on:click="notePreview(index)" :class="{active:index==active_note_index}" v-on:scroll="getMoreNotes">
+                    <li v-for="(item,index) in items" v-on:contextmenu="getContentMenu(index, $event)" v-on:click="notePreview(index)" :class="{active:index==active_note_index}">
                         <span class="item-title"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>{{ item.title }}</span>
                         <div class="item-summary">{{ item.summary }}</div>
                         <div class="item-bottom">
@@ -20,6 +20,7 @@
                         </div>
                     </li>
                 </ul>
+                <div style="display:none;" id="noteLoading">loading</div>
             </div>
             <div v-else="items.length < 0" class="no-note">
                 <span>没有内容</span>
@@ -95,7 +96,7 @@ export default {
     },
     methods: {
         /* 加载笔记 */
-        noteListLoad : function(fids, pageNum=1, pageSize=100) {
+        noteListLoad : function(fids, pageNum=1, pageSize) {
             var _this = this
             this.active_note_index = null
 
@@ -315,14 +316,24 @@ export default {
             this.$bus.$emit('note:editor:preview', this.items[index], active)
         },
         getMoreNotes: function(event){
-            var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-            console.log("scrollTop: ", scrollTop);
-            var totalHeight = this.$store.state.Window.height;
-            if (scrollTop - totalHeight - 135 >= 0){
+            console.log($(document).height())
+            console.log($(".list li:last").offset().top)
 
+            console.log("top:" + ($(document).height() - $(".list li:last").offset().top))
 
-
+            // if($(document).height() - $(".list li:last").offset().top >= 155) {
+            if($(document).height() - $(".list li:last").offset().top >= 155) {
+                console.log('load more')
+                $("#noteLoading").show()
             }
+            // var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            // console.log("scrollTop: ", scrollTop);
+            // var totalHeight = this.$store.state.Window.height;
+            // if (scrollTop - totalHeight - 135 >= 0){
+
+
+
+            // }
         },
 
         /* 更新笔记列表内容 */
