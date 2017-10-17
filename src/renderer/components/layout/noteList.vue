@@ -87,6 +87,8 @@ export default {
         this.$bus.$on("note:create:cloud", this.noteCreateCloud);//云笔记创建
         this.$bus.$on("note:create:local", this.noteCreateLocal);//本地笔记创建
 
+        this.$bus.$on("note:list:update:note", this.noteListUpdateNote);//笔记更新后，更新列表中该笔记数据
+
         // this.$bus.$on("note:list:init",this.initNoteList);//笔记列表初始化
         // this.$bus.$on("note:addNote", this.addNote);//添加新增笔记
         // this.$bus.$on('note:getSelectedNode', this.getSelectedNode);//获取选中的树节点id
@@ -321,6 +323,18 @@ export default {
 
 
             }
+        },
+
+        /* 更新笔记列表内容 */
+        noteListUpdateNote: function(note) {
+            // console.log(this.items)
+
+            this.items.forEach(function(item) {
+                if(item.id == note.id) {
+                    item.title = note.title
+                    item.summary = note.summary
+                }  
+            })  
         }
     }
 }
