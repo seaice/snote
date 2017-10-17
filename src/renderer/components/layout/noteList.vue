@@ -12,6 +12,8 @@
             <div v-if="items.length > 0" id="note_list" class="list">
                 <ul>
                     <li v-for="(item,index) in items" v-on:contextmenu="getContentMenu(index, $event)" v-on:click="notePreview(index)" :class="{active:index==active_note_index}">
+                        <a v-if="item.cloud" title="云端" class="note-cloud"><i class="fa fa-cloud" aria-hidden="true"></i></a>
+                        <a v-else title="本地" class="note-cloud"><i class="fa fa-floppy-o" aria-hidden="true"></i></a>
                         <span class="item-title"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>{{ item.title }}</span>
                         <div class="item-summary">{{ item.summary }}</div>
                         <div class="item-bottom">
@@ -20,7 +22,7 @@
                         </div>
                     </li>
                 </ul>
-                <div style="display:none;" id="noteLoading">loading</div>
+                <div v-show="loading" style="display:none;" id="noteLoading"><img src="~@/assets/img/loading.gif" /></div>
             </div>
             <div v-else="items.length < 0" class="no-note">
                 <span>没有内容</span>
@@ -71,11 +73,14 @@ export default {
     },
     data () {
         return {
+            loading           : false,
+            pageNum           : 1, // 加载笔记的页数
+            
             total             : 0,
             items             : [],  //所有笔记集合
             chooseItem        : {}, // 选中的笔记节点
+            
             active_note_index : null, // 选中的笔记
-            page              : 1, // 加载笔记的页数
         }
     },
     computed:{
@@ -96,18 +101,39 @@ export default {
     },
     methods: {
         /* 加载笔记 */
-        noteListLoad : function(fids, pageNum=1, pageSize) {
+
+        /**
+          * @param append true：翻页追加。false：首次加载
+          */
+        noteListLoad : function(fids, pageNum=1, pageSize, append=false) {
+            console.log('note list load')
+            if(!append) {
+                this.items = []
+                this.pageNum = 1
+                this.loading = false
+            }
+
             var _this = this
+            // _this.loading = true
             this.active_note_index = null
 
             var asyncOps = [
                 // 获取笔记
                 function(callback) {
                     _this.$db.notelistGet(fids, pageNum, pageSize, callback)
+
                 },
                 // 显示
                 function(notelist, callback) {
-                    _this.items = notelist
+                    if(append) {
+                        if(notelist.length > 0) {
+                            _this.items = _this.items.concat(notelist)
+                            _this.pageNum++
+                        }
+                        _this.loading = false
+                    } else {
+                        _this.items = notelist
+                    }
                 }
             ]
             
@@ -316,24 +342,19 @@ export default {
             this.$bus.$emit('note:editor:preview', this.items[index], active)
         },
         getMoreNotes: function(event){
-            console.log($(document).height())
-            console.log($(".list li:last").offset().top)
-
-            console.log("top:" + ($(document).height() - $(".list li:last").offset().top))
-
-            // if($(document).height() - $(".list li:last").offset().top >= 155) {
-            if($(document).height() - $(".list li:last").offset().top >= 155) {
-                console.log('load more')
-                $("#noteLoading").show()
+            var offset = $(".list li:last").offset()
+            if(offset == undefined) {
+                return
             }
-            // var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-            // console.log("scrollTop: ", scrollTop);
-            // var totalHeight = this.$store.state.Window.height;
-            // if (scrollTop - totalHeight - 135 >= 0){
+            // console.log($(document).height() - offset.top)
 
-
-
-            // }
+            if($(document).height() - offset.top >= 155) {
+                console.log('get more note ok')
+                if(!this.loading) {
+                    this.loading = true
+                    this.noteListLoad(this.$store.state.Global.cur_fid_child, this.pageNum+1, this.pageSize, true)
+                }
+            }
         },
 
         /* 更新笔记列表内容 */
@@ -344,6 +365,7 @@ export default {
                 if(item.id == note.id) {
                     item.title = note.title
                     item.summary = note.summary
+                    item.cloud = note.cloud
                 }  
             })  
         }
@@ -400,11 +422,22 @@ export default {
 }
 
 #noteList .list li {
+    position: relative;
     width: 239px;
     height: 125px;
     border-bottom: 1px solid  #ddd;
     font-size: 12px;
     padding: 15px;
+}
+
+#noteList .list li .note-cloud {
+    position: absolute;
+    right: 15px;
+    top: 17px;
+    color: #ddd;
+}
+#noteList .list li.active .note-cloud {
+    color: #999;
 }
 
 #noteList .list li:hover {
@@ -559,4 +592,7 @@ export default {
     background-color: #e0eafa!important;
 }
 
+#noteList #noteLoading {
+    text-align: center;
+}
 </style>

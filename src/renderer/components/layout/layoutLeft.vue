@@ -263,9 +263,10 @@ export default {
         ztree_onClick : function (event, treeId, treeNode) {
             var fids = this.getAllChildrenNodes(treeNode, [treeNode.id])
 
-            this.$store.commit('setCurFolder', treeNode.id)
+            this.$store.commit('setCurFolder', { fid:treeNode.id, children: fids })
 
-            this.$bus.$emit('note:list:load', fids);
+            this.$bus.$emit('note:list:load', fids)
+            this.$bus.$emit('note:editor:preview:no')
         },
         ztree_rebuildDiyDom : function(treeId, treeNode) {
             this.ztree_addDiyDom(treeId, treeNode)
