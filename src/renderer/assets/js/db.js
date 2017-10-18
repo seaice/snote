@@ -183,15 +183,49 @@ export default {
                 this.link.close()
                 console.log('sqlite close')
             },
-            
 
-            this.notelistGet = function(fid, pageNum=1, pageSize=10, callback) {
+            this.notelistGetCount = function(fids, conds, callback) {
+                var note   = this.getTable('note')
+
+                switch(typeof(fids)) {
+                    case 'object':
+                         fids = fids.join(",")
+                    default:
+                }
+
+                var whereArr = []
+                whereArr.push("state=0")
+
+
+                if(fids != undefined) {
+                    whereArr.push("fid in ("+ fids +")")
+                }
+
+                var where = whereArr.join(" and ")
+                var sql = "select count(*) as count from " + note + " where " + where
+                    
+                console.log(sql)
+
+                db.link.get(sql, function(err, row) {
+                    if (err) {
+                        db.alert()
+                        return console.error(err.message)
+                    }
+
+                    callback(null, row.count)
+                })
+            },
+
+            /*
+                @param mixed fid 单独id或者id数组
+            */
+            this.notelistGet = function(fids, pageNum=1, pageSize=10, callback) {
                 var note   = this.getTable('note')
                 var folder = this.getTable('folder')
 
-                switch(typeof(fid)) {
+                switch(typeof(fids)) {
                     case 'object':
-                         fid = fid.join(",")
+                         fids = fids.join(",")
                     default:
                 }
                 if(pageNum < 1) {
@@ -200,10 +234,10 @@ export default {
 
                 var offset = (pageNum - 1) * pageSize
 
-                if(fid == undefined) {
-                    var sql = "select t1.id, t1.title, t1.summary, t1.updated, t1.cloud, t1.fid, t2.name as fname from " + note + " t1 left join " + folder + " t2 on t1.fid = t2.id where t1.state = 0 order by t1.updated desc limit " + offset + "," + pageSize
+                if(fids == undefined) {
+                    var sql = "select t1.id, t1.title, t1.summary, t1.updated, t1.cloud, t1.sort, t1.fid, t2.name as fname from " + note + " t1 left join " + folder + " t2 on t1.fid = t2.id where t1.state = 0 order by t1.sort desc, t1.updated desc limit " + offset + "," + pageSize
                 } else {
-                    var sql = "select t1.id, t1.title, t1.summary, t1.updated, t1.cloud, t1.fid, t2.name as fname from " + note + " t1 left join " + folder + " t2 on t1.fid = t2.id where t1.fid in ("+ fid +") and t1.state = 0 order by t1.updated desc limit " + offset + "," + pageSize
+                    var sql = "select t1.id, t1.title, t1.summary, t1.updated, t1.cloud, t1.sort, t1.fid, t2.name as fname from " + note + " t1 left join " + folder + " t2 on t1.fid = t2.id where t1.fid in ("+ fids +") and t1.state = 0 order by t1.sort desc, t1.updated desc limit " + offset + "," + pageSize
                 }
 
                 // console.log(sql)
@@ -375,6 +409,20 @@ export default {
                 })
             },
 
+            this.noteStick = function(id, callback) {
+                var note = this.getTable('note')
+
+                var sql = "update " + note + " set sort = 1 where id = " + id
+                db.link.run(sql, function(err){
+                    if(err) {
+                        console.error(err)
+                        callback(1)
+                    }
+
+                    callback(null)
+                })
+            },
+
             this.getTable = function(table) {
                 return table + '_' +  store.state.User.id
             }
@@ -410,6 +458,7 @@ export default {
                             content TEXT NOT NULL, \
                             state INT (1) NOT NULL DEFAULT (0), \
                             version INT (11) DEFAULT (0) NOT NULL, \
+                            sort INT (11) DEFAULT (0) NOT NULL, \
                             created INT (11) NOT NULL, \
                             updated INT (11) NOT NULL, \
                             synced INT (11) NOT NULL DEFAULT (0))"

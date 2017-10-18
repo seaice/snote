@@ -9,12 +9,15 @@
             <span  class="list-icon"><i class="fa fa-th-list" aria-hidden="true"></i></span>
         </div>
         <div class="noteListContent" :style="{ height: height - 135 + 'px' }" v-on:scroll="getMoreNotes">
-            <div v-if="items.length > 0" id="note_list" class="list">
+            <div v-if="total > 0" id="note_list" class="list">
                 <ul>
                     <li v-for="(item,index) in items" v-on:contextmenu="getContentMenu(index, $event)" v-on:click="notePreview(index)" :class="{active:index==active_note_index}">
-                        <a v-if="item.cloud" title="云端" class="note-cloud"><i class="fa fa-cloud" aria-hidden="true"></i></a>
-                        <a v-else title="本地" class="note-cloud"><i class="fa fa-floppy-o" aria-hidden="true"></i></a>
-                        <span class="item-title"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>{{ item.title }}</span>
+                        <!-- <a v-if="item.cloud" title="云端" class="note-cloud"><i class="fa fa-cloud" aria-hidden="true"></i></a> -->
+                        <!-- <a v-else title="本地" class="note-cloud"><i class="fa fa-floppy-o" aria-hidden="true"></i></a> -->
+                        <i v-if="item.cloud" title="云端" class="fa fa-cloud note-cloud" aria-hidden="true"></i>
+                        <i v-else title="本地" class="fa fa-floppy-o note-cloud" aria-hidden="true"></i>
+                        <!-- <a v-if="item.sort" title="置顶" class="note-stick"><i class="fa fa-cloud" aria-hidden="true"></i></a> -->
+                        <span class="item-title"><i v-if="item.sort" title="置顶" class="fa fa-arrow-up" aria-hidden="true"></i><!-- <i class="fa fa-pencil-square-o" aria-hidden="true"></i> --><a title="item.title">{{ item.title }}</a></span>
                         <div class="item-summary">{{ item.summary }}</div>
                         <div class="item-bottom">
                             <span class="item-folder"><i class="fa fa-folder-o" aria-hidden="true"></i>{{item.fname}}</span>
@@ -24,12 +27,12 @@
                 </ul>
                 <div style="display:none;" id="noteLoading"><img src="~@/assets/img/loading.gif" /></div>
             </div>
-            <div v-else="items.length < 0" class="no-note">
+            <div v-else class="no-note">
                 <span>没有内容</span>
                 <button class="btn btn-info" @click="">新建笔记</button>
             </div>
         </div>
-        <div class="totalCount">总共{{ this.items.length }}项</div>
+        <div class="totalCount">总共{{ this.total }}项</div>
         <div id="noteContextMenu" style="display:none;">
             <ul class="">
                 <li >新建<i class="fa fa-caret-right" aria-hidden="true"></i>
@@ -40,31 +43,10 @@
                         <!-- <li><i class="fa fa-file-o" aria-hidden="true"></i>MarkDown笔记</li> -->
                     </ul>
                 </li>
-                <li v-on:click="">置顶</li>
+                <li v-on:click="noteStick()">置顶</li>
                 <li v-on:click="">移动到</li>
-                <li v-on:click="noteRename">重命名</li>
                 <li v-on:click="noteDelete">删除</li>
             </ul>
-        </div>
-
-
-        <div id="noteListRenameWindow" class="modal fade" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                  <h4 class="modal-title">重命名</h4>
-                </div>
-                <div class="modal-body">
-                    <label>重命名为:</label>
-                    <input type="text" v-bind:value="chooseItem.title" class="form-control"  id="NoteListRename"/>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary"  v-on:click="saveModifyName">保存</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                </div>
-              </div>
-            </div>
         </div>
     </div>
 </template>
@@ -120,10 +102,14 @@ export default {
             this.active_note_index = null
 
             var asyncOps = [
-                // 获取笔记
+                // 获取数量
                 function(callback) {
+                    _this.$db.notelistGetCount(fids, {}, callback)
+                },
+                // 获取笔记
+                function(total, callback) {
+                    _this.total = total
                     _this.$db.notelistGet(fids, pageNum, pageSize, callback)
-
                 },
                 // 显示
                 function(notelist, callback) {
@@ -257,13 +243,6 @@ export default {
             })
         },
 
-        // 笔记重命名
-        //todo 参考删除写
-        noteRename: function(){
-            $("#noteContextMenu").hide();
-            $("#noteListRenameWindow").modal("show");
-        },
-
         // 删除笔记
         noteDelete: function() {
             console.log('note delete')
@@ -296,6 +275,38 @@ export default {
             })
         },
 
+        // 置顶
+        noteStick: function() {
+            var _this = this
+
+            $("#noteContextMenu").hide();
+            var asyncOps = [
+                // 删除笔记
+                function(callback) {
+                    _this.$db.noteStick(_this.items[_this.active_note_index].id, callback)
+                },
+                // 列表中删除
+                function(callback) {
+                    var item = _this.items[_this.active_note_index]
+                    // console.log(item)
+                    console.log(item)
+                    //删除
+                    _this.items.splice(_this.active_note_index, 1)
+                    //插入
+                    item.sort = 1
+                    _this.items.splice(0, 0, item);
+
+                    callback(null)
+                }
+            ]
+            
+            this.$async.series(asyncOps, function (err, results) {
+                if (err) {
+                    _this.$db.alert()
+                }
+            })
+
+        },
         //todo 这里迁移到modal里面~~~~~
         saveModifyName: function(){
           
@@ -431,9 +442,10 @@ export default {
 #noteList .list li .note-cloud {
     position: absolute;
     right: 15px;
-    top: 17px;
+    top: 18px;
     color: #ddd;
 }
+
 #noteList .list li.active .note-cloud {
     color: #999;
 }
@@ -492,10 +504,21 @@ export default {
     /*display: inline-block;*/
     color: #000;
 }
+#noteList .noteListContent .item-title a {
+    color: #000;
+    display:block;
+    width: 175px;
+    float: left;
+    height: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space:nowrap;
+}
 
 #noteList .noteListContent .item-title i {
-    margin: -1px 6px 0 0;
+    margin: 2px 6px 0 0;
     color: #398dee;
+    float: left;
 }
 
 #noteList .noteListContent .item-summary {
