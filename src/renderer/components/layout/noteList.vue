@@ -22,7 +22,7 @@
                         </div>
                     </li>
                 </ul>
-                <div v-show="loading" style="display:none;" id="noteLoading"><img src="~@/assets/img/loading.gif" /></div>
+                <div style="display:none;" id="noteLoading"><img src="~@/assets/img/loading.gif" /></div>
             </div>
             <div v-else="items.length < 0" class="no-note">
                 <span>没有内容</span>
@@ -31,21 +31,23 @@
         </div>
         <div class="totalCount">总共{{ this.items.length }}项</div>
         <div id="noteContextMenu" style="display:none;">
-            <ul class="list-group">
-                <li  class="list-group-item">新建
-                    <ul class="list-group" id="right_menu">
-                        <li v-on:click="folderCreate" class="list-group-item"><i class="fa fa-folder-o" aria-hidden="true"></i><span>文件夹</span></li>
-                        <li v-on:click="noteCreateCloud($store.state.Global.cur_fid)" class="list-group-item"><i class="fa fa-file-o" aria-hidden="true"></i><span>云笔记</span></li>
-                        <li v-on:click="noteCreateLocal($store.state.Global.cur_fid)" class="list-group-item"><i class="fa fa-file-o" aria-hidden="true"></i><span>本地笔记</span></li>
-                        <!-- <li class="list-group-item"><i class="fa fa-file-o" aria-hidden="true"></i>MarkDown笔记</li> -->
+            <ul class="">
+                <li >新建<i class="fa fa-caret-right" aria-hidden="true"></i>
+                    <ul class="contentSubMenu">
+                        <li v-on:click="folderCreate"><i class="fa fa-folder-o" aria-hidden="true"></i><span>文件夹</span></li>
+                        <li v-on:click="noteCreateCloud($store.state.Global.cur_fid)"><i class="fa fa-file-o" aria-hidden="true"></i><span>云笔记</span></li>
+                        <li v-on:click="noteCreateLocal($store.state.Global.cur_fid)"><i class="fa fa-file-o" aria-hidden="true"></i><span>本地笔记</span></li>
+                        <!-- <li><i class="fa fa-file-o" aria-hidden="true"></i>MarkDown笔记</li> -->
                     </ul>
                 </li>
-                <li class="list-group-item" v-on:click="">置顶</li>
-                <li class="list-group-item" v-on:click="">移动到</li>
-                <li class="list-group-item" v-on:click="noteRename">重命名</li>
-                <li class="list-group-item" v-on:click="noteDelete">删除</li>
+                <li v-on:click="">置顶</li>
+                <li v-on:click="">移动到</li>
+                <li v-on:click="noteRename">重命名</li>
+                <li v-on:click="noteDelete">删除</li>
             </ul>
         </div>
+
+
         <div id="noteListRenameWindow" class="modal fade" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
               <div class="modal-content">
@@ -111,10 +113,10 @@ export default {
                 this.items = []
                 this.pageNum = 1
                 this.loading = false
+                $("#noteLoading").hide()
             }
 
             var _this = this
-            // _this.loading = true
             this.active_note_index = null
 
             var asyncOps = [
@@ -131,6 +133,7 @@ export default {
                             _this.pageNum++
                         }
                         _this.loading = false
+                        $("#noteLoading").hide()
                     } else {
                         _this.items = notelist
                     }
@@ -216,47 +219,41 @@ export default {
                 return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + day;
             }
         },
-
-
         getContentMenu:function(index, event){
-            // console.log("item : ", item)
-            // console.log("event: ", event)
-
             this.active_note_index = index
             this.notePreview(index)
 
             //选择笔记列表条目
-            var target = event.target;
-
             var x = event.clientX - 201;//减去左侧树宽度
             var y = event.clientY - 52;//减去头部高度
             
-            $("#noteContextMenu").show();
             // 右键菜单显示位置
             $("#noteList #noteContextMenu").css({
-                "top": y + "px",
-                "left": x + "px",
+                "top": (y) + "px",
+                "left": (x) + "px",
                 "z-index": '10000',
-                'position': 'absolute'
             })
+            $("#noteContextMenu").show()
 
-            $("#noteList #noteContextMenu .list-group").css({
-                'width': '100px'
-            })
-
-            // 鼠标移入移出菜单效果
-            $("#noteContextMenu ul li").hover(function(){
-                $(this).css({'background-color': '#f5f5f5'})
-            },function(){
-                $(this).css({'background-color': '#fff'})
-            });
-
-            // 鼠标离开右键菜单时，隐藏右键菜单
-            $("#noteContextMenu ul li").on('mouseleave', function(event){
-                var tag = event.relatedTarget.tagName.toLowerCase();
-                if (tag !== "li" && tag !== "ul"){
-                    $("#noteContextMenu").hide();
+            var hideFlag = true
+            var hideInt = setInterval(function() {
+                console.log(hideFlag)
+                if(hideFlag) {
+                    $("#noteContextMenu").hide()
+                    clearInterval(hideInt)
                 }
+            }, 1000)
+
+            $("#noteContextMenu").on('mouseover', _.throttle(function(event) {
+                hideFlag = false
+                clearInterval(hideInt)
+            }, 250))
+
+            $("#noteContextMenu").on('mouseleave', function(event) {
+                console.log('leave')
+                hideFlag = true
+                $("#noteContextMenu").hide()
+                clearInterval(hideInt)
             })
         },
 
@@ -343,15 +340,16 @@ export default {
         },
         getMoreNotes: function(event){
             var offset = $(".list li:last").offset()
+            // console.log($(document).height() - offset.top)
             if(offset == undefined) {
                 return
             }
-            // console.log($(document).height() - offset.top)
 
             if($(document).height() - offset.top >= 155) {
                 console.log('get more note ok')
                 if(!this.loading) {
                     this.loading = true
+                    $("#noteLoading").show()
                     this.noteListLoad(this.$store.state.Global.cur_fid_child, this.pageNum+1, this.pageSize, true)
                 }
             }
@@ -564,27 +562,52 @@ export default {
     font-size: 12px;
     border-top: 1px solid #398dee;
 }
+
+/*右键菜单*/
 #noteList #noteContextMenu {
-    font-size: 11px;
-}
-
-#noteList #noteContextMenu #right_menu {
-    display: none;
-}
-
-#noteList #noteContextMenu ul li:hover #right_menu{     
-    display: block;
     position: absolute;
-    left: 100px;
-    top: 0px;
+    font-size: 11px;
+    border: 1px solid #b3d6ff;
+    background: #fff;
+}
+
+#noteList #noteContextMenu li {
+    height: 30px;
+    line-height: 30px;
+    padding: 0 0 0 30px;
+    font-size: 11px;
+    cursor: pointer;
+    position: relative;
+    width: 130px;
+    list-style:none;
+}
+
+#noteList #noteContextMenu .fa-caret-right {
+    display: block;
+    margin: 0 15px 0 0;
+    float: right;
+    line-height: 30px;
+}
+
+#noteList #noteContextMenu li:hover{
+    background-color: #e9f3ff;
+}
+
+#noteList #noteContextMenu .contentSubMenu {
+    border: 1px solid #b3d6ff;
+    background: #fff;
+    display: none;
+    position: absolute;
     z-index:999;
 }
 
-#noteList #noteContextMenu ul li ul li{
-    width: 130px;
+#noteList #noteContextMenu ul li:hover .contentSubMenu{     
+    display: block;
+    left: 130px;
+    top: -1px;
 }
 
-#right_menu i {
+#noteList #noteContextMenu .contentSubMenu  i {
     margin-right: 5px;
 }
 

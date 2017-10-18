@@ -140,7 +140,7 @@ new Vue({
                 e.stopPropagation();
             })
 
-            window.addEventListener('resize', this.handleResize);
+            window.addEventListener('resize', _.throttle(this.handleResize, 100));
         },
 
         /* 登陆校验 */
