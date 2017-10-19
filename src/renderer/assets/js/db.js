@@ -219,7 +219,8 @@ export default {
             /*
                 @param mixed fid 单独id或者id数组
             */
-            this.notelistGet = function(fids, pageNum=1, pageSize=10, callback) {
+            this.notelistGet = function(fids, conds, callback) {
+            // this.notelistGet = function(fids, pageNum=1, pageSize=10, callback) {
                 var note   = this.getTable('note')
                 var folder = this.getTable('folder')
 
@@ -228,19 +229,19 @@ export default {
                          fids = fids.join(",")
                     default:
                 }
-                if(pageNum < 1) {
-                    pageNum = 1
+                if(conds.pageNum < 1) {
+                    conds.pageNum = 1
                 }
 
-                var offset = (pageNum - 1) * pageSize
+                var offset = (conds.pageNum - 1) * conds.pageSize
 
                 if(fids == undefined) {
-                    var sql = "select t1.id, t1.title, t1.summary, t1.updated, t1.cloud, t1.sort, t1.fid, t2.name as fname from " + note + " t1 left join " + folder + " t2 on t1.fid = t2.id where t1.state = 0 order by t1.sort desc, t1.updated desc limit " + offset + "," + pageSize
+                    var sql = "select t1.id, t1.title, t1.summary, t1.updated, t1.cloud, t1.sort, t1.fid, t2.name as fname from " + note + " t1 left join " + folder + " t2 on t1.fid = t2.id where t1.state = 0 order by t1.sort desc, t1.updated desc limit " + offset + "," + conds.pageSize
                 } else {
-                    var sql = "select t1.id, t1.title, t1.summary, t1.updated, t1.cloud, t1.sort, t1.fid, t2.name as fname from " + note + " t1 left join " + folder + " t2 on t1.fid = t2.id where t1.fid in ("+ fids +") and t1.state = 0 order by t1.sort desc, t1.updated desc limit " + offset + "," + pageSize
+                    var sql = "select t1.id, t1.title, t1.summary, t1.updated, t1.cloud, t1.sort, t1.fid, t2.name as fname from " + note + " t1 left join " + folder + " t2 on t1.fid = t2.id where t1.fid in ("+ fids +") and t1.state = 0 order by t1.sort desc, t1.updated desc limit " + offset + "," + conds.pageSize
                 }
 
-                // console.log(sql)
+                console.log(sql)
                 db.link.all(sql, function(err, rows) {
                     if (err) {
                         db.alert()
@@ -409,10 +410,14 @@ export default {
                 })
             },
 
-            this.noteStick = function(id, callback) {
+            this.noteStick = function(id, sort, callback) {
                 var note = this.getTable('note')
 
-                var sql = "update " + note + " set sort = 1 where id = " + id
+                if(sort > 1 || sort < 0) {
+                    sort = 0
+                }
+
+                var sql = "update " + note + " set sort = " + sort + " where id = " + id
                 db.link.run(sql, function(err){
                     if(err) {
                         console.error(err)

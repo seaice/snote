@@ -43,7 +43,9 @@
                         <!-- <li><i class="fa fa-file-o" aria-hidden="true"></i>MarkDown笔记</li> -->
                     </ul>
                 </li>
-                <li v-on:click="noteStick()">置顶</li>
+
+                <li v-if="active_note_index!= null && items[active_note_index].sort" v-on:click="noteStick(0)">取消置顶</li>
+                <li v-else v-on:click="noteStick()">置顶</li>
                 <li v-on:click="">移动到</li>
                 <li v-on:click="noteDelete">删除</li>
             </ul>
@@ -59,6 +61,7 @@ export default {
         return {
             loading           : false,
             pageNum           : 1, // 加载笔记的页数
+            pageSize          : 10, // 加载笔记的页数
             
             total             : 0,
             items             : [],  //所有笔记集合
@@ -88,12 +91,23 @@ export default {
 
         /**
           * @param append true：翻页追加。false：首次加载
+          * @param pageNumUp 是否更新this.pageNum。在取消置顶时。一次加载多页。append：false。无需更新pagenum为1
           */
-        noteListLoad : function(fids, pageNum=1, pageSize, append=false) {
+        noteListLoad : function(fids, conds={}, append=false, pageNumUp=true) {
             console.log('note list load')
+            console.log(conds)
+            if(conds.pageNum == undefined) {
+                conds.pageNum = 1
+            }
+            if(conds.pageSize == undefined) {
+                conds.pageSize = this.pageSize
+            }
+
             if(!append) {
                 this.items = []
-                this.pageNum = 1
+                if(pageNumUp) {
+                    this.pageNum = 1
+                }
                 this.loading = false
                 $("#noteLoading").hide()
             }
@@ -109,7 +123,7 @@ export default {
                 // 获取笔记
                 function(total, callback) {
                     _this.total = total
-                    _this.$db.notelistGet(fids, pageNum, pageSize, callback)
+                    _this.$db.notelistGet(fids, conds, callback)
                 },
                 // 显示
                 function(notelist, callback) {
@@ -137,6 +151,8 @@ export default {
             var _this = this
             $("#noteContextMenu").hide()
 
+
+
             var newData = { title: "无标题笔记" , content: "", type: 0, cloud : cloud }
 
             var asyncOps = [
@@ -152,10 +168,10 @@ export default {
                 // 渲染
                 function(data, callback) {
                     _this.items.unshift(data)
+                    _this.total++
 
                     _this.$nextTick(function () {
                         _this.notePreview(0,true)
-                        // _this.$bus.$emit('note:editor:active');
                     })
                 }
             ]
@@ -221,6 +237,7 @@ export default {
             })
             $("#noteContextMenu").show()
 
+            // console.log(this.items.indexOf(this.active_note_index).title)
             var hideFlag = true
             var hideInt = setInterval(function() {
                 console.log(hideFlag)
@@ -274,27 +291,53 @@ export default {
                 _this.$bus.$emit('note:editor:preview:no')
             })
         },
-
+        /*置顶插入*/
+        notelistInsert: function(note) {
+            for (var i = 0; i < this.items.length ; i++) {
+                var item = this.items[i]
+                if(note.sort > item.sort) {
+                    this.items.splice(i, 0, note)
+                    break
+                } else if(note.updated > item.updated) {
+                    this.items.splice(i, 0, note)
+                    break
+                }
+            }
+        },
         // 置顶
-        noteStick: function() {
+        noteStick: function(sort=1) {
             var _this = this
 
             $("#noteContextMenu").hide();
             var asyncOps = [
                 // 删除笔记
                 function(callback) {
-                    _this.$db.noteStick(_this.items[_this.active_note_index].id, callback)
+                    _this.$db.noteStick(_this.items[_this.active_note_index].id, sort, callback)
                 },
                 // 列表中删除
                 function(callback) {
                     var item = _this.items[_this.active_note_index]
-                    // console.log(item)
-                    console.log(item)
                     //删除
-                    _this.items.splice(_this.active_note_index, 1)
-                    //插入
-                    item.sort = 1
-                    _this.items.splice(0, 0, item);
+                    if(sort == 1) {
+                        _this.items.splice(_this.active_note_index, 1)
+                        item.sort = sort
+                        // 旧逻辑，直接放到上面
+                        // _this.items.splice(0, 0, item)
+
+                        _this.notelistInsert(item)
+                    } else { //取消置顶
+                        _this.noteListLoad(_this.$store.state.Global.cur_fid_child, {pageNum:1, pageSize: _this.pageSize * _this.pageNum}, false, false)
+                    }
+
+                    // if(sort == 1) { // 置顶
+                    //     //插入
+                    //     item.sort = 1
+                    //     _this.notelistInsert(item)
+                    //     // _this.items.splice(0, 0, item);
+                    // } else { // 取消置顶
+                        // _this.notelistInsert(item)
+
+                    // }
 
                     callback(null)
                 }
@@ -361,7 +404,7 @@ export default {
                 if(!this.loading) {
                     this.loading = true
                     $("#noteLoading").show()
-                    this.noteListLoad(this.$store.state.Global.cur_fid_child, this.pageNum+1, this.pageSize, true)
+                    this.noteListLoad(this.$store.state.Global.cur_fid_child, {pageNum:this.pageNum+1}, true)
                 }
             }
         },
@@ -376,7 +419,7 @@ export default {
                     item.summary = note.summary
                     item.cloud = note.cloud
                 }  
-            })  
+            })
         }
     }
 }
