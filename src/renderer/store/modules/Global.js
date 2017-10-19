@@ -10,7 +10,6 @@ const mutations = {
         state.note = note
     },
     setCurFolder(state, data) {
-        console.log(data)
         state.cur_fid = data.fid
         state.cur_fid_child = data.children
     }
