@@ -115,6 +115,7 @@ export default {
                         _this.$db.alert()
                         return false
                     }
+                    console.log("login success")
                     $('#modal_login').modal('hide')
                     return true
                 });

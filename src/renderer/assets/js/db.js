@@ -436,48 +436,119 @@ export default {
             /*
                 用户登陆，初始化
             */
-            this.initUserDb = function(callback) {
+            this.initUserDb = function(callbackFather) {
                 var table_folder = this.getTable('folder')
                 var table_note   = this.getTable('note')
-                db.link.serialize(function() {
-                    var sql = "CREATE TABLE IF NOT EXISTS " + table_folder + " (\
-                                id INTEGER PRIMARY KEY AUTOINCREMENT, \
-                                name VARCHAR (20) NOT NULL, \
-                                pid INT (11) NOT NULL DEFAULT (0), \
-                                sort INT (11) NOT NULL DEFAULT (0), \
-                                state INT (11) NOT NULL DEFAULT (0), \
-                                created INT (11) NOT NULL DEFAULT (0), \
-                                updated INT (11) NOT NULL DEFAULT (0))"
-                    // console.log(sql)
-                    db.link.run(sql)
 
-                    var sql = "CREATE TABLE IF NOT EXISTS `" + table_note + "` ( \
-                            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
-                            uuid STRING (36) NOT NULL, \
-                            nid INT (11) NOT NULL DEFAULT (0), \
-                            fid INT (11) NOT NULL, \
-                            type INT (1) NOT NULL DEFAULT (0), \
-                            cloud INT (1) NOT NULL DEFAULT (1), \
-                            title VARCHAR (200) NOT NULL, \
-                            thumbnail VARCHAR (100), \
-                            summary VARCHAR (100) NOT NULL, \
-                            content TEXT NOT NULL, \
-                            state INT (1) NOT NULL DEFAULT (0), \
-                            version INT (11) DEFAULT (0) NOT NULL, \
-                            sort INT (11) DEFAULT (0) NOT NULL, \
-                            created INT (11) NOT NULL, \
-                            updated INT (11) NOT NULL, \
-                            synced INT (11) NOT NULL DEFAULT (0))"
-                    // console.log(sql)
-                    db.link.run(sql)
+                var asyncOps = [
+                    function (callback) {
+                        var sql = "CREATE TABLE IF NOT EXISTS " + table_folder + " (\
+                                    id INTEGER PRIMARY KEY AUTOINCREMENT, \
+                                    name VARCHAR (20) NOT NULL, \
+                                    pid INT (11) NOT NULL DEFAULT (0), \
+                                    sort INT (11) NOT NULL DEFAULT (0), \
+                                    state INT (11) NOT NULL DEFAULT (0), \
+                                    created INT (11) NOT NULL DEFAULT (0), \
+                                    updated INT (11) NOT NULL DEFAULT (0))"
+                        // console.log(sql)
+                        db.link.run(sql, function(err){
+                            if(err) {
+                                callback(1)
+                                return
+                            }
+                            callback(null)
+                        })
+                    },
+                    function(callback) {
+                        var sql = "CREATE TABLE IF NOT EXISTS `" + table_note + "` ( \
+                                id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
+                                uuid STRING (36) NOT NULL, \
+                                nid INT (11) NOT NULL DEFAULT (0), \
+                                fid INT (11) NOT NULL, \
+                                type INT (1) NOT NULL DEFAULT (0), \
+                                cloud INT (1) NOT NULL DEFAULT (1), \
+                                title VARCHAR (200) NOT NULL, \
+                                thumbnail VARCHAR (100), \
+                                summary VARCHAR (100) NOT NULL, \
+                                content TEXT NOT NULL, \
+                                state INT (1) NOT NULL DEFAULT (0), \
+                                version INT (11) DEFAULT (0) NOT NULL, \
+                                sort INT (11) DEFAULT (0) NOT NULL, \
+                                created INT (11) NOT NULL, \
+                                updated INT (11) NOT NULL, \
+                                synced INT (11) NOT NULL DEFAULT (0))"
+                        // console.log(sql)
+                        db.link.run(sql, function(err){
+                            if(err) {
+                                callback(1)
+                                return
+                            }
+                        
+                            callback(null)
+                        })                        
+                    },
+                    function(callback) {
+                        var sql = "INSERT OR REPLACE INTO " + table_folder + " (id, name, pid, created, updated) VALUES (1, '我的文件夹', 0, 0, 0)"
+                        // console.log(sql)
+                        db.link.run(sql, function(err){
+                            if(err) {
+                                callback(1)
+                                return
+                            }
+                            callback(null)
+                        }) 
+                    }
+                ]
 
-                    var sql = "INSERT OR REPLACE INTO " + table_folder + " (id, name, pid, created, updated) VALUES (1, '我的文件夹', 0, 0, 0)"
-                    // console.log(sql)
-                    db.link.run(sql)    
+                Vue.prototype.$async.series(asyncOps, function (err, results) {
+                    if (err) {
+                        db.alert()
+                        callbackFather(1)
+                        return console.error(err.message)
+                    }
+                    callbackFather(null)
                 })
-                if(callback != undefined) {
-                    callback(null)
-                }
+
+
+                // db.link.serialize(function() {
+                //     var sql = "CREATE TABLE IF NOT EXISTS " + table_folder + " (\
+                //                 id INTEGER PRIMARY KEY AUTOINCREMENT, \
+                //                 name VARCHAR (20) NOT NULL, \
+                //                 pid INT (11) NOT NULL DEFAULT (0), \
+                //                 sort INT (11) NOT NULL DEFAULT (0), \
+                //                 state INT (11) NOT NULL DEFAULT (0), \
+                //                 created INT (11) NOT NULL DEFAULT (0), \
+                //                 updated INT (11) NOT NULL DEFAULT (0))"
+                //     // console.log(sql)
+                //     db.link.run(sql)
+
+                //     var sql = "CREATE TABLE IF NOT EXISTS `" + table_note + "` ( \
+                //             id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
+                //             uuid STRING (36) NOT NULL, \
+                //             nid INT (11) NOT NULL DEFAULT (0), \
+                //             fid INT (11) NOT NULL, \
+                //             type INT (1) NOT NULL DEFAULT (0), \
+                //             cloud INT (1) NOT NULL DEFAULT (1), \
+                //             title VARCHAR (200) NOT NULL, \
+                //             thumbnail VARCHAR (100), \
+                //             summary VARCHAR (100) NOT NULL, \
+                //             content TEXT NOT NULL, \
+                //             state INT (1) NOT NULL DEFAULT (0), \
+                //             version INT (11) DEFAULT (0) NOT NULL, \
+                //             sort INT (11) DEFAULT (0) NOT NULL, \
+                //             created INT (11) NOT NULL, \
+                //             updated INT (11) NOT NULL, \
+                //             synced INT (11) NOT NULL DEFAULT (0))"
+                //     // console.log(sql)
+                //     db.link.run(sql)
+
+                //     var sql = "INSERT OR REPLACE INTO " + table_folder + " (id, name, pid, created, updated) VALUES (1, '我的文件夹', 0, 0, 0)"
+                //     // console.log(sql)
+                //     db.link.run(sql) 
+                // })
+                // if(callback != undefined) {
+                //     callback(null)
+                // }
             }
         }
     }

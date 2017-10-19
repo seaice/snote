@@ -95,7 +95,6 @@ export default {
           */
         noteListLoad : function(fids, conds={}, append=false, pageNumUp=true) {
             console.log('note list load')
-            console.log(conds)
             if(conds.pageNum == undefined) {
                 conds.pageNum = 1
             }
