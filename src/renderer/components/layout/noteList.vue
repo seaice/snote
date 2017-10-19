@@ -221,7 +221,7 @@ export default {
                 return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + day;
             }
         },
-        getContentMenu:function(index, event){
+        getContentMenu:function(index, event) {
             this.active_note_index = index
             this.notePreview(index)
 
@@ -293,6 +293,11 @@ export default {
         },
         /*置顶插入*/
         notelistInsert: function(note) {
+            if(this.items.length == 0) {
+                this.items.splice(0, 0, note)
+                return
+            }
+
             for (var i = 0; i < this.items.length ; i++) {
                 var item = this.items[i]
                 if(note.sort > item.sort) {
@@ -306,6 +311,7 @@ export default {
         },
         // 置顶
         noteStick: function(sort=1) {
+            // console.log("note stick :" + this.active_note_index + " sort:" + sort)
             var _this = this
 
             $("#noteContextMenu").hide();
@@ -328,16 +334,6 @@ export default {
                     } else { //取消置顶
                         _this.noteListLoad(_this.$store.state.Global.cur_fid_child, {pageNum:1, pageSize: _this.pageSize * _this.pageNum}, false, false)
                     }
-
-                    // if(sort == 1) { // 置顶
-                    //     //插入
-                    //     item.sort = 1
-                    //     _this.notelistInsert(item)
-                    //     // _this.items.splice(0, 0, item);
-                    // } else { // 取消置顶
-                        // _this.notelistInsert(item)
-
-                    // }
 
                     callback(null)
                 }

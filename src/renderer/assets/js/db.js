@@ -204,7 +204,7 @@ export default {
                 var where = whereArr.join(" and ")
                 var sql = "select count(*) as count from " + note + " where " + where
                     
-                console.log(sql)
+                // console.log(sql)
 
                 db.link.get(sql, function(err, row) {
                     if (err) {
@@ -241,7 +241,7 @@ export default {
                     var sql = "select t1.id, t1.title, t1.summary, t1.updated, t1.cloud, t1.sort, t1.fid, t2.name as fname from " + note + " t1 left join " + folder + " t2 on t1.fid = t2.id where t1.fid in ("+ fids +") and t1.state = 0 order by t1.sort desc, t1.updated desc limit " + offset + "," + conds.pageSize
                 }
 
-                console.log(sql)
+                // console.log(sql)
                 db.link.all(sql, function(err, rows) {
                     if (err) {
                         db.alert()
