@@ -32,9 +32,6 @@ console.log('at any moment you can check with navigator.onLine', navigator.onLin
 
 const remote = require('electron').remote
 
-const windows = require('electron')
-
-console.log(windows)
 // console.log(windows.getSize())
 // const electron = require('electron').remote
 
@@ -133,8 +130,8 @@ new Vue({
                 this.config.set('autoupdate', true)
             }
 
-            // 事件监听
-            $(document).on('click', "#edui_fixedlayer, #note", function(e) {
+            // 事件监听，对于下面的元素，不出发preview
+            $(document).on('click', "#edui_fixedlayer, #note, #tree_menu, #noteContextMenu", function(e) {
                 this.show_preview = false
                 this.show_editor  = true
 

@@ -22,6 +22,7 @@ export default {
     install : function (Vue, options) {
         Vue.prototype.$db = new function() {
             var db = this
+            var uuidv1 = require('uuid/v1')
             var store = Vue.prototype.$store
             console.log('init db')
             this.name = 'snote.db'
@@ -326,6 +327,7 @@ export default {
                 var asyncOps = [
                     function (callback) {
                         var sql = "select * from " + folder + " where id=" + id
+                        // console.log(sql)
                         db.link.get(sql, function(e, row){
                             if(row == undefined) {
                                db.alert()
@@ -337,7 +339,9 @@ export default {
                         })
                     },
                     function(folder, callback){
+                        // var sql = "select count(*) as count from " + note + " where title >='" + data.title + "' and title < '"+data.title+"0'"
                         var sql = "select count(*) as count from " + note + " where title like '" + data.title + "%'"
+                        // console.log(sql)
                         db.link.get(sql, function(e, row) {
                             if (row.count > 0){
                                 data.title = data.title + "(" + row.count + ")"
@@ -346,7 +350,7 @@ export default {
                         })
                     },
                     function(title, callback) {
-                        const uuidv1 = require('uuid/v1')
+                        // const uuidv1 = require('uuid/v1')
                         var uuid = uuidv1()
                         var sql = "insert into " + note + " (uuid,fid,type,cloud,title,thumbnail,summary,content,created,updated,synced) values ("
                                 + "'" + uuid + "',"
@@ -362,6 +366,7 @@ export default {
                                 + "0"
                                 + ")"
 
+                        // console.log(sql)
                         db.link.run(sql, function(err){
                             if(err) {
                                 return callback(err)
