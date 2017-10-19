@@ -435,7 +435,33 @@ export default{
     padding: 10px;
     overflow: hidden;
     font-size: 16px;
+    overflow-y: auto;
 }
+
+#note .preview::-webkit-scrollbar
+{
+    width: 10px;
+} 
+
+/*滚动条背景*/
+#note .preview::-webkit-scrollbar-track
+{
+    background: none;
+}
+
+/*滚动条颜色*/
+#note .preview::-webkit-scrollbar-thumb  
+{  
+    background-color: #bfd8f5;
+} 
+
+/*滚动条颜色*/
+#note .preview::-webkit-scrollbar-thumb:hover
+{  
+    background-color: #9ec7f7;
+}
+
+
 
 #note .preview table { 
     border-collapse: collapse; 
