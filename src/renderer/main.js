@@ -129,7 +129,7 @@ new Vue({
             }
 
             // 事件监听
-            $(document).on('click', "#edui_fixedlayer, #note, #noteList", function(e) {
+            $(document).on('click', "#edui_fixedlayer, #note", function(e) {
                 this.show_preview = false
                 this.show_editor  = true
 

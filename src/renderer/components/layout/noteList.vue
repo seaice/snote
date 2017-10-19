@@ -11,7 +11,7 @@
         <div class="noteListContent" :style="{ height: height - 135 + 'px' }" v-on:scroll="getMoreNotes">
             <div v-if="total > 0" id="note_list" class="list">
                 <ul>
-                    <li v-for="(item,index) in items" v-on:contextmenu="getContentMenu(index, $event)" v-on:click="notePreview(index)" :class="{active:index==active_note_index}">
+                    <li v-for="(item,index) in items" v-on:contextmenu="getContentMenu(index, $event)" v-on:click="notePreview(index, false, $event)" :class="{active:index==active_note_index}">
                         <!-- <a v-if="item.cloud" title="云端" class="note-cloud"><i class="fa fa-cloud" aria-hidden="true"></i></a> -->
                         <!-- <a v-else title="本地" class="note-cloud"><i class="fa fa-floppy-o" aria-hidden="true"></i></a> -->
                         <i v-if="item.cloud" title="云端" class="fa fa-cloud note-cloud" aria-hidden="true"></i>
@@ -148,12 +148,11 @@ export default {
         },
         /* 创建笔记 */
         noteCreate(fid, cloud) {
+            // return
             var _this = this
             $("#noteContextMenu").hide()
 
-
-
-            var newData = { title: "无标题笔记" , content: "", type: 0, cloud : cloud }
+            var newData = { title: "无标题笔记" , content: "", summary: "", type: 0, cloud : cloud }
 
             var asyncOps = [
                 // 新建笔记
@@ -167,11 +166,11 @@ export default {
                 },
                 // 渲染
                 function(data, callback) {
-                    _this.items.unshift(data)
+                    var i = _this.notelistInsert(data)
                     _this.total++
 
                     _this.$nextTick(function () {
-                        _this.notePreview(0,true)
+                        _this.notePreview(i, true)
                     })
                 }
             ]
@@ -291,21 +290,24 @@ export default {
                 _this.$bus.$emit('note:editor:preview:no')
             })
         },
-        /*置顶插入*/
+        /*插入note，计算位置*/
         notelistInsert: function(note) {
             if(this.items.length == 0) {
                 this.items.splice(0, 0, note)
-                return
+                return 0
             }
 
             for (var i = 0; i < this.items.length ; i++) {
                 var item = this.items[i]
-                if(note.sort > item.sort) {
+
+                if(note.sort == item.sort) {
+                    if(note.updated > item.updated) {
+                        this.items.splice(i, 0, note)
+                        return i
+                    }
+                } else if(note.sort > item.sort) {
                     this.items.splice(i, 0, note)
-                    break
-                } else if(note.updated > item.updated) {
-                    this.items.splice(i, 0, note)
-                    break
+                    return i
                 }
             }
         },
@@ -382,7 +384,10 @@ export default {
             this.$bus.$emit('folder:create')
         },
         // 点击笔记，右侧预览
-        notePreview : function(index, active=false){
+        notePreview : function(index, active=false, event) {
+            if(event) {
+                event.stopPropagation();
+            }
             // 高亮选中
             this.active_note_index = index
             //todo 渲染编辑器。传递参数
@@ -407,15 +412,17 @@ export default {
 
         /* 更新笔记列表内容 */
         noteListUpdateNote: function(note) {
-            // console.log(this.items)
+            // console.log("noteListUpdateNote")
 
-            this.items.forEach(function(item) {
-                if(item.id == note.id) {
-                    item.title = note.title
-                    item.summary = note.summary
-                    item.cloud = note.cloud
-                }  
-            })
+            for (var i = 0; i < this.items.length ; i++) {
+                if(note.id == this.items[i].id) {
+                    this.items[i].title   = note.title
+                    this.items[i].summary = note.summary
+                    this.items[i].cloud   = note.cloud
+
+                    break
+                }
+            }
         }
     }
 }

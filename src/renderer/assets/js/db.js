@@ -375,6 +375,7 @@ export default {
                             data.title   = title
                             data.created = created
                             data.updated = updated
+                            data.sort = 0
 
                             callback(null);
                         })
