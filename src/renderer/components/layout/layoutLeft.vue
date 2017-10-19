@@ -16,8 +16,8 @@
         </div>
         <div class="ad-left">
             此处是广告 <br>
+            {{ width }}<br>
             {{ height }}<br>
-            {{ width }}
         </div>
         <div id="tree_menu">
             <ul>
@@ -343,7 +343,7 @@ export default {
         },
         width () {
             return this.$store.state.Window.width;
-        },
+        }
     },
     mounted() {
         this.$bus.$on('folder:init', this.folderInit)
@@ -359,7 +359,7 @@ export default {
     overflow: hidden;
     border-right: 1px solid #ddd;
     clear: both;
-    /*border-left:1px solid #a0a0a0;*/
+    border-left:1px solid #a0a0a0;
 }
 #layoutLeft a{
     color: #000;

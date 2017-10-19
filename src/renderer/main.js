@@ -31,6 +31,11 @@ console.log('at any moment you can check with navigator.onLine', navigator.onLin
 
 
 const remote = require('electron').remote
+
+const windows = require('electron')
+
+console.log(windows)
+// console.log(windows.getSize())
 // const electron = require('electron').remote
 
 // console.log(remote)
@@ -140,7 +145,7 @@ new Vue({
                 e.stopPropagation();
             })
 
-            window.addEventListener('resize', _.throttle(this.handleResize, 100));
+            window.addEventListener('resize', this.handleResize, true)
         },
 
         /* 登陆校验 */
@@ -175,10 +180,16 @@ new Vue({
             this.$bus.$emit('note:list:load');
         },
         handleResize (event) {
+            var width = document.documentElement.clientWidth
+            var height = document.documentElement.clientHeight
+
             store.commit('resize', {
-                width: document.documentElement.clientWidth,
-                height: document.documentElement.clientHeight
+                width: width,
+                height: height
             })
+
+            $("#app").width(width)
+            $("#app").height(height)
 
             const BrowserWindow = require('electron').remote.BrowserWindow
             var top = BrowserWindow.getFocusedWindow()

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, screen } from 'electron'
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -16,10 +16,13 @@ function createWindow () {
   /**
    * Initial window options
    */
+
+  var size = screen.getPrimaryDisplay().workAreaSize
+
   mainWindow = new BrowserWindow({
-    height: 600,
     useContentSize: true,
-    width: 800,
+    width: size.width,
+    height: size.height,
     minWidth: 800,
     minHeight : 600,
     frame: false,
@@ -35,7 +38,7 @@ function createWindow () {
   })
 
   mainWindow.loadURL(winURL)
-  mainWindow.maximize()
+  // mainWindow.maximize()
 
   mainWindow.on('closed', () => {
     mainWindow = null

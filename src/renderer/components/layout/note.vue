@@ -1,12 +1,12 @@
 <template>
-    <div id="note" class="fl" :style="{ height: height - 52 +'px', width: width - 442 +'px'}">
+    <div id="note" class="fl" :style="{ height: height - 52 +'px', width: width - 440 +'px'}">
         <div class="no-preview" v-show="no_preview" :style="{ 'line-height': height - 52 +'px' }">
             <div>
                 <i class="fa fa-file-text-o" aria-hidden="true"></i><span>无预览</span>
             </div>
         </div>
         <div class="note-top">
-            <input class="title" :style="{ width: width - 442 +'px' }" type="text" v-model="note_edit.title">
+            <input class="title" :style="{ width: width - 440 +'px' }" type="text" v-model="note_edit.title">
             <div class="meta">
                 <input type="checkbox" id="note-cloud" name="note-cloud" v-model="note_edit.cloud" :true-value="1" :false-value="0"><label for="note-cloud">云端</label>
             </div>
@@ -373,7 +373,7 @@ export default{
 #note {
     overflow: hidden;
     position: relative;
-    /*border-right:1px solid #a0a0a0;*/
+    border-right:1px solid #a0a0a0;
 }
 
 #note .no-preview {

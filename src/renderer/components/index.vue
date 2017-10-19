@@ -30,13 +30,15 @@ export default {
         note,
         modalAlert,
         noteItem,
+    },
+    mounted() {
     }
-  // components: { menu, SystemInformation }
 }
 </script>
 
 <style type="text/css">
 #index {
-    /*border-bottom: 1px solid #a0a0a0;*/
+    overflow: hidden;
+    border-bottom: 1px solid #a0a0a0;
 }
 </style>
