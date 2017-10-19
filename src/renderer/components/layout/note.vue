@@ -133,8 +133,13 @@ export default{
 
             var _this = this
             this.no_preview = false
-            this.show_preview = true
-            this.show_editor  = false
+
+            if(active) {
+                _this.active()
+            } else {
+                this.show_preview = true
+                this.show_editor  = false
+            }
 
             var asyncOps = [
                 // 保存笔记
@@ -161,9 +166,6 @@ export default{
                 function(callback) {
                     _this.$nextTick(function () {
                         sh.highlight()
-                        if(active) {
-                            _this.active()
-                        }
                     })
 
                     callback(null)
@@ -257,6 +259,22 @@ export default{
             
             //dom元素已经挂载上去了
             this.$nextTick(() => {
+                // 注册ctrl+s保存
+                UE.plugin.register("ctrl_s", function() {
+                    return {
+                        shortcutkey: {
+                            ctrl_s: "ctrl+83" //手动提交
+                        },
+                        commands: {
+                            ctrl_s: {
+                                execCommand: function() {
+                                    _this.preview(_this.note_edit, true)
+                                    console.log('save')
+                                }
+                            }
+                        }
+                    };
+                });
                 this.instance = UE.getEditor(this.randomId, this.ueditorConfig)
                 // 绑定事件，当 UEditor 初始化完成后，将编辑器实例通过自定义的 ready 事件交出去
                 this.instance.addListener('ready', () => {

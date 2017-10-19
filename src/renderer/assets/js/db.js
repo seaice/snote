@@ -304,6 +304,7 @@ export default {
                         } else {
                             console.error(err.message)
                         }
+                        return
                     }
                     if(callback != undefined) {
                         callback(null, data)
