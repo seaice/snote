@@ -601,18 +601,16 @@ export default {
 #noteList .noteListContent .no-note {
     position: relative;
     top: 42%;
-    margin-left: 80px;
+    text-align: center;
 }
 
 #noteList .noteListContent .no-note button{
-    padding: 10px 18px;
     margin-top: 10px;
 }
 
 #noteList .noteListContent .no-note span {
     display: block;
-    color: #D3D3D3;
-    margin-left: 18px;
+    color: #999;
 }
 
 #noteList .btn-info {
@@ -652,7 +650,7 @@ export default {
 
 #noteList #noteContextMenu .fa-caret-right {
     display: block;
-    margin: 0 15px 0 0;
+    margin: 1px 15px 0 0;
     float: right;
     line-height: 30px;
 }
