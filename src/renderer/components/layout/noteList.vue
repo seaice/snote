@@ -234,6 +234,11 @@ export default {
             //选择笔记列表条目
             var x = event.clientX - 201;//减去左侧树宽度
             var y = event.clientY - 52;//减去头部高度
+
+            // 如果菜单在底部。菜单向上弹出
+            if($(document).height() - y < 200) {
+                y = y-120
+            }
             
             // 右键菜单显示位置
             $("#noteList #noteContextMenu").css({
