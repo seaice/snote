@@ -29,7 +29,15 @@
             </div>
             <div v-else class="no-note">
                 <span>没有内容</span>
-                <button class="btn btn-info" @click="">新建笔记</button>
+                <div class="note-create-btn">
+                    <button class="btn btn-info">新建笔记</button>
+                    <div>
+                        <ul>
+                            <li v-on:click="noteCreateCloud($store.state.Global.cur_fid)">云笔记</li>
+                            <li v-on:click="noteCreateLocal($store.state.Global.cur_fid)">本地笔记</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="totalCount">总共{{ this.total }}项</div>
@@ -611,6 +619,29 @@ export default {
 #noteList .noteListContent .no-note span {
     display: block;
     color: #999;
+}
+#noteList .noteListContent .no-note .note-create-btn div {
+    display: none;
+    background: #fff;
+    text-align: left;
+    border: 1px solid #b3d6ff;
+    width: 82px;
+    margin:0 auto;
+}
+
+#noteList .noteListContent .no-note .note-create-btn div li {
+    line-height: 30px;
+    list-style: none;
+    text-indent: 10px;
+    cursor: pointer;
+}
+
+#noteList .noteListContent .no-note .note-create-btn div li:hover {
+    background-color: #e9f3ff;
+}
+
+#noteList .noteListContent .no-note .note-create-btn:hover div {
+    display: block;
 }
 
 #noteList .btn-info {
