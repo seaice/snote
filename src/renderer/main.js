@@ -83,7 +83,6 @@ new Vue({
     template: '<App/>',
     data() {
         return {
-            'config' : null,
         }
     },
     mounted: function () {
@@ -159,6 +158,7 @@ new Vue({
 
         /* 登陆成功后，初始化用户数据 */
         userLoginSuccess() {
+            var _this = this
             console.log('login success')
             //初始化 store user
             const path   = require('path');
@@ -175,6 +175,36 @@ new Vue({
 
             /* 笔记列表初始化 */
             this.$bus.$emit('note:list:load');
+
+            /* 从服务器获得更新 */
+            var schedule = require('node-schedule');
+
+            var rule = new schedule.RecurrenceRule();
+            rule.second = [0,10,20,30,40,50] // 10秒自动保存一次
+
+            var autosave = schedule.scheduleJob(rule, function() {
+                console.log('auto save')
+                // _this.$bus.$emit('note:editor:autosave')
+            })
+
+
+            // var rule = new schedule.RecurrenceRule()
+            // rule.second = [0,5,10,15,20,25,30,35,40,45,50,55]
+            // var autosync = schedule.scheduleJob(rule, function() {
+            //     axios.get('http://www.makeclean.net/note/update')
+            //         .then(function (response) {
+            //             console.log(response);
+            //         })
+            //         .catch(function (error) {
+            //             console.log(error);
+            //         });
+
+
+            //     console.log('The answer to life, the universe, and everything!');
+            // });
+
+
+
         },
         handleResize (event) {
             var width = document.documentElement.clientWidth
