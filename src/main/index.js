@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, screen } from 'electron'
+import { app, BrowserWindow, ipcMain, screen, Tray, nativeImage, Menu } from 'electron'
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -11,6 +11,7 @@ let mainWindow
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
+
 
 function createWindow () {
   /**
@@ -26,6 +27,8 @@ function createWindow () {
     minWidth: 800,
     minHeight : 600,
     frame: false,
+    // skipTaskbar: false,
+    // fullscreen: true,
     // autoHideMenuBar: true,
     // titleBarStyle: 'hidden'
 
@@ -46,6 +49,7 @@ function createWindow () {
 
   ipcMain.on('note:window:close', function (e) {
     mainWindow.close()
+    // mainWindow.setSkipTaskbar(true)
   })
 
   ipcMain.on('note:window:maximize', function (e) {
@@ -59,6 +63,30 @@ function createWindow () {
   ipcMain.on('note:window:minimize', function (e) {
     mainWindow.minimize()
   })
+
+  // const iconName = process.platform === 'win32'
+  let tray = null
+  // tray = new Tray('../renderer/assets/img/tray.png')
+  // tray = new Tray(__dirname + '../assets/img/tray.png')
+  // 
+  // 
+  // 
+  /*
+const path = require('path')
+const trayIcon = path.join(__dirname, 'tray.png');
+const nimage = nativeImage.createFromPath(trayIcon);
+
+  // tray = new Tray(__dirname + 'tray.png')
+  tray = new Tray(nimage)
+  const contextMenu = Menu.buildFromTemplate([
+    {label: 'Item1', type: 'radio'},
+    {label: 'Item2', type: 'radio'},
+    {label: 'Item3', type: 'radio', checked: true},
+    {label: 'Item4', type: 'radio'}
+  ])
+  tray.setToolTip('This is my application.')
+  tray.setContextMenu(contextMenu)
+*/
 }
 
 app.on('ready', createWindow)
