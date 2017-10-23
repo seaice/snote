@@ -127,8 +127,8 @@ export default{
         // @param note 笔记列表中的值
         preview(note, active) {
             console.log('preview')
-            console.log(note)
-            console.log('preview')
+            // console.log(note)
+            // console.log('preview')
 
             if(note == undefined) {
                 if(this.note_db.id == null) {
