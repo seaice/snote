@@ -66,6 +66,7 @@ export default{
         this.$bus.$on('note:editor:preview', this.preview)
         this.$bus.$on('note:editor:preview:no', this.previewNo)
         this.$bus.$on('note:editor:active', this.active)
+        this.$bus.$on('note:editor:autosave', this.autosave)
     },
     beforeDestroy () {
         // 组件销毁的时候，要销毁 UEditor 实例
@@ -89,6 +90,11 @@ export default{
             var text = div.textContent || div.innerText || "";
 
             return text.substring(0, 100)
+        },
+
+        autosave() {
+            this.save(this.note_db, this.note_edit)
+            // this.preview(this.note_db, false)
         },
         // 保存笔记
         save(note_db, note_edit, callback) {
@@ -115,12 +121,13 @@ export default{
                 if(callback != undefined)
                     callback(null, false)
             }
-
         },
 
         // 预览笔记
         // @param note 笔记列表中的值
         preview(note, active) {
+            console.log('preview')
+            console.log(note)
             console.log('preview')
 
             if(note == undefined) {
@@ -129,6 +136,10 @@ export default{
                 } else {
                     note = clone(this.note_db)
                 }
+            }
+
+            if(note.id == null) {
+                return
             }
 
             var _this = this
