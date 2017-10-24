@@ -220,10 +220,12 @@ new Vue({
 
             const BrowserWindow = require('electron').remote.BrowserWindow
             var top = BrowserWindow.getFocusedWindow()
-            if(top.isMaximized()) {
-                store.commit('setMax', true)
-            } else {
-                store.commit('setMax', false)
+            if(top) {
+                if(top.isMaximized()) {
+                    store.commit('setMax', true)
+                } else {
+                    store.commit('setMax', false)
+                }
             }
         }
     }

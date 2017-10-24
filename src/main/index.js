@@ -49,8 +49,8 @@ function createWindow () {
     })
 
     ipcMain.on('note:window:close', function (e) {
-        mainWindow.close()
-    // mainWindow.setSkipTaskbar(true)
+        // mainWindow.close()
+        mainWindow.hide()
     })
 
     ipcMain.on('note:window:maximize', function (e) {
@@ -72,16 +72,17 @@ function createWindow () {
     const trayIcon = path.join(__dirname, '../renderer/assets/ico/tray.png');
     const nimage = nativeImage.createFromPath(trayIcon);
 
-    // tray = new Tray(__dirname + 'tray.png')
     tray = new Tray(nimage)
     const contextMenu = Menu.buildFromTemplate([
-        {label: 'Item1', type: 'radio'},
-        {label: 'Item2', type: 'radio'},
-        {label: 'Item3', type: 'radio', checked: true},
-        {label: 'Item4', type: 'radio'}
+        {label: '设置', click: function() { console.log('todo: config'); }},
+        {label: '退出', click: function() { mainWindow.close() }}
         ])
     tray.setToolTip('SNote记录每一天的成长')
     tray.setContextMenu(contextMenu)
+
+    tray.on('click', () => {
+        mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
+    })
 }
 
 app.on('ready', createWindow)
