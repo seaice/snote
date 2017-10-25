@@ -179,6 +179,7 @@ new Vue({
             /* 从服务器获得更新 */
             var schedule = require('node-schedule');
 
+            /* 不在定时保存，事件触发~
             var rule = new schedule.RecurrenceRule();
             rule.second = [0,10,20,30,40,50] // 10秒自动保存一次
 
@@ -186,6 +187,7 @@ new Vue({
                 console.log('auto save')
                 // _this.$bus.$emit('note:editor:autosave')
             })
+            */
 
 
             // var rule = new schedule.RecurrenceRule()

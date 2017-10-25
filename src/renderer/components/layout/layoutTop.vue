@@ -2,7 +2,7 @@
     <div id="layoutTop" style="-webkit-app-region: drag">
         <div class="userinfo fl" style="-webkit-app-region: no-drag">
             <div class="fl">
-                <a class="s-figure clear" data-toggle="modal" v-on:click="userinfo"><img src="~@/assets/img/default-figure.png"></a>
+                <a class="s-figure clear" data-toggle="modal" v-on:click="userinfo"><img src="~@/assets/ico/logo.png"></a>
             </div>
             <a class="fl" data-toggle="modal" data-target="#modal_login">{{ name }}</a>
 

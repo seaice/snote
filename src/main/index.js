@@ -3,6 +3,10 @@ import { app, BrowserWindow, ipcMain, screen, Tray, nativeImage, Menu } from 'el
 * Set `__static` path to static files in production
 * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
 */
+
+const path = require('path')
+
+
 if (process.env.NODE_ENV !== 'development') {
     global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
@@ -18,6 +22,9 @@ function createWindow () {
 /**
 * Initial window options
 */
+    
+    const trayIcon = path.join(__dirname, '../renderer/assets/ico/tray@16.png');
+    const nimage = nativeImage.createFromPath(trayIcon);
 
     var size = screen.getPrimaryDisplay().workAreaSize
 
@@ -28,6 +35,7 @@ function createWindow () {
         minWidth: 800,
         minHeight : 600,
         frame: false,
+        icon: nimage,
     // skipTaskbar: false,
     // fullscreen: true,
     // autoHideMenuBar: true,
@@ -68,14 +76,14 @@ function createWindow () {
     // const iconName = process.platform === 'win32'
 
 
-    const path = require('path')
-    const trayIcon = path.join(__dirname, '../renderer/assets/ico/tray.png');
-    const nimage = nativeImage.createFromPath(trayIcon);
+
 
     tray = new Tray(nimage)
     const contextMenu = Menu.buildFromTemplate([
         {label: '设置', click: function() { console.log('todo: config'); }},
-        {label: '退出', click: function() { mainWindow.close() }}
+        {label: '退出', click: function() { 
+                mainWindow.close() 
+            }}
         ])
     tray.setToolTip('SNote记录每一天的成长')
     tray.setContextMenu(contextMenu)
