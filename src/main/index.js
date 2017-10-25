@@ -82,7 +82,8 @@ function createWindow () {
     const contextMenu = Menu.buildFromTemplate([
         {label: '设置', click: function() { console.log('todo: config'); }},
         {label: '退出', click: function() { 
-                mainWindow.close() 
+                mainWindow.webContents.send('mainWindowClose');
+                // mainWindow.close()
             }}
         ])
     tray.setToolTip('SNote记录每一天的成长')

@@ -30,7 +30,8 @@ require('./assets/main.css')
 console.log('at any moment you can check with navigator.onLine', navigator.onLine)
 
 
-const remote = require('electron').remote
+// const remote = require('electron').remote
+var {ipcRenderer, remote} = require('electron')
 
 // console.log(windows.getSize())
 // const electron = require('electron').remote
@@ -111,6 +112,9 @@ new Vue({
             }
         })
 
+        ipcRenderer.on('mainWindowClose', (event) => {  
+            console.log("close12222222222222222");
+        })
         
     },
     beforeDestroy: function () {
