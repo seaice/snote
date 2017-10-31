@@ -112,8 +112,15 @@ new Vue({
             }
         })
 
+
+        // 监听关闭软件事件，保存笔记，并退出
         ipcRenderer.on('mainWindowClose', (event) => {  
             console.log("close12222222222222222");
+        })
+
+        // 监听关闭软件事件，保存笔记，并退出
+        ipcRenderer.on('autosave', (event) => {  
+            console.log("auto save");
         })
         
     },

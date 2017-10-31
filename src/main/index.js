@@ -56,6 +56,10 @@ function createWindow () {
         mainWindow = null
     })
 
+    mainWindow.on('blur', () => {
+        mainWindow.webContents.send('autosave');
+    })
+
     ipcMain.on('note:window:close', function (e) {
         // mainWindow.close()
         mainWindow.hide()
