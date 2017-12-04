@@ -46,7 +46,9 @@ const remote = require('electron').remote
 const path   = require('path');
 const fs     = require('fs-extra')
 const Store  = require('electron-store');
-
+const os     = require('os');
+const qs     = require('qs');
+var address  = require('address');
 
 export default {
     data() {
@@ -64,9 +66,33 @@ export default {
             $('#modal_login').modal('show')
         },
         login() {
-            // $('#form_login').validator()
+            $('#form_login').validator()
 
             var _this = this
+
+            console.log(os.platform())
+            console.log(os.release())
+            console.log(address.ip())
+
+            return false
+
+            this.$http.post('http://127.0.0.20/snote/public/index.php?r=user/login', qs.stringify({
+                // firstName: 'Fred',
+                // lastName: 'Flintstone'
+                os_release: os.release(),
+                ip: os.hostname(),
+                email: this.user.email,
+                password: this.user.password
+            }))
+            .then(function (response) {
+                console.log(response)
+            })
+            .catch(function (error) {
+                console.log(error)
+            });
+
+
+            return false
 
             // 登陆成功
             if(this.user.email == this.user.password) { 
