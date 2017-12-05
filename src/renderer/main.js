@@ -171,7 +171,9 @@ new Vue({
         userLoginSuccess() {
             var _this = this
             console.log('login success')
-            //初始化 store user
+
+
+            //从配置文件初始化 store user
             const path   = require('path');
             var pathData = path.join(remote.app.getPath('userData'), this.config.get('id').toString())
             this.$store.commit('user_login', {
@@ -181,6 +183,8 @@ new Vue({
                 pathData : pathData,
             })
 
+            // 界面初始化开始
+            
             /* 文件夹初始化 */
             this.$bus.$emit('folder:init')
 
@@ -188,7 +192,7 @@ new Vue({
             this.$bus.$emit('note:list:load');
 
             /* 从服务器获得更新 */
-            var schedule = require('node-schedule');
+            // var schedule = require('node-schedule');
 
             /* 不在定时保存，事件触发~
             var rule = new schedule.RecurrenceRule();

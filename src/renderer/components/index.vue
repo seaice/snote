@@ -5,6 +5,7 @@
     <notelist></notelist>
     <note></note>
     <modalAlert></modalAlert>
+    <modalLoading></modalLoading>
     <div class="clear"></div>
 </div>
 </template>
@@ -14,8 +15,9 @@ import layoutTop from './layout/layoutTop'
 import layoutLeft from './layout/layoutLeft'
 import notelist from './layout/notelist'
 import note from './layout/note'
-import modalAlert from './modal/alert'
 import noteItem from './layout/noteItem'
+import modalAlert from './modal/alert'
+import modalLoading from './modal/loading'
 
 export default {
     data () {
@@ -28,8 +30,9 @@ export default {
         layoutLeft,
         notelist,
         note,
-        modalAlert,
         noteItem,
+        modalAlert,
+        modalLoading,
     },
     mounted() {
     }
